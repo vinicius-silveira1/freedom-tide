@@ -1,5 +1,7 @@
 package com.tidebreakerstudios.freedom_tide.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -71,6 +73,7 @@ public class Ship {
      */
     @OneToMany(mappedBy = "ship", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
+    @JsonManagedReference("ship-crew")
     private List<CrewMember> crew = new ArrayList<>();
 
     /**
@@ -92,5 +95,6 @@ public class Ship {
     private boolean hasLuxuryCabin = false;
 
     @OneToOne(mappedBy = "ship")
+    @JsonBackReference("game-ship")
     private Game game;
 }

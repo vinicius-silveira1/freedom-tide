@@ -1,5 +1,6 @@
 package com.tidebreakerstudios.freedom_tide.model;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -49,5 +50,6 @@ public class Game {
      */
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "ship_id", referencedColumnName = "id")
+    @JsonManagedReference("game-ship")
     private Ship ship;
 }

@@ -1,5 +1,6 @@
 package com.tidebreakerstudios.freedom_tide.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -67,5 +68,6 @@ public class CrewMember {
      */
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "ship_id")
+    @JsonBackReference("ship-crew")
     private Ship ship;
 }
