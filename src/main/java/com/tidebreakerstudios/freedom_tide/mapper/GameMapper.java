@@ -1,9 +1,7 @@
 package com.tidebreakerstudios.freedom_tide.mapper;
 
-import com.tidebreakerstudios.freedom_tide.dto.CaptainCompassDTO;
-import com.tidebreakerstudios.freedom_tide.dto.CrewSummaryDTO;
-import com.tidebreakerstudios.freedom_tide.dto.GameStatusResponseDTO;
-import com.tidebreakerstudios.freedom_tide.dto.ShipSummaryDTO;
+import com.tidebreakerstudios.freedom_tide.dto.*;
+import com.tidebreakerstudios.freedom_tide.model.CrewMember;
 import com.tidebreakerstudios.freedom_tide.model.Game;
 import com.tidebreakerstudios.freedom_tide.model.Ship;
 import org.springframework.stereotype.Component;
@@ -60,6 +58,30 @@ public class GameMapper {
                 .captainCompass(compassDTO)
                 .ship(shipDTO)
                 .crew(crewDTO)
+                .build();
+    }
+
+    public CrewMemberResponseDTO toCrewMemberResponseDTO(CrewMember crewMember) {
+        if (crewMember == null) {
+            return null;
+        }
+
+        CrewAttributesDTO attributesDTO = CrewAttributesDTO.builder()
+                .navigation(crewMember.getNavigation())
+                .artillery(crewMember.getArtillery())
+                .combat(crewMember.getCombat())
+                .medicine(crewMember.getMedicine())
+                .carpentry(crewMember.getCarpentry())
+                .intelligence(crewMember.getIntelligence())
+                .build();
+
+        return CrewMemberResponseDTO.builder()
+                .id(crewMember.getId())
+                .name(crewMember.getName())
+                .personality(crewMember.getPersonality().name())
+                .moral(crewMember.getMoral())
+                .loyalty(crewMember.getLoyalty())
+                .attributes(attributesDTO)
                 .build();
     }
 }

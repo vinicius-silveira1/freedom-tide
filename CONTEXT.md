@@ -43,18 +43,20 @@ Este documento serve como um "save state" do nosso processo de desenvolvimento. 
 6.  **Mecânica de Moral da Tripulação:**
     - Refatorada a lógica de resolução de evento para aplicar mudanças de moral diferenciadas com base na `CrewPersonality`.
 
-7.  **DTOs de Resposta para a API (Game Status):**
-    - Criados `GameStatusResponseDTO` e DTOs aninhados para fornecer uma visão segura e customizada do estado do jogo.
+7.  **DTOs de Resposta para a API:**
+    - Criados DTOs de resposta para o estado do jogo (`GameStatusResponseDTO`) e para tripulantes (`CrewMemberResponseDTO`).
     - Implementado `GameMapper` para a lógica de conversão.
-    - Refatorados os endpoints do `GameController` para não exporem mais a entidade `Game`.
+    - Refatorados todos os endpoints para não exporem mais as entidades JPA, criando uma API consistente e segura.
 
 ---
 
 ### **Próxima Tarefa:**
 
-*   **Nome da Funcionalidade:** Criar DTO de Resposta para Tripulantes.
-*   **Objetivo:** Continuar a boa prática de não expor entidades JPA na API, refatorando o endpoint de recrutamento para que ele retorne um DTO em vez da entidade `CrewMember`.
+*   **Nome da Funcionalidade:** Sistema de Contratos (Básico).
+*   **Objetivo:** Implementar a mecânica central de aceitar contratos, permitindo que o jogador ganhe recursos e influência, avançando no loop de gameplay principal.
 *   **Plano:**
-    1.  Criar um `CrewMemberResponseDTO` que represente a visão pública de um tripulante (nome, personalidade, moral, atributos, etc.).
-    2.  Adicionar um método de mapeamento ao `GameMapper` para converter `CrewMember` em `CrewMemberResponseDTO`.
-    3.  Refatorar o endpoint `POST /api/games/{gameId}/ship/crew` no `GameController` para usar o mapper e retornar o novo DTO.
+    1.  Modelar a entidade `Contract` com campos para título, descrição, recompensas (ouro e Bússola do Capitão) e status.
+    2.  Adicionar contratos de exemplo ao `DataSeeder` para as diferentes facções. Um contrato da Guilda Mercante para transportar "bens manufaturados" (lucrativo, aumenta a Reputação). Um contrato de um informante anônimo para "libertar" uma carga de um navio do Império (arriscado, aumenta a Aliança e a Infâmia). Um contrato da Irmandade de Grani para pilhar uma rota comercial (brutal, aumenta muito a Infâmia).
+    3.  Criar um `ContractRepository` e `ContractService`.
+    4.  Implementar um endpoint `GET /api/contracts` para listar os contratos disponíveis.
+    5.  Implementar um endpoint `POST /api/games/{gameId}/contracts/{contractId}/accept` para vincular um contrato a uma sessão de jogo (a lógica de conclusão do contrato será feita em uma tarefa futura).

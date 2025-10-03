@@ -1,5 +1,6 @@
 package com.tidebreakerstudios.freedom_tide.controller;
 
+import com.tidebreakerstudios.freedom_tide.dto.CrewMemberResponseDTO;
 import com.tidebreakerstudios.freedom_tide.dto.GameStatusResponseDTO;
 import com.tidebreakerstudios.freedom_tide.dto.RecruitCrewMemberRequest;
 import com.tidebreakerstudios.freedom_tide.dto.ResolveEventRequest;
@@ -37,11 +38,11 @@ public class GameController {
     }
 
     @PostMapping("/{gameId}/ship/crew")
-    public ResponseEntity<CrewMember> recruitCrewMember(
+    public ResponseEntity<CrewMemberResponseDTO> recruitCrewMember(
             @PathVariable Long gameId,
             @Valid @RequestBody RecruitCrewMemberRequest request) {
         CrewMember newCrewMember = gameService.recruitCrewMember(gameId, request);
-        return ResponseEntity.status(HttpStatus.CREATED).body(newCrewMember);
+        return ResponseEntity.status(HttpStatus.CREATED).body(gameMapper.toCrewMemberResponseDTO(newCrewMember));
     }
 
     /**
