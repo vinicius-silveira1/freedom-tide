@@ -42,41 +42,25 @@ public class GameService {
         Ship ship = game.getShip();
 
         CrewMember newCrewMember = CrewMember.builder()
-                .name(request.getName())
-                .personality(request.getPersonality())
-                .despairLevel(request.getDespairLevel())
-                .navigation(request.getNavigation())
-                .artillery(request.getArtillery())
-                .combat(request.getCombat())
-                .medicine(request.getMedicine())
-                .carpentry(request.getCarpentry())
-                .intelligence(request.getIntelligence())
-                .ship(ship)
-                .build();
+                .name(request.getName()).personality(request.getPersonality()).despairLevel(request.getDespairLevel())
+                .navigation(request.getNavigation()).artillery(request.getArtillery()).combat(request.getCombat())
+                .medicine(request.getMedicine()).carpentry(request.getCarpentry()).intelligence(request.getIntelligence())
+                .ship(ship).build();
 
         ship.getCrew().add(newCrewMember);
         gameRepository.save(game);
         return ship.getCrew().get(ship.getCrew().size() - 1);
     }
 
-    /**
-     * Processa a escolha de um jogador para um evento narrativo e aplica as consequências.
-     * @param gameId O ID do jogo atual.
-     * @param request O DTO contendo o ID da opção escolhida.
-     * @return O estado do jogo atualizado após as consequências.
-     */
     @Transactional
     public Game resolveEvent(Long gameId, ResolveEventRequest request) {
-        // 1. Busca as entidades necessárias
         Game game = findGameById(gameId);
         Ship ship = game.getShip();
         EventOption chosenOption = eventOptionRepository.findById(request.getOptionId())
                 .orElseThrow(() -> new EntityNotFoundException("Opção de evento não encontrada com o ID: " + request.getOptionId()));
 
-        // 2. Pega o objeto de consequências
         EventConsequence consequence = chosenOption.getConsequence();
 
-        // 3. Aplica as consequências ao estado do jogo e do navio
         game.setReputation(game.getReputation() + consequence.getReputationChange());
         game.setInfamy(game.getInfamy() + consequence.getInfamyChange());
         game.setAlliance(game.getAlliance() + consequence.getAllianceChange());
@@ -85,15 +69,35 @@ public class GameService {
         ship.setFoodRations(ship.getFoodRations() + consequence.getFoodChange());
         ship.setRumRations(ship.getRumRations() + consequence.getRumChange());
 
-        // 4. Aplica a mudança de moral à tripulação (aqui podemos adicionar lógicas mais complexas no futuro)
+        // Lógica de moral refinada
         if (consequence.getCrewMoralChange() != 0) {
+            int baseMoralChange = consequence.getCrewMoralChange();
+
             for (CrewMember member : ship.getCrew()) {
-                member.setMoral(member.getMoral() + consequence.getCrewMoralChange());
-                // TODO: Adicionar lógica futura para que a mudança de moral varie com a personalidade do tripulante.
+                double multiplier = 1.0;
+
+                // TODO: Esta lógica deve ser expandida para considerar a natureza do evento (pró-Reputação, pró-Aliança, etc.)
+                // Por enquanto, vamos assumir que um moral change negativo é "anti-ético" e um positivo é "pró-liberdade".
+                if (baseMoralChange < 0) { // Ação anti-ética/pró-establishment
+                    switch (member.getPersonality()) {
+                        case REBEL -> multiplier = 2.0; // Odeia mais
+                        case HONEST -> multiplier = 1.5; // Desaprova mais
+                        case GREEDY -> multiplier = 0.5; // Se importa menos se o dinheiro for bom
+                    }
+                } else { // Ação pró-liberdade/ética
+                    switch (member.getPersonality()) {
+                        case REBEL -> multiplier = 1.5; // Gosta mais
+                        case HONEST -> multiplier = 1.2; // Aprova mais
+                        case GREEDY -> multiplier = 0.2; // Não se importa, não dá dinheiro
+                        case BLOODTHIRSTY -> multiplier = 0.5; // Não se importa com "bondade"
+                    }
+                }
+
+                int finalMoralChange = (int) (baseMoralChange * multiplier);
+                member.setMoral(member.getMoral() + finalMoralChange);
             }
         }
 
-        // 5. Salva e retorna o estado do jogo atualizado
         return gameRepository.save(game);
     }
 }

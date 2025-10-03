@@ -12,7 +12,7 @@ Este documento serve como um "save state" do nosso processo de desenvolvimento. 
 - Maven
 
 ### **Arquitetura:**
-- Camadas: `controller`, `service`, `repository`, `model`, `dto`, `config`.
+- Camadas: `controller`, `service`, `repository`, `model`, `dto`, `config`, `mapper`.
 - Foco em APIs RESTful.
 - Uso de DTOs para desacoplar a API da camada de persistência.
 
@@ -40,13 +40,21 @@ Este documento serve como um "save state" do nosso processo de desenvolvimento. 
     - `GET /api/events/random`: Endpoint para buscar um evento narrativo aleatório.
     - `POST /api/games/{gameId}/resolve-event`: Aplica as consequências de uma escolha de evento ao estado do jogo.
 
+6.  **Mecânica de Moral da Tripulação:**
+    - Refatorada a lógica de resolução de evento para aplicar mudanças de moral diferenciadas com base na `CrewPersonality`.
+
+7.  **DTOs de Resposta para a API (Game Status):**
+    - Criados `GameStatusResponseDTO` e DTOs aninhados para fornecer uma visão segura e customizada do estado do jogo.
+    - Implementado `GameMapper` para a lógica de conversão.
+    - Refatorados os endpoints do `GameController` para não exporem mais a entidade `Game`.
+
 ---
 
 ### **Próxima Tarefa:**
 
-*   **Nome da Funcionalidade:** Refinar Lógica de Moral da Tripulação.
-*   **Objetivo:** Tornar a mecânica de moral mais profunda e alinhada à temática do jogo, fazendo com que a mudança de moral varie de acordo com a personalidade de cada tripulante.
+*   **Nome da Funcionalidade:** Criar DTO de Resposta para Tripulantes.
+*   **Objetivo:** Continuar a boa prática de não expor entidades JPA na API, refatorando o endpoint de recrutamento para que ele retorne um DTO em vez da entidade `CrewMember`.
 *   **Plano:**
-    1.  Refatorar o método `resolveEvent` no `GameService`.
-    2.  Dentro do loop da tripulação, adicionar uma lógica (ex: `switch` ou `if/else`) baseada na `CrewPersonality` do membro.
-    3.  Aplicar um multiplicador ou uma lógica customizada ao `crewMoralChange` da consequência. Por exemplo, uma escolha pró-Guilda pode ter um impacto de `-5` para um tripulante `GREEDY`, mas `-15` para um `REBEL`.
+    1.  Criar um `CrewMemberResponseDTO` que represente a visão pública de um tripulante (nome, personalidade, moral, atributos, etc.).
+    2.  Adicionar um método de mapeamento ao `GameMapper` para converter `CrewMember` em `CrewMemberResponseDTO`.
+    3.  Refatorar o endpoint `POST /api/games/{gameId}/ship/crew` no `GameController` para usar o mapper e retornar o novo DTO.

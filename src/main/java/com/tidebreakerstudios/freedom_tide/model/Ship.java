@@ -103,4 +103,18 @@ public class Ship {
     @OneToOne(mappedBy = "ship")
     @JsonBackReference("game-ship")
     private Game game;
+
+    /**
+     * Calcula o moral médio da tripulação.
+     * @return O moral médio como um inteiro. Retorna 0 se não houver tripulação.
+     */
+    public int getAverageMorale() {
+        if (crew == null || crew.isEmpty()) {
+            return 0;
+        }
+        return (int) crew.stream()
+                .mapToInt(CrewMember::getMoral)
+                .average()
+                .orElse(0.0);
+    }
 }
