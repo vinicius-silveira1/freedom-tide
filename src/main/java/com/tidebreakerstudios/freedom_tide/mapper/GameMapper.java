@@ -1,6 +1,7 @@
 package com.tidebreakerstudios.freedom_tide.mapper;
 
 import com.tidebreakerstudios.freedom_tide.dto.*;
+import com.tidebreakerstudios.freedom_tide.model.Contract;
 import com.tidebreakerstudios.freedom_tide.model.CrewMember;
 import com.tidebreakerstudios.freedom_tide.model.Game;
 import com.tidebreakerstudios.freedom_tide.model.Ship;
@@ -58,6 +59,7 @@ public class GameMapper {
                 .captainCompass(compassDTO)
                 .ship(shipDTO)
                 .crew(crewDTO)
+                .activeContract(toContractDTO(game.getActiveContract()))
                 .build();
     }
 
@@ -82,6 +84,23 @@ public class GameMapper {
                 .moral(crewMember.getMoral())
                 .loyalty(crewMember.getLoyalty())
                 .attributes(attributesDTO)
+                .build();
+    }
+
+    public ContractDTO toContractDTO(Contract contract) {
+        if (contract == null) {
+            return null;
+        }
+
+        return ContractDTO.builder()
+                .id(contract.getId())
+                .title(contract.getTitle())
+                .description(contract.getDescription())
+                .faction(contract.getFaction())
+                .rewardGold(contract.getRewardGold())
+                .rewardReputation(contract.getRewardReputation())
+                .rewardInfamy(contract.getRewardInfamy())
+                .rewardAlliance(contract.getRewardAlliance())
                 .build();
     }
 }

@@ -3,6 +3,7 @@ package com.tidebreakerstudios.freedom_tide.service;
 import com.tidebreakerstudios.freedom_tide.dto.RecruitCrewMemberRequest;
 import com.tidebreakerstudios.freedom_tide.dto.ResolveEventRequest;
 import com.tidebreakerstudios.freedom_tide.model.*;
+import com.tidebreakerstudios.freedom_tide.repository.ContractRepository;
 import com.tidebreakerstudios.freedom_tide.repository.EventOptionRepository;
 import com.tidebreakerstudios.freedom_tide.repository.GameRepository;
 import jakarta.persistence.EntityNotFoundException;
@@ -21,6 +22,7 @@ public class GameService {
 
     private final GameRepository gameRepository;
     private final EventOptionRepository eventOptionRepository;
+    private final ContractRepository contractRepository;
 
     @Transactional
     public Game createNewGame() {
@@ -98,6 +100,27 @@ public class GameService {
             }
         }
 
+        return gameRepository.save(game);
+    }
+
+    @Transactional
+    public Game acceptContract(Long gameId, Long contractId) {
+        Game game = findGameById(gameId);
+        if (game.getActiveContract() != null) {
+            throw new IllegalStateException("O jogo já possui um contrato ativo.");
+        }
+
+        Contract contract = contractRepository.findById(contractId)
+                .orElseThrow(() -> new EntityNotFoundException("Contrato não encontrado com o ID: " + contractId));
+
+        if (contract.getStatus() != ContractStatus.AVAILABLE) {
+            throw new IllegalStateException("O contrato não está disponível para ser aceito.");
+        }
+
+        game.setActiveContract(contract);
+        contract.setStatus(ContractStatus.IN_PROGRESS);
+
+        contractRepository.save(contract);
         return gameRepository.save(game);
     }
 }

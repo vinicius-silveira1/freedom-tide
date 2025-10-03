@@ -52,4 +52,8 @@ public class Game {
     @JoinColumn(name = "ship_id", referencedColumnName = "id")
     @JsonManagedReference("game-ship")
     private Ship ship;
+
+    @ManyToOne
+    @JoinColumn(name = "active_contract_id")
+    private Contract activeContract;
 }

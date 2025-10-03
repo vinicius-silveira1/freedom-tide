@@ -10,4 +10,5 @@ public class GameStatusResponseDTO {
     private CaptainCompassDTO captainCompass;
     private ShipSummaryDTO ship;
     private CrewSummaryDTO crew;
+    private ContractDTO activeContract;
 }

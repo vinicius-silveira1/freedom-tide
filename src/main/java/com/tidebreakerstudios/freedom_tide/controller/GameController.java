@@ -58,4 +58,12 @@ public class GameController {
         Game updatedGame = gameService.resolveEvent(gameId, request);
         return ResponseEntity.ok(gameMapper.toGameStatusResponseDTO(updatedGame));
     }
+
+    @PostMapping("/{gameId}/contracts/{contractId}/accept")
+    public ResponseEntity<GameStatusResponseDTO> acceptContract(
+            @PathVariable Long gameId,
+            @PathVariable Long contractId) {
+        Game updatedGame = gameService.acceptContract(gameId, contractId);
+        return ResponseEntity.ok(gameMapper.toGameStatusResponseDTO(updatedGame));
+    }
 }

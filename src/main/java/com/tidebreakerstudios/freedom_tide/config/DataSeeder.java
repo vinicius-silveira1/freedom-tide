@@ -1,8 +1,7 @@
 package com.tidebreakerstudios.freedom_tide.config;
 
-import com.tidebreakerstudios.freedom_tide.model.EventConsequence;
-import com.tidebreakerstudios.freedom_tide.model.EventOption;
-import com.tidebreakerstudios.freedom_tide.model.NarrativeEvent;
+import com.tidebreakerstudios.freedom_tide.model.*;
+import com.tidebreakerstudios.freedom_tide.repository.ContractRepository;
 import com.tidebreakerstudios.freedom_tide.repository.NarrativeEventRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
@@ -10,24 +9,77 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Arrays;
+import java.util.List;
 
 /**
  * Esta classe é executada na inicialização da aplicação e serve para popular o banco de dados
- * com dados iniciais essenciais (seeding), como os eventos narrativos.
+ * com dados iniciais essenciais (seeding), como os eventos narrativos e contratos.
  */
 @Component
 @RequiredArgsConstructor
 public class DataSeeder implements CommandLineRunner {
 
     private final NarrativeEventRepository narrativeEventRepository;
+    private final ContractRepository contractRepository;
 
     @Override
     @Transactional
     public void run(String... args) throws Exception {
-        // Verifica se o evento já existe para não criar duplicatas a cada reinício
         if (narrativeEventRepository.findByEventCode("SEEDS_OF_DISCONTENT").isEmpty()) {
             createSeedsOfDiscontentEvent();
         }
+        if (contractRepository.count() == 0) {
+            seedContracts();
+        }
+    }
+
+    private void seedContracts() {
+        List<Contract> contracts = Arrays.asList(
+                createGuildContract(),
+                createRevolutionaryContract(),
+                createBrotherhoodContract()
+        );
+        contractRepository.saveAll(contracts);
+        System.out.println("--- Contratos Iniciais semeados no banco de dados. ---");
+    }
+
+    private Contract createGuildContract() {
+        return Contract.builder()
+                .title("Transporte de Manufaturados")
+                .description("A Guilda Mercante Unida precisa de um capitão discreto para transportar uma carga de 'bens manufaturados' para uma de suas colônias. O pagamento é generoso e a viagem, espera-se, tranquila.")
+                .faction(Faction.GUILD)
+                .status(ContractStatus.AVAILABLE)
+                .rewardGold(500)
+                .rewardReputation(25)
+                .rewardInfamy(0)
+                .rewardAlliance(-5) // Trabalhar para a Guilda desagrada os oprimidos
+                .build();
+    }
+
+    private Contract createRevolutionaryContract() {
+        return Contract.builder()
+                .title("Interceptar e Libertar")
+                .description("Um informante anônimo alega que um navio do Império, com pouca escolta, transporta suprimentos médicos essenciais para uma elite colonial, enquanto a população local sofre. Intercepte a carga e redirecione-a para um porto necessitado.")
+                .faction(Faction.REVOLUTIONARY)
+                .status(ContractStatus.AVAILABLE)
+                .rewardGold(50)
+                .rewardReputation(-15)
+                .rewardInfamy(10)
+                .rewardAlliance(30)
+                .build();
+    }
+
+    private Contract createBrotherhoodContract() {
+        return Contract.builder()
+                .title("O Tributo do Aço")
+                .description("A Irmandade de Grani declarou uma rota comercial da Guilda como 'zona de tributo'. Ataque qualquer navio mercante na área e colete o 'tributo' para a Irmandade. A violência é esperada e encorajada.")
+                .faction(Faction.BROTHERHOOD)
+                .status(ContractStatus.AVAILABLE)
+                .rewardGold(300)
+                .rewardReputation(-20)
+                .rewardInfamy(40)
+                .rewardAlliance(0)
+                .build();
     }
 
     private void createSeedsOfDiscontentEvent() {

@@ -15,6 +15,7 @@ Este documento serve como um "save state" do nosso processo de desenvolvimento. 
 - Camadas: `controller`, `service`, `repository`, `model`, `dto`, `config`, `mapper`.
 - Foco em APIs RESTful.
 - Uso de DTOs para desacoplar a API da camada de persistência.
+- **Nota:** A porta do servidor foi alterada para `8090` em `application.properties` para evitar conflitos no ambiente de desenvolvimento.
 
 ---
 
@@ -48,15 +49,25 @@ Este documento serve como um "save state" do nosso processo de desenvolvimento. 
     - Implementado `GameMapper` para a lógica de conversão.
     - Refatorados todos os endpoints para não exporem mais as entidades JPA, criando uma API consistente e segura.
 
+8.  **Sistema de Contratos (Básico):**
+    - Modelada a entidade `Contract` e as enums `Faction` e `ContractStatus`.
+    - Adicionados contratos de exemplo ao `DataSeeder` para as facções Guilda, Revolucionários e Irmandade.
+    - Implementado endpoint `GET /api/contracts` para listar os contratos disponíveis.
+    - Implementado endpoint `POST /api/games/{gameId}/contracts/{contractId}/accept` para o jogador aceitar um contrato.
+    - Atualizado o `GameStatusResponseDTO` para incluir o contrato ativo, fornecendo feedback claro ao jogador.
+
 ---
 
 ### **Próxima Tarefa:**
 
-*   **Nome da Funcionalidade:** Sistema de Contratos (Básico).
-*   **Objetivo:** Implementar a mecânica central de aceitar contratos, permitindo que o jogador ganhe recursos e influência, avançando no loop de gameplay principal.
+*   **Nome da Funcionalidade:** Resolução de Contratos (Básico).
+*   **Objetivo:** Implementar a lógica para que um jogador possa concluir (ou falhar) um contrato ativo, recebendo as recompensas e atualizando o estado do jogo. Isso fecha o loop de gameplay principal (Planejamento -> Execução -> Resolução).
 *   **Plano:**
-    1.  Modelar a entidade `Contract` com campos para título, descrição, recompensas (ouro e Bússola do Capitão) e status.
-    2.  Adicionar contratos de exemplo ao `DataSeeder` para as diferentes facções. Um contrato da Guilda Mercante para transportar "bens manufaturados" (lucrativo, aumenta a Reputação). Um contrato de um informante anônimo para "libertar" uma carga de um navio do Império (arriscado, aumenta a Aliança e a Infâmia). Um contrato da Irmandade de Grani para pilhar uma rota comercial (brutal, aumenta muito a Infâmia).
-    3.  Criar um `ContractRepository` e `ContractService`.
-    4.  Implementar um endpoint `GET /api/contracts` para listar os contratos disponíveis.
-    5.  Implementar um endpoint `POST /api/games/{gameId}/contracts/{contractId}/accept` para vincular um contrato a uma sessão de jogo (a lógica de conclusão do contrato será feita em uma tarefa futura).
+    1.  Criar um novo endpoint, por exemplo, `POST /api/games/{gameId}/contracts/resolve`.
+    2.  No `GameService`, criar um método `resolveContract(Long gameId)`.
+    3.  A lógica do serviço deve:
+        - Verificar se o jogo possui um contrato ativo.
+        - Aplicar as recompensas (ouro, reputação, etc.) ao estado do jogo.
+        - Mudar o status do contrato para `COMPLETED`.
+        - Desvincular o contrato do jogo (setar `activeContract` para `null`).
+    4.  Considerar a implementação de uma lógica de falha (ex: `POST /api/games/{gameId}/contracts/fail`), que aplicaria penalidades e mudaria o status para `FAILED`.
