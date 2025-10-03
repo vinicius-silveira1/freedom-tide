@@ -28,19 +28,39 @@ public class DataSeeder implements CommandLineRunner {
         if (narrativeEventRepository.findByEventCode("SEEDS_OF_DISCONTENT").isEmpty()) {
             createSeedsOfDiscontentEvent();
         }
-        if (contractRepository.count() == 0) {
-            seedContracts();
-        }
+        seedContracts();
     }
 
     private void seedContracts() {
-        List<Contract> contracts = Arrays.asList(
+        List<Contract> contractBlueprints = Arrays.asList(
                 createGuildContract(),
                 createRevolutionaryContract(),
                 createBrotherhoodContract()
         );
-        contractRepository.saveAll(contracts);
-        System.out.println("--- Contratos Iniciais semeados no banco de dados. ---");
+
+        contractBlueprints.forEach(blueprint -> {
+            contractRepository.findByTitle(blueprint.getTitle()).ifPresentOrElse(
+                existingContract -> {
+                    // Contrato encontrado, atualiza todos os campos a partir do blueprint
+                    existingContract.setDescription(blueprint.getDescription());
+                    existingContract.setFaction(blueprint.getFaction());
+                    existingContract.setRewardGold(blueprint.getRewardGold());
+                    existingContract.setRewardReputation(blueprint.getRewardReputation());
+                    existingContract.setRewardInfamy(blueprint.getRewardInfamy());
+                    existingContract.setRewardAlliance(blueprint.getRewardAlliance());
+                    existingContract.setRequiredReputation(blueprint.getRequiredReputation());
+                    existingContract.setRequiredInfamy(blueprint.getRequiredInfamy());
+                    existingContract.setRequiredAlliance(blueprint.getRequiredAlliance());
+                    existingContract.setStatus(ContractStatus.AVAILABLE); // Garante que está disponível
+                    contractRepository.save(existingContract);
+                },
+                () -> {
+                    // Contrato não encontrado, cria um novo
+                    contractRepository.save(blueprint);
+                }
+            );
+        });
+        System.out.println("--- Contratos Iniciais sincronizados (Upsert). ---");
     }
 
     private Contract createGuildContract() {
@@ -53,6 +73,7 @@ public class DataSeeder implements CommandLineRunner {
                 .rewardReputation(25)
                 .rewardInfamy(0)
                 .rewardAlliance(-5) // Trabalhar para a Guilda desagrada os oprimidos
+                .requiredReputation(10)
                 .build();
     }
 
@@ -66,6 +87,7 @@ public class DataSeeder implements CommandLineRunner {
                 .rewardReputation(-15)
                 .rewardInfamy(10)
                 .rewardAlliance(30)
+                .requiredAlliance(15)
                 .build();
     }
 
@@ -79,6 +101,7 @@ public class DataSeeder implements CommandLineRunner {
                 .rewardReputation(-20)
                 .rewardInfamy(40)
                 .rewardAlliance(0)
+                .requiredInfamy(20)
                 .build();
     }
 

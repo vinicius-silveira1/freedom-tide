@@ -34,4 +34,12 @@ public class Contract {
     private int rewardReputation;
     private int rewardInfamy;
     private int rewardAlliance;
+
+    // Requirements
+    @Builder.Default
+    private Integer requiredReputation = 0;
+    @Builder.Default
+    private Integer requiredInfamy = 0;
+    @Builder.Default
+    private Integer requiredAlliance = 0;
 }

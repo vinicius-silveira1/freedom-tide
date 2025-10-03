@@ -123,4 +123,29 @@ public class GameService {
         contractRepository.save(contract);
         return gameRepository.save(game);
     }
+
+    @Transactional
+    public Game resolveContract(Long gameId) {
+        Game game = findGameById(gameId);
+        Contract activeContract = game.getActiveContract();
+
+        if (activeContract == null) {
+            throw new IllegalStateException("O jogo não possui um contrato ativo para resolver.");
+        }
+
+        Ship ship = game.getShip();
+
+        // Apply rewards
+        ship.setGold(ship.getGold() + activeContract.getRewardGold());
+        game.setReputation(game.getReputation() + activeContract.getRewardReputation());
+        game.setInfamy(game.getInfamy() + activeContract.getRewardInfamy());
+        game.setAlliance(game.getAlliance() + activeContract.getRewardAlliance());
+
+        // Update contract and game state
+        activeContract.setStatus(ContractStatus.COMPLETED);
+        game.setActiveContract(null);
+
+        contractRepository.save(activeContract);
+        return gameRepository.save(game);
+    }
 }

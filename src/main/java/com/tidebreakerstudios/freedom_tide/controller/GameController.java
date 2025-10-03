@@ -1,18 +1,20 @@
 package com.tidebreakerstudios.freedom_tide.controller;
 
-import com.tidebreakerstudios.freedom_tide.dto.CrewMemberResponseDTO;
-import com.tidebreakerstudios.freedom_tide.dto.GameStatusResponseDTO;
-import com.tidebreakerstudios.freedom_tide.dto.RecruitCrewMemberRequest;
-import com.tidebreakerstudios.freedom_tide.dto.ResolveEventRequest;
+import com.tidebreakerstudios.freedom_tide.dto.*;
 import com.tidebreakerstudios.freedom_tide.mapper.GameMapper;
+import com.tidebreakerstudios.freedom_tide.model.Contract;
 import com.tidebreakerstudios.freedom_tide.model.CrewMember;
 import com.tidebreakerstudios.freedom_tide.model.Game;
+import com.tidebreakerstudios.freedom_tide.service.ContractService;
 import com.tidebreakerstudios.freedom_tide.service.GameService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Controller REST para gerenciar as ações principais do jogo.
@@ -23,6 +25,7 @@ import org.springframework.web.bind.annotation.*;
 public class GameController {
 
     private final GameService gameService;
+    private final ContractService contractService; // Dependência adicionada
     private final GameMapper gameMapper;
 
     @PostMapping
@@ -59,11 +62,28 @@ public class GameController {
         return ResponseEntity.ok(gameMapper.toGameStatusResponseDTO(updatedGame));
     }
 
+    // --- Endpoints de Contrato ---
+
+    @GetMapping("/{gameId}/contracts")
+    public ResponseEntity<List<ContractDTO>> getAvailableContractsForGame(@PathVariable Long gameId) {
+        List<Contract> contracts = contractService.getAvailableContractsForGame(gameId);
+        List<ContractDTO> contractDTOs = contracts.stream()
+                .map(gameMapper::toContractDTO)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(contractDTOs);
+    }
+
     @PostMapping("/{gameId}/contracts/{contractId}/accept")
     public ResponseEntity<GameStatusResponseDTO> acceptContract(
             @PathVariable Long gameId,
             @PathVariable Long contractId) {
         Game updatedGame = gameService.acceptContract(gameId, contractId);
+        return ResponseEntity.ok(gameMapper.toGameStatusResponseDTO(updatedGame));
+    }
+
+    @PostMapping("/{gameId}/contracts/resolve")
+    public ResponseEntity<GameStatusResponseDTO> resolveContract(@PathVariable Long gameId) {
+        Game updatedGame = gameService.resolveContract(gameId);
         return ResponseEntity.ok(gameMapper.toGameStatusResponseDTO(updatedGame));
     }
 }

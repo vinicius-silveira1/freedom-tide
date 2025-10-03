@@ -15,4 +15,9 @@ public class ContractDTO {
     private int rewardReputation;
     private int rewardInfamy;
     private int rewardAlliance;
+
+    // Requirements
+    private Integer requiredReputation;
+    private Integer requiredInfamy;
+    private Integer requiredAlliance;
 }
