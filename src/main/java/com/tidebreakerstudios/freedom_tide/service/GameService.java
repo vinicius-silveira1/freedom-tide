@@ -1,10 +1,9 @@
 package com.tidebreakerstudios.freedom_tide.service;
 
 import com.tidebreakerstudios.freedom_tide.dto.RecruitCrewMemberRequest;
-import com.tidebreakerstudios.freedom_tide.model.CrewMember;
-import com.tidebreakerstudios.freedom_tide.model.Game;
-import com.tidebreakerstudios.freedom_tide.model.Ship;
-import com.tidebreakerstudios.freedom_tide.model.ShipType;
+import com.tidebreakerstudios.freedom_tide.dto.ResolveEventRequest;
+import com.tidebreakerstudios.freedom_tide.model.*;
+import com.tidebreakerstudios.freedom_tide.repository.EventOptionRepository;
 import com.tidebreakerstudios.freedom_tide.repository.GameRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -21,46 +20,22 @@ import java.util.ArrayList;
 public class GameService {
 
     private final GameRepository gameRepository;
+    private final EventOptionRepository eventOptionRepository;
 
-    /**
-     * Cria uma nova sessão de jogo, com um navio inicial e estado padrão.
-     * @return A entidade Game recém-criada e persistida.
-     */
     @Transactional
     public Game createNewGame() {
-        Ship newShip = Ship.builder()
-                .name("O Andarilho")
-                .type(ShipType.SCHOONER) // O navio mais básico
-                .crew(new ArrayList<>())
-                .build();
-
-        Game newGame = Game.builder()
-                .ship(newShip)
-                .build();
-
+        Ship newShip = Ship.builder().name("O Andarilho").type(ShipType.SCHOONER).crew(new ArrayList<>()).build();
+        Game newGame = Game.builder().ship(newShip).build();
         newShip.setGame(newGame);
-
         return gameRepository.save(newGame);
     }
 
-    /**
-     * Busca uma sessão de jogo pelo seu ID.
-     * @param id O ID do jogo a ser buscado.
-     * @return A entidade Game encontrada.
-     * @throws EntityNotFoundException se nenhum jogo for encontrado com o ID fornecido.
-     */
     @Transactional(readOnly = true)
     public Game findGameById(Long id) {
         return gameRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Jogo não encontrado com o ID: " + id));
     }
 
-    /**
-     * Recruta um novo tripulante e o adiciona ao navio de um jogo existente.
-     * @param gameId O ID do jogo ao qual o tripulante será adicionado.
-     * @param request O DTO com os dados do tripulante a ser recrutado.
-     * @return A entidade CrewMember recém-criada e persistida, agora com seu ID.
-     */
     @Transactional
     public CrewMember recruitCrewMember(Long gameId, RecruitCrewMemberRequest request) {
         Game game = findGameById(gameId);
@@ -80,11 +55,45 @@ public class GameService {
                 .build();
 
         ship.getCrew().add(newCrewMember);
-
-        // Salvar a entidade pai (Game) persiste o novo CrewMember por cascata.
         gameRepository.save(game);
-
-        // Retorna o último tripulante da lista, que agora garantidamente possui o ID do banco.
         return ship.getCrew().get(ship.getCrew().size() - 1);
+    }
+
+    /**
+     * Processa a escolha de um jogador para um evento narrativo e aplica as consequências.
+     * @param gameId O ID do jogo atual.
+     * @param request O DTO contendo o ID da opção escolhida.
+     * @return O estado do jogo atualizado após as consequências.
+     */
+    @Transactional
+    public Game resolveEvent(Long gameId, ResolveEventRequest request) {
+        // 1. Busca as entidades necessárias
+        Game game = findGameById(gameId);
+        Ship ship = game.getShip();
+        EventOption chosenOption = eventOptionRepository.findById(request.getOptionId())
+                .orElseThrow(() -> new EntityNotFoundException("Opção de evento não encontrada com o ID: " + request.getOptionId()));
+
+        // 2. Pega o objeto de consequências
+        EventConsequence consequence = chosenOption.getConsequence();
+
+        // 3. Aplica as consequências ao estado do jogo e do navio
+        game.setReputation(game.getReputation() + consequence.getReputationChange());
+        game.setInfamy(game.getInfamy() + consequence.getInfamyChange());
+        game.setAlliance(game.getAlliance() + consequence.getAllianceChange());
+
+        ship.setGold(ship.getGold() + consequence.getGoldChange());
+        ship.setFoodRations(ship.getFoodRations() + consequence.getFoodChange());
+        ship.setRumRations(ship.getRumRations() + consequence.getRumChange());
+
+        // 4. Aplica a mudança de moral à tripulação (aqui podemos adicionar lógicas mais complexas no futuro)
+        if (consequence.getCrewMoralChange() != 0) {
+            for (CrewMember member : ship.getCrew()) {
+                member.setMoral(member.getMoral() + consequence.getCrewMoralChange());
+                // TODO: Adicionar lógica futura para que a mudança de moral varie com a personalidade do tripulante.
+            }
+        }
+
+        // 5. Salva e retorna o estado do jogo atualizado
+        return gameRepository.save(game);
     }
 }

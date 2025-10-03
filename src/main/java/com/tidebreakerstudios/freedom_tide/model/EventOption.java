@@ -1,5 +1,6 @@
 package com.tidebreakerstudios.freedom_tide.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -31,6 +32,7 @@ public class EventOption {
      */
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "narrative_event_id", nullable = false)
+    @JsonBackReference("event-option")
     private NarrativeEvent narrativeEvent;
 
     /**

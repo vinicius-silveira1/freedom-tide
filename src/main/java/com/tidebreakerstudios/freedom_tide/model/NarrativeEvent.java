@@ -1,5 +1,6 @@
 package com.tidebreakerstudios.freedom_tide.model;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -42,5 +43,6 @@ public class NarrativeEvent {
      * As opções de escolha que o jogador tem neste evento.
      */
     @OneToMany(mappedBy = "narrativeEvent", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @JsonManagedReference("event-option")
     private List<EventOption> options;
 }
