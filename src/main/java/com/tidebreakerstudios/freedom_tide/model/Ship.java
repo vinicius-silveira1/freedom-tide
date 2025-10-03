@@ -69,6 +69,12 @@ public class Ship {
     private Integer cannonballs = 40;
 
     /**
+     * A quantidade de ouro (dinheiro) que o jogador possui.
+     */
+    @Builder.Default
+    private Integer gold = 100;
+
+    /**
      * A tripulação atualmente a bordo do navio.
      */
     @OneToMany(mappedBy = "ship", cascade = CascadeType.ALL, orphanRemoval = true)
