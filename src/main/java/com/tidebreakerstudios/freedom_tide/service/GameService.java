@@ -8,6 +8,7 @@ import com.tidebreakerstudios.freedom_tide.model.*;
 import com.tidebreakerstudios.freedom_tide.repository.ContractRepository;
 import com.tidebreakerstudios.freedom_tide.repository.EventOptionRepository;
 import com.tidebreakerstudios.freedom_tide.repository.GameRepository;
+import com.tidebreakerstudios.freedom_tide.repository.PortRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -28,6 +29,7 @@ public class GameService {
     private final GameRepository gameRepository;
     private final EventOptionRepository eventOptionRepository;
     private final ContractRepository contractRepository;
+    private final PortRepository portRepository;
     private final GameMapper gameMapper; // Injetado para conversão de DTO
 
     // Constantes de Moral
@@ -48,8 +50,11 @@ public class GameService {
 
     @Transactional
     public Game createNewGame() {
+        Port startingPort = portRepository.findByName("Porto Real")
+                .orElseThrow(() -> new IllegalStateException("Porto inicial 'Porto Real' não encontrado. O DataSeeder falhou?"));
+
         Ship newShip = Ship.builder().name("O Andarilho").type(ShipType.SCHOONER).crew(new ArrayList<>()).build();
-        Game newGame = Game.builder().ship(newShip).build();
+        Game newGame = Game.builder().ship(newShip).currentPort(startingPort).build();
         newShip.setGame(newGame);
         return gameRepository.save(newGame);
     }
@@ -58,6 +63,34 @@ public class GameService {
     public Game findGameById(Long id) {
         return gameRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Jogo não encontrado com o ID: " + id));
+    }
+
+    @Transactional(readOnly = true)
+    public com.tidebreakerstudios.freedom_tide.dto.PortDTO getCurrentPort(Long gameId) {
+        Game game = findGameById(gameId);
+        Port currentPort = game.getCurrentPort();
+        // O DataSeeder garante que um porto inicial seja definido, mas uma verificação de nulo é uma boa prática.
+        if (currentPort == null) {
+            throw new IllegalStateException("O jogo não está atracado em nenhum porto.");
+        }
+        return gameMapper.toPortDTO(currentPort);
+    }
+
+    @Transactional
+    public Game travelToPort(Long gameId, com.tidebreakerstudios.freedom_tide.dto.TravelRequestDTO request) {
+        Game game = findGameById(gameId);
+        Long destinationPortId = request.destinationPortId();
+
+        Port destinationPort = portRepository.findById(destinationPortId)
+                .orElseThrow(() -> new EntityNotFoundException("Porto de destino não encontrado com o ID: " + destinationPortId));
+
+        Port currentPort = game.getCurrentPort();
+        if (currentPort != null && currentPort.getId().equals(destinationPortId)) {
+            throw new IllegalStateException("O jogador já está no porto de destino.");
+        }
+
+        game.setCurrentPort(destinationPort);
+        return gameRepository.save(game);
     }
 
     @Transactional

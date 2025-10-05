@@ -104,4 +104,16 @@ public class GameMapper {
                 .rewardAlliance(contract.getRewardAlliance())
                 .build();
     }
+
+    public PortDTO toPortDTO(com.tidebreakerstudios.freedom_tide.model.Port port) {
+        if (port == null) {
+            return null;
+        }
+
+        return new PortDTO(
+                port.getId(),
+                port.getName(),
+                port.getType().name()
+        );
+    }
 }

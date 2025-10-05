@@ -3,6 +3,7 @@ package com.tidebreakerstudios.freedom_tide.config;
 import com.tidebreakerstudios.freedom_tide.model.*;
 import com.tidebreakerstudios.freedom_tide.repository.ContractRepository;
 import com.tidebreakerstudios.freedom_tide.repository.NarrativeEventRepository;
+import com.tidebreakerstudios.freedom_tide.repository.PortRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
@@ -10,10 +11,13 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * Esta classe é executada na inicialização da aplicação e serve para popular o banco de dados
- * com dados iniciais essenciais (seeding), como os eventos narrativos e contratos.
+ * com dados iniciais essenciais (seeding), como portos, eventos e contratos.
  */
 @Component
 @RequiredArgsConstructor
@@ -21,6 +25,7 @@ public class DataSeeder implements CommandLineRunner {
 
     private final NarrativeEventRepository narrativeEventRepository;
     private final ContractRepository contractRepository;
+    private final PortRepository portRepository; // Repositório de Portos injetado
 
     @Override
     @Transactional
@@ -28,14 +33,35 @@ public class DataSeeder implements CommandLineRunner {
         if (narrativeEventRepository.findByEventCode("SEEDS_OF_DISCONTENT").isEmpty()) {
             createSeedsOfDiscontentEvent();
         }
-        seedContracts();
+        Map<String, Port> ports = createAndGetPorts();
+        seedContracts(ports);
     }
 
-    private void seedContracts() {
+    private Map<String, Port> createAndGetPorts() {
+        List<Port> portBlueprints = Arrays.asList(
+            Port.builder().name("Porto Real").type(PortType.IMPERIAL).build(),
+            Port.builder().name("Baía da Guilda").type(PortType.GUILD).build(),
+            Port.builder().name("Ninho do Corvo").type(PortType.PIRATE).build()
+        );
+
+        Map<String, Port> savedPorts = portBlueprints.stream()
+            .map(blueprint -> portRepository.findByName(blueprint.getName())
+                .map(existingPort -> {
+                    existingPort.setType(blueprint.getType());
+                    return portRepository.save(existingPort);
+                })
+                .orElseGet(() -> portRepository.save(blueprint)))
+            .collect(Collectors.toMap(Port::getName, Function.identity()));
+
+        System.out.println("--- Portos Iniciais sincronizados (Upsert). ---");
+        return savedPorts;
+    }
+
+    private void seedContracts(Map<String, Port> ports) {
         List<Contract> contractBlueprints = Arrays.asList(
-                createGuildContract(),
-                createRevolutionaryContract(),
-                createBrotherhoodContract()
+                createGuildContract(ports.get("Baía da Guilda")),
+                createRevolutionaryContract(ports.get("Porto Real")),
+                createBrotherhoodContract(ports.get("Ninho do Corvo"))
         );
 
         contractBlueprints.forEach(blueprint -> {
@@ -51,6 +77,7 @@ public class DataSeeder implements CommandLineRunner {
                     existingContract.setRequiredReputation(blueprint.getRequiredReputation());
                     existingContract.setRequiredInfamy(blueprint.getRequiredInfamy());
                     existingContract.setRequiredAlliance(blueprint.getRequiredAlliance());
+                    existingContract.setOriginPort(blueprint.getOriginPort()); // Atualiza o porto de origem
                     existingContract.setStatus(ContractStatus.AVAILABLE); // Garante que está disponível
                     contractRepository.save(existingContract);
                 },
@@ -63,12 +90,13 @@ public class DataSeeder implements CommandLineRunner {
         System.out.println("--- Contratos Iniciais sincronizados (Upsert). ---");
     }
 
-    private Contract createGuildContract() {
+    private Contract createGuildContract(Port originPort) {
         return Contract.builder()
                 .title("Transporte de Manufaturados")
                 .description("A Guilda Mercante Unida precisa de um capitão discreto para transportar uma carga de 'bens manufaturados' para uma de suas colônias. O pagamento é generoso e a viagem, espera-se, tranquila.")
                 .faction(Faction.GUILD)
                 .status(ContractStatus.AVAILABLE)
+                .originPort(originPort)
                 .rewardGold(500)
                 .rewardReputation(25)
                 .rewardInfamy(0)
@@ -77,12 +105,13 @@ public class DataSeeder implements CommandLineRunner {
                 .build();
     }
 
-    private Contract createRevolutionaryContract() {
+    private Contract createRevolutionaryContract(Port originPort) {
         return Contract.builder()
                 .title("Interceptar e Libertar")
                 .description("Um informante anônimo alega que um navio do Império, com pouca escolta, transporta suprimentos médicos essenciais para uma elite colonial, enquanto a população local sofre. Intercepte a carga e redirecione-a para um porto necessitado.")
                 .faction(Faction.REVOLUTIONARY)
                 .status(ContractStatus.AVAILABLE)
+                .originPort(originPort)
                 .rewardGold(50)
                 .rewardReputation(-15)
                 .rewardInfamy(10)
@@ -91,12 +120,13 @@ public class DataSeeder implements CommandLineRunner {
                 .build();
     }
 
-    private Contract createBrotherhoodContract() {
+    private Contract createBrotherhoodContract(Port originPort) {
         return Contract.builder()
                 .title("O Tributo do Aço")
                 .description("A Irmandade de Grani declarou uma rota comercial da Guilda como 'zona de tributo'. Ataque qualquer navio mercante na área e colete o 'tributo' para a Irmandade. A violência é esperada e encorajada.")
                 .faction(Faction.BROTHERHOOD)
                 .status(ContractStatus.AVAILABLE)
+                .originPort(originPort)
                 .rewardGold(300)
                 .rewardReputation(-20)
                 .rewardInfamy(40)

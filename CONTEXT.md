@@ -53,10 +53,36 @@ Este documento serve como um "save state" do nosso processo de desenvolvimento. 
 
 ---
 
-## Próxima Tarefa: Portos e Ações
+## v1.3: Fase 1 - Modelagem de Portos (Concluído)
 
-- **Descrição**: Implementar a base para a "Fase de Planejamento" do GDD, introduzindo o conceito de Portos. Cada porto terá um tipo (ex: Imperial, da Guilda, Pirata, Livre) e oferecerá um conjunto de ações possíveis para o jogador.
-- **Objetivo**: Criar um hub central para as atividades do jogador quando não estiver no mar. Isso expande o loop de gameplay e dá ao mundo um senso de lugar. A primeira implementação focará em duas ações essenciais:
-    1.  **Visitar a Taverna:** Um lugar para gastar um pouco de ouro e "ouvir rumores", que será o mecanismo pelo qual o jogador descobre e atualiza a lista de contratos disponíveis.
-    2.  **Visitar o Estaleiro:** Um lugar para gastar ouro e reparar a integridade do casco do navio.
-- **Lição de Arquitetura**: Isso nos forçará a pensar em como gerenciar o "estado do jogador". Atualmente, o jogador está sempre "no mar". Precisaremos de um conceito de "atracado em um porto" e como as ações disponíveis mudam nesse estado.
+- **Descrição**: Implementada a base para a "Fase de Planejamento" do GDD, introduzindo o conceito de Portos e refatorando as entidades relacionadas.
+- **Mudanças**:
+    1.  **`PortType.java`**: Enum criado com os tipos `IMPERIAL`, `GUILD`, `PIRATE`, `FREE`.
+    2.  **`Port.java`**: Entidade criada, representando os portos do jogo.
+    3.  **`Game.java`**: Modificada para incluir o campo `currentPort`, que rastreia onde o jogador está atracado.
+    4.  **`Contract.java`**: Refatorada para incluir o campo `originPort` e a anotação `@JsonBackReference` para gerenciar a relação bidirecional.
+    5.  **`PortRepository.java`**: Interface de repositório criada.
+    6.  **`DataSeeder.java`**: Refatorado para criar portos e associar os contratos existentes a eles.
+- **Status**: **Concluído e Verificado.** A aplicação inicia sem erros e o `DataSeeder` popula e associa os dados corretamente.
+
+---
+
+## v1.3: Fase 2 - API de Viagem e Estado do Porto (Concluído)
+
+- **Descrição**: Implementada a API que dá vida aos portos, permitindo ao jogador saber onde está e se mover pelo mundo.
+- **Mudanças**:
+    1.  **`PortDTO` e `TravelRequestDTO`**: DTOs criados para comunicação com a API.
+    2.  **`GameMapper`**: Atualizado para converter `Port` em `PortDTO`.
+    3.  **`GameService`**: Lógica implementada para buscar o porto atual e para viajar entre portos. O método `createNewGame` agora define um porto inicial.
+    4.  **`GameController`**: Adicionados os endpoints `GET /api/games/{gameId}/port` e `POST /api/games/{gameId}/travel`.
+- **Status**: **Concluído e Verificado.** Os endpoints funcionam, a validação de viagem impede movimentos redundantes e o estado do jogo é atualizado corretamente.
+
+---
+
+## Próxima Tarefa: Fase 3 - Contratos por Porto
+
+- **Descrição**: Tornar a localização do jogador significativa para a obtenção de trabalho. Atualmente, a API de contratos mostra todos os contratos disponíveis no jogo. Vamos refatorar essa lógica para que ela mostre apenas os contratos disponíveis no porto onde o jogador está atracado (`currentPort`).
+- **Objetivos**:
+    1.  **Refatorar `ContractService`**: Modificar o método `getAvailableContractsForGame` para filtrar os contratos com base no `currentPort` do jogo.
+    2.  **Refatorar `ContractRepository`**: Adicionar um novo método de busca para encontrar contratos por porto e status, além dos pré-requisitos de reputação.
+- **Status Atual**: **Aguardando Aprovação.**

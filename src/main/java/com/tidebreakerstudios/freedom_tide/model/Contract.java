@@ -1,5 +1,6 @@
 package com.tidebreakerstudios.freedom_tide.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -42,4 +43,9 @@ public class Contract {
     private Integer requiredInfamy = 0;
     @Builder.Default
     private Integer requiredAlliance = 0;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "origin_port_id")
+    @JsonBackReference("port-contracts")
+    private Port originPort;
 }

@@ -40,6 +40,20 @@ public class GameController {
         return ResponseEntity.ok(gameMapper.toGameStatusResponseDTO(game));
     }
 
+    @GetMapping("/{gameId}/port")
+    public ResponseEntity<PortDTO> getCurrentPort(@PathVariable Long gameId) {
+        PortDTO portDTO = gameService.getCurrentPort(gameId);
+        return ResponseEntity.ok(portDTO);
+    }
+
+    @PostMapping("/{gameId}/travel")
+    public ResponseEntity<GameStatusResponseDTO> travelToPort(
+            @PathVariable Long gameId,
+            @Valid @RequestBody TravelRequestDTO request) {
+        Game updatedGame = gameService.travelToPort(gameId, request);
+        return ResponseEntity.ok(gameMapper.toGameStatusResponseDTO(updatedGame));
+    }
+
     @PostMapping("/{gameId}/ship/crew")
     public ResponseEntity<CrewMemberResponseDTO> recruitCrewMember(
             @PathVariable Long gameId,
