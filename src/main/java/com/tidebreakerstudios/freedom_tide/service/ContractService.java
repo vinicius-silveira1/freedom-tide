@@ -3,6 +3,7 @@ package com.tidebreakerstudios.freedom_tide.service;
 import com.tidebreakerstudios.freedom_tide.model.Contract;
 import com.tidebreakerstudios.freedom_tide.model.ContractStatus;
 import com.tidebreakerstudios.freedom_tide.model.Game;
+import com.tidebreakerstudios.freedom_tide.model.Port;
 import com.tidebreakerstudios.freedom_tide.repository.ContractRepository;
 import com.tidebreakerstudios.freedom_tide.repository.GameRepository;
 import jakarta.persistence.EntityNotFoundException;
@@ -25,18 +26,20 @@ public class ContractService {
      * @return Uma lista de contratos que o jogador tem permissão para ver e aceitar.
      */
     public List<Contract> getAvailableContractsForGame(Long gameId) {
-        // 1. Buscar o estado atual do jogo (e do jogador)
         Game game = gameRepository.findById(gameId)
                 .orElseThrow(() -> new EntityNotFoundException("Jogo não encontrado com o ID: " + gameId));
 
-        // 2. Buscar todos os contratos que estão com o status AVAILABLE
-        List<Contract> allAvailableContracts = contractRepository.findByStatus(ContractStatus.AVAILABLE);
+        Port currentPort = game.getCurrentPort();
+        if (currentPort == null) {
+            return List.of(); // Se não está em um porto, não há contratos.
+        }
 
-        // 3. Filtrar a lista com base nos requisitos (agora à prova de nulos)
-        return allAvailableContracts.stream()
-                .filter(contract -> contract.getRequiredReputation() == null || game.getReputation() >= contract.getRequiredReputation())
-                .filter(contract -> contract.getRequiredInfamy() == null || game.getInfamy() >= contract.getRequiredInfamy())
-                .filter(contract -> contract.getRequiredAlliance() == null || game.getAlliance() >= contract.getRequiredAlliance())
-                .collect(Collectors.toList());
+        return contractRepository.findByStatusAndOriginPortAndRequiredReputationLessThanEqualAndRequiredInfamyLessThanEqualAndRequiredAllianceLessThanEqual(
+                ContractStatus.AVAILABLE,
+                currentPort,
+                game.getReputation(),
+                game.getInfamy(),
+                game.getAlliance()
+        );
     }
 }

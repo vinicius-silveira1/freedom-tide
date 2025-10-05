@@ -79,10 +79,21 @@ Este documento serve como um "save state" do nosso processo de desenvolvimento. 
 
 ---
 
-## Próxima Tarefa: Fase 3 - Contratos por Porto
+## v1.3: Fase 3 - Contratos por Porto (Concluído)
 
-- **Descrição**: Tornar a localização do jogador significativa para a obtenção de trabalho. Atualmente, a API de contratos mostra todos os contratos disponíveis no jogo. Vamos refatorar essa lógica para que ela mostre apenas os contratos disponíveis no porto onde o jogador está atracado (`currentPort`).
+- **Descrição**: A localização do jogador agora determina quais contratos estão disponíveis, tornando a viagem uma decisão estratégica.
+- **Mudanças**:
+    1.  **`ContractRepository`**: Adicionado um método de busca que filtra contratos por `originPort`, status e pré-requisitos da Bússola do Capitão.
+    2.  **`ContractService`**: O método `getAvailableContractsForGame` foi refatorado para usar a nova consulta do repositório, delegando a lógica de filtragem para o banco de dados e retornando apenas os contratos relevantes para a localização atual do jogador.
+- **Status**: **Concluído e Verificado.** A API `GET /api/games/{gameId}/contracts` agora retorna apenas os contratos do porto onde o jogador está atracado.
+
+---
+
+## Próxima Tarefa: Fase 4 - Ações de Porto
+
+- **Descrição**: Com os portos se tornando locais estratégicos, o jogador precisa saber o que pode fazer em cada um. Vamos criar um endpoint que liste as ações disponíveis em um porto (ex: "Ver Contratos", "Viajar"). Isso transforma os portos de simples pontos de dados em locais interativos e prepara o terreno para futuras ações como "Visitar a Taverna" ou "Ir ao Estaleiro".
 - **Objetivos**:
-    1.  **Refatorar `ContractService`**: Modificar o método `getAvailableContractsForGame` para filtrar os contratos com base no `currentPort` do jogo.
-    2.  **Refatorar `ContractRepository`**: Adicionar um novo método de busca para encontrar contratos por porto e status, além dos pré-requisitos de reputação.
+    1.  **Criar `PortActionType.java`**: Um enum para representar as possíveis ações (ex: `VIEW_CONTRACTS`, `TRAVEL`).
+    2.  **Criar `PortActionDTO.java`**: Um DTO para descrever a ação para o cliente (ex: nome, descrição, endpoint associado).
+    3.  **Implementar `GET /api/games/{gameId}/port/actions`**: Criar um novo endpoint no `GameController` e a lógica de serviço correspondente que retorna a lista de ações disponíveis no porto atual.
 - **Status Atual**: **Aguardando Aprovação.**
