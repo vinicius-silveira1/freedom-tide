@@ -53,8 +53,7 @@ public class CrewMember {
      * O moral individual do tripulante (0-100).
      * Contribui para o moral geral da tripulação.
      */
-    @Builder.Default
-    private Integer moral = 70;
+    private Integer moral;
 
     /**
     * A lealdade do tripulante para com o capitão (0-100).

@@ -52,14 +52,14 @@ public class GameController {
      * Endpoint para o jogador resolver um evento, escolhendo uma opção.
      * @param gameId O ID do jogo atual.
      * @param request O DTO com o ID da opção escolhida.
-     * @return ResponseEntity com o estado do jogo atualizado após as consequências.
+     * @return ResponseEntity com o estado do jogo atualizado e um log de eventos.
      */
     @PostMapping("/{gameId}/resolve-event")
-    public ResponseEntity<GameStatusResponseDTO> resolveEvent(
+    public ResponseEntity<GameActionResponseDTO> resolveEvent(
             @PathVariable Long gameId,
             @Valid @RequestBody ResolveEventRequest request) {
-        Game updatedGame = gameService.resolveEvent(gameId, request);
-        return ResponseEntity.ok(gameMapper.toGameStatusResponseDTO(updatedGame));
+        GameActionResponseDTO response = gameService.resolveEvent(gameId, request);
+        return ResponseEntity.ok(response);
     }
 
     // --- Endpoints de Contrato ---
@@ -82,8 +82,8 @@ public class GameController {
     }
 
     @PostMapping("/{gameId}/contracts/resolve")
-    public ResponseEntity<GameStatusResponseDTO> resolveContract(@PathVariable Long gameId) {
-        Game updatedGame = gameService.resolveContract(gameId);
-        return ResponseEntity.ok(gameMapper.toGameStatusResponseDTO(updatedGame));
+    public ResponseEntity<GameActionResponseDTO> resolveContract(@PathVariable Long gameId) {
+        GameActionResponseDTO response = gameService.resolveContract(gameId);
+        return ResponseEntity.ok(response);
     }
 }

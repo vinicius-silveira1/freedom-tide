@@ -38,12 +38,19 @@ Este documento serve como um "save state" do nosso processo de desenvolvimento. 
 
 ---
 
-### **Próxima Tarefa:**
+## v1.1: Moral Dinâmica e Consequências (Descontentamento e Insubordinação)
 
-*   **Nome da Funcionalidade:** Consequências de Moral Baixa (Estágio 1: Descontentamento).
-*   **Objetivo:** Dar um primeiro passo para tornar a mecânica de moral mais impactante. Tripulantes com moral baixa devem começar a causar problemas menores, afetando os resultados das ações do jogador.
-*   **Plano:**
-    1.  Definir um limiar numérico para o estado de "Descontentamento" (ex: moral < 50).
-    2.  Implementar uma consequência inicial simples. Por exemplo, ao resolver um contrato ou evento, se houver tripulantes descontentes, existe uma pequena chance de a recompensa em ouro ser reduzida devido a "furtos" ou "acidentes".
-    3.  Modificar os métodos `resolveContract` e `resolveEvent` no `GameService` para incluir essa nova verificação de moral e a possível penalidade.
-    4.  A penalidade e sua causa podem ser incluídas em um novo campo na resposta da API para que o jogador saiba o que aconteceu.
+**Funcionalidade:** O sistema de moral foi expandido para ser mais dinâmico e impactante, alinhando-se melhor ao GDD.
+
+1.  **Cálculo Dinâmico da Moral:** A moral inicial de um tripulante não é mais fixa. Agora é calculada com base em sua **Personalidade** e **Nível de Desespero**, tornando a decisão de recrutamento mais estratégica.
+    - `moral = 50 (base) + (modificador_personalidade * 5) - (desespero * 2)`
+
+2.  **Consequência de Descontentamento (Moral < 50):** Ao concluir um contrato ou evento, há uma chance de a tripulação descontente causar um "acidente", resultando em uma **penalidade percentual sobre os ganhos de ouro**.
+    - *Narrativa:* `"MORAL BAIXA: Tripulantes descontentes causaram problemas! Um pequeno \'acidente\' resultou na perda de X de ouro."`
+
+3.  **Consequência de Insubordinação (Moral < 30):** Se a moral cair ainda mais, o risco aumenta. Há uma chance de a tripulação se tornar insubordinada, resultando em uma **perda percentual de recursos vitais** (comida, rum ou peças de reparo).
+    - *Narrativa:* `"INSUBORDINAÇÃO: A negligência tomou conta! X porções de comida estragaram."`
+
+**Verificação:**
+- Recrutamos tripulantes com personalidades e níveis de desespero que resultaram em uma moral média de 20.
+- Ao resolver um contrato, o sistema primeiro testou a chance de "Insubordinação". Como ela falhou (devido à aleatoriedade), o sistema corretamente procedeu para testar a chance de "Descontentamento", que foi acionada, aplicando a penalidade de ouro e registrando o evento no log.
