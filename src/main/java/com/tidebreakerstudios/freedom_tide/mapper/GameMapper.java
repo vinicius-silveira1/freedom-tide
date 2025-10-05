@@ -83,6 +83,7 @@ public class GameMapper {
                 .personality(crewMember.getPersonality().name())
                 .moral(crewMember.getMoral())
                 .loyalty(crewMember.getLoyalty())
+                .salary(crewMember.getSalary())
                 .attributes(attributesDTO)
                 .build();
     }

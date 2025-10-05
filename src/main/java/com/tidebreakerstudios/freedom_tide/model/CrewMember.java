@@ -63,6 +63,11 @@ public class CrewMember {
     private Integer loyalty = 50;
 
     /**
+     * O salário em ouro que o tripulante recebe a cada ciclo de pagamento.
+     */
+    private Integer salary;
+
+    /**
      * O navio ao qual este membro da tripulação pertence.
      */
     @ManyToOne(fetch = FetchType.LAZY)

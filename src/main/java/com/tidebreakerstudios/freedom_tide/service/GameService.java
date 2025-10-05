@@ -38,6 +38,13 @@ public class GameService {
     private static final double GOLD_PENALTY_PERCENTAGE = 0.15; // 15% de perda
     private static final double RESOURCE_LOSS_PERCENTAGE = 0.10; // 10% de perda
 
+    // Constantes de Fim de Turno
+    private static final int FOOD_CONSUMPTION_PER_CREW = 2;
+    private static final int RUM_CONSUMPTION_PER_CREW = 1;
+    private static final int MORALE_PENALTY_NO_FOOD = -15;
+    private static final int MORALE_PENALTY_NO_RUM = -10;
+    private static final int MORALE_PENALTY_NO_PAY = -20;
+
 
     @Transactional
     public Game createNewGame() {
@@ -70,6 +77,13 @@ public class GameService {
         int despairPenalty = request.getDespairLevel() * 2;
         int initialMoral = baseMoral + personalityModifier - despairPenalty;
         newCrewMember.setMoral(Math.max(0, Math.min(100, initialMoral))); // Garante que a moral fique entre 0 e 100
+
+        // Calcular salário dinamicamente
+        int attributeSum = request.getNavigation() + request.getArtillery() + request.getCombat() +
+                           request.getMedicine() + request.getCarpentry() + request.getIntelligence();
+        int baseSalary = 10;
+        int salary = baseSalary + (attributeSum / 10) - request.getDespairLevel();
+        newCrewMember.setSalary(Math.max(1, salary)); // Garante um salário mínimo de 1
 
         ship.getCrew().add(newCrewMember);
         gameRepository.save(game);
@@ -123,6 +137,9 @@ public class GameService {
             eventLog.add(String.format("A moral da tripulação mudou em resposta às suas ações."));
         }
 
+        // Finalizar o ciclo de turno (consumo e pagamento)
+        endTurnCycle(ship, eventLog);
+
         Game savedGame = gameRepository.save(game);
 
         return GameActionResponseDTO.builder()
@@ -172,6 +189,9 @@ public class GameService {
         game.setReputation(game.getReputation() + activeContract.getRewardReputation());
         game.setInfamy(game.getInfamy() + activeContract.getRewardInfamy());
         game.setAlliance(game.getAlliance() + activeContract.getRewardAlliance());
+
+        // Finalizar o ciclo de turno (consumo e pagamento)
+        endTurnCycle(ship, eventLog);
 
         // Atualizar estado do contrato e do jogo
         activeContract.setStatus(ContractStatus.COMPLETED);
@@ -253,5 +273,55 @@ public class GameService {
                 }
             }
         }
+    }
+
+    /**
+     * Processa o consumo de recursos e o pagamento de salários no final de um ciclo.
+     * Aplica penalidades de moral se os recursos forem insuficientes.
+     * @param ship O navio do jogador.
+     * @param eventLog O log de eventos para adicionar mensagens narrativas.
+     */
+    private void endTurnCycle(Ship ship, List<String> eventLog) {
+        List<CrewMember> crew = ship.getCrew();
+        if (crew.isEmpty()) {
+            return; // Nenhum ciclo de turno se não houver tripulação
+        }
+
+        int crewSize = crew.size();
+        int totalFoodConsumption = crewSize * FOOD_CONSUMPTION_PER_CREW;
+        int totalRumConsumption = crewSize * RUM_CONSUMPTION_PER_CREW;
+        int totalSalary = crew.stream().mapToInt(CrewMember::getSalary).sum();
+
+        // 1. Consumo de Comida
+        if (ship.getFoodRations() >= totalFoodConsumption) {
+            ship.setFoodRations(ship.getFoodRations() - totalFoodConsumption);
+            eventLog.add(String.format("A tripulação consumiu %d porções de comida.", totalFoodConsumption));
+        } else {
+            ship.setFoodRations(0);
+            eventLog.add("FIM DO TURNO: As rações de comida acabaram! A fome se espalha pela tripulação.");
+            crew.forEach(member -> member.setMoral(member.getMoral() + MORALE_PENALTY_NO_FOOD));
+        }
+
+        // 2. Consumo de Rum
+        if (ship.getRumRations() >= totalRumConsumption) {
+            ship.setRumRations(ship.getRumRations() - totalRumConsumption);
+            eventLog.add(String.format("A tripulação consumiu %d rações de rum.", totalRumConsumption));
+        } else {
+            ship.setRumRations(0);
+            eventLog.add("FIM DO TURNO: O rum acabou! O descontentamento é visível.");
+            crew.forEach(member -> member.setMoral(member.getMoral() + MORALE_PENALTY_NO_RUM));
+        }
+
+        // 3. Pagamento de Salários
+        if (ship.getGold() >= totalSalary) {
+            ship.setGold(ship.getGold() - totalSalary);
+            eventLog.add(String.format("Você pagou %d de ouro em salários.", totalSalary));
+        } else {
+            eventLog.add("FIM DO TURNO: Ouro insuficiente para pagar os salários! A tripulação está à beira de um motim.");
+            crew.forEach(member -> member.setMoral(member.getMoral() + MORALE_PENALTY_NO_PAY));
+        }
+
+        // Garantir que a moral não saia dos limites (0-100)
+        crew.forEach(member -> member.setMoral(Math.max(0, Math.min(100, member.getMoral()))));
     }
 }

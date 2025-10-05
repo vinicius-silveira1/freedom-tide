@@ -38,19 +38,25 @@ Este documento serve como um "save state" do nosso processo de desenvolvimento. 
 
 ---
 
-## v1.1: Moral Dinâmica e Consequências (Descontentamento e Insubordinação)
+## v1.2: Ciclo de Fim de Turno (Consumo e Salários)
 
-**Funcionalidade:** O sistema de moral foi expandido para ser mais dinâmico e impactante, alinhando-se melhor ao GDD.
+**Funcionalidade:** Um ciclo de fim de turno foi integrado ao final da resolução de contratos e eventos, aprofundando o gerenciamento de recursos e tripulação.
 
-1.  **Cálculo Dinâmico da Moral:** A moral inicial de um tripulante não é mais fixa. Agora é calculada com base em sua **Personalidade** e **Nível de Desespero**, tornando a decisão de recrutamento mais estratégica.
-    - `moral = 50 (base) + (modificador_personalidade * 5) - (desespero * 2)`
-
-2.  **Consequência de Descontentamento (Moral < 50):** Ao concluir um contrato ou evento, há uma chance de a tripulação descontente causar um "acidente", resultando em uma **penalidade percentual sobre os ganhos de ouro**.
-    - *Narrativa:* `"MORAL BAIXA: Tripulantes descontentes causaram problemas! Um pequeno \'acidente\' resultou na perda de X de ouro."`
-
-3.  **Consequência de Insubordinação (Moral < 30):** Se a moral cair ainda mais, o risco aumenta. Há uma chance de a tripulação se tornar insubordinada, resultando em uma **perda percentual de recursos vitais** (comida, rum ou peças de reparo).
-    - *Narrativa:* `"INSUBORDINAÇÃO: A negligência tomou conta! X porções de comida estragaram."`
+1.  **Cálculo de Salário:** Ao ser recrutado, cada tripulante agora tem um salário calculado dinamicamente com base em suas habilidades e nível de desespero.
+2.  **Consumo de Suprimentos:** Ao final de um ciclo, a tripulação consome uma quantidade fixa de comida e rum.
+3.  **Pagamento de Salários:** O total dos salários da tripulação é deduzido do ouro do jogador.
+4.  **Penalidades de Moral:** Se não houver comida, rum ou ouro suficiente para os pagamentos, a moral da tripulação é severamente penalizada, com mensagens narrativas claras no log de eventos.
 
 **Verificação:**
-- Recrutamos tripulantes com personalidades e níveis de desespero que resultaram em uma moral média de 20.
-- Ao resolver um contrato, o sistema primeiro testou a chance de "Insubordinação". Como ela falhou (devido à aleatoriedade), o sistema corretamente procedeu para testar a chance de "Descontentamento", que foi acionada, aplicando a penalidade de ouro e registrando o evento no log.
+- O cenário de sucesso foi verificado. Após resolver um contrato, os recursos (comida, rum, ouro) foram deduzidos corretamente, e o `eventLog` narrou todos os acontecimentos com precisão.
+- A verificação dos cenários de falha foi adiada por pragmatismo, devido à dificuldade de manipular o estado do jogo para forçar a falha sem ferramentas de depuração.
+
+---
+
+## Próxima Tarefa: Portos e Ações
+
+- **Descrição**: Implementar a base para a "Fase de Planejamento" do GDD, introduzindo o conceito de Portos. Cada porto terá um tipo (ex: Imperial, da Guilda, Pirata, Livre) e oferecerá um conjunto de ações possíveis para o jogador.
+- **Objetivo**: Criar um hub central para as atividades do jogador quando não estiver no mar. Isso expande o loop de gameplay e dá ao mundo um senso de lugar. A primeira implementação focará em duas ações essenciais:
+    1.  **Visitar a Taverna:** Um lugar para gastar um pouco de ouro e "ouvir rumores", que será o mecanismo pelo qual o jogador descobre e atualiza a lista de contratos disponíveis.
+    2.  **Visitar o Estaleiro:** Um lugar para gastar ouro e reparar a integridade do casco do navio.
+- **Lição de Arquitetura**: Isso nos forçará a pensar em como gerenciar o "estado do jogador". Atualmente, o jogador está sempre "no mar". Precisaremos de um conceito de "atracado em um porto" e como as ações disponíveis mudam nesse estado.

@@ -11,5 +11,6 @@ public class CrewMemberResponseDTO {
     private String personality;
     private Integer moral;
     private Integer loyalty;
+    private Integer salary;
     private CrewAttributesDTO attributes;
 }
