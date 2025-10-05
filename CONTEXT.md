@@ -89,11 +89,23 @@ Este documento serve como um "save state" do nosso processo de desenvolvimento. 
 
 ---
 
-## Próxima Tarefa: Fase 4 - Ações de Porto
+## v1.3: Fase 4 - Ações de Porto (Concluído)
 
-- **Descrição**: Com os portos se tornando locais estratégicos, o jogador precisa saber o que pode fazer em cada um. Vamos criar um endpoint que liste as ações disponíveis em um porto (ex: "Ver Contratos", "Viajar"). Isso transforma os portos de simples pontos de dados em locais interativos e prepara o terreno para futuras ações como "Visitar a Taverna" ou "Ir ao Estaleiro".
+- **Descrição**: Criado um endpoint de descoberta que informa ao cliente quais ações são possíveis em um porto, tornando a API mais robusta e escalável.
+- **Mudanças**:
+    1.  **`PortActionType.java` e `PortActionDTO.java`**: Criados para modelar as ações de porto e suas representações para o cliente.
+    2.  **`GameService`**: Implementado o método `getAvailablePortActions` que constrói a lista de ações disponíveis.
+    3.  **`GameController`**: Adicionado o endpoint `GET /api/games/{gameId}/port/actions`.
+- **Status**: **Concluído e Verificado.** O endpoint retorna corretamente a lista de ações (`VIEW_CONTRACTS`, `TRAVEL`) disponíveis em um porto.
+
+---
+
+## Próxima Tarefa: Fase 5 - Encontros no Mar (Fundação)
+
+- **Descrição**: Iniciar a "Fase de Execução" do GDD. Quando o jogador viaja, ele não chegará mais ao seu destino instantaneamente. Em vez disso, a viagem irá *iniciar* um encontro no mar. Esta tarefa foca em criar a fundação para esses encontros.
 - **Objetivos**:
-    1.  **Criar `PortActionType.java`**: Um enum para representar as possíveis ações (ex: `VIEW_CONTRACTS`, `TRAVEL`).
-    2.  **Criar `PortActionDTO.java`**: Um DTO para descrever a ação para o cliente (ex: nome, descrição, endpoint associado).
-    3.  **Implementar `GET /api/games/{gameId}/port/actions`**: Criar um novo endpoint no `GameController` e a lógica de serviço correspondente que retorna a lista de ações disponíveis no porto atual.
+    1.  **Criar `SeaEncounter.java`**: Uma nova entidade para representar um encontro no mar. Ela terá uma `description` (ex: "Você avista um navio mercante navegando lentamente.") e um tipo (ex: `MERCHANT_SHIP`, `PIRATE_VESSEL`).
+    2.  **Criar `SeaEncounterDTO.java`**: Um DTO para expor os detalhes do encontro para a API.
+    3.  **Refatorar `GameService.travelToPort`**: Modificar o método de viagem. Em vez de teletransportar o jogador, ele irá gerar e retornar um `SeaEncounter`. O estado do jogador passará de "atracado" para "em viagem".
+    4.  **Modificar `Game.java`**: Adicionar um campo para rastrear o `currentEncounter`.
 - **Status Atual**: **Aguardando Aprovação.**

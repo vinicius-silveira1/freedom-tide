@@ -93,6 +93,34 @@ public class GameService {
         return gameRepository.save(game);
     }
 
+    @Transactional(readOnly = true)
+    public List<com.tidebreakerstudios.freedom_tide.dto.PortActionDTO> getAvailablePortActions(Long gameId) {
+        Game game = findGameById(gameId);
+        if (game.getCurrentPort() == null) {
+            return List.of(); // Nenhuma ação disponível se não estiver em um porto
+        }
+
+        List<com.tidebreakerstudios.freedom_tide.dto.PortActionDTO> actions = new ArrayList<>();
+
+        // Ação para ver contratos
+        actions.add(new com.tidebreakerstudios.freedom_tide.dto.PortActionDTO(
+                PortActionType.VIEW_CONTRACTS,
+                "Ver Contratos Disponíveis",
+                "Veja os trabalhos e missões oferecidos neste porto.",
+                "/api/games/" + gameId + "/contracts"
+        ));
+
+        // Ação para viajar
+        actions.add(new com.tidebreakerstudios.freedom_tide.dto.PortActionDTO(
+                PortActionType.TRAVEL,
+                "Viajar",
+                "Abra o mapa e escolha um destino para zarpar.",
+                "/api/games/" + gameId + "/travel"
+        ));
+
+        return actions;
+    }
+
     @Transactional
     public CrewMember recruitCrewMember(Long gameId, RecruitCrewMemberRequest request) {
         Game game = findGameById(gameId);

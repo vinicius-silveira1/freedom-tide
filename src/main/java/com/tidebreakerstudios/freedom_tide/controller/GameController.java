@@ -46,6 +46,12 @@ public class GameController {
         return ResponseEntity.ok(portDTO);
     }
 
+    @GetMapping("/{gameId}/port/actions")
+    public ResponseEntity<List<PortActionDTO>> getPortActions(@PathVariable Long gameId) {
+        List<PortActionDTO> actions = gameService.getAvailablePortActions(gameId);
+        return ResponseEntity.ok(actions);
+    }
+
     @PostMapping("/{gameId}/travel")
     public ResponseEntity<GameStatusResponseDTO> travelToPort(
             @PathVariable Long gameId,
