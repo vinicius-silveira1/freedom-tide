@@ -60,4 +60,8 @@ public class Game {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "current_port_id")
     private Port currentPort;
+
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "current_encounter_id")
+    private SeaEncounter currentEncounter;
 }

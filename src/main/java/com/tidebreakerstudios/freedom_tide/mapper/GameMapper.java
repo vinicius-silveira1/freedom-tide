@@ -60,6 +60,8 @@ public class GameMapper {
                 .ship(shipDTO)
                 .crew(crewDTO)
                 .activeContract(toContractDTO(game.getActiveContract()))
+                .currentPort(toPortDTO(game.getCurrentPort()))
+                .currentEncounter(toSeaEncounterDTO(game.getCurrentEncounter()))
                 .build();
     }
 
@@ -114,6 +116,18 @@ public class GameMapper {
                 port.getId(),
                 port.getName(),
                 port.getType().name()
+        );
+    }
+
+    public SeaEncounterDTO toSeaEncounterDTO(com.tidebreakerstudios.freedom_tide.model.SeaEncounter encounter) {
+        if (encounter == null) {
+            return null;
+        }
+
+        return new SeaEncounterDTO(
+                encounter.getId(),
+                encounter.getDescription(),
+                encounter.getType()
         );
     }
 }

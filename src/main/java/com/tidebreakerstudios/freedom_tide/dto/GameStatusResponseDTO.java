@@ -11,4 +11,6 @@ public class GameStatusResponseDTO {
     private ShipSummaryDTO ship;
     private CrewSummaryDTO crew;
     private ContractDTO activeContract;
+    private PortDTO currentPort;
+    private SeaEncounterDTO currentEncounter;
 }

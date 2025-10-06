@@ -100,12 +100,23 @@ Este documento serve como um "save state" do nosso processo de desenvolvimento. 
 
 ---
 
-## Próxima Tarefa: Fase 5 - Encontros no Mar (Fundação)
+## v1.3: Fase 5 - Encontros no Mar (Fundação) (Concluído)
 
-- **Descrição**: Iniciar a "Fase de Execução" do GDD. Quando o jogador viaja, ele não chegará mais ao seu destino instantaneamente. Em vez disso, a viagem irá *iniciar* um encontro no mar. Esta tarefa foca em criar a fundação para esses encontros.
+- **Descrição**: A viagem foi transformada de um teletransporte para o início de uma jornada, introduzindo o conceito de encontros em alto mar e mudando o estado do jogador.
+- **Mudanças**:
+    1.  **`SeaEncounterType`**, **`SeaEncounter`**, **`SeaEncounterDTO`**: Novas classes para modelar, persistir e expor os encontros.
+    2.  **`Game.java`**: Modificada para incluir o campo `currentEncounter`, rastreando o estado do jogador em alto mar.
+    3.  **`GameService.travelToPort`**: O método foi refatorado para remover o jogador de um porto, gerar um encontro aleatório e associá-lo ao jogo.
+    4.  **`GameController.travelToPort`**: O endpoint agora retorna um `SeaEncounterDTO`, informando ao cliente sobre o encontro iniciado.
+- **Status**: **Concluído e Verificado.** A API de viagem agora inicia um encontro, e o estado do jogo reflete corretamente a transição de "atracado" para "em alto mar".
+
+---
+
+## Próxima Tarefa: Fase 6 - Ações de Encontro no Mar
+
+- **Descrição**: Agora que o jogador pode ter encontros, ele precisa poder reagir a eles. Esta tarefa consiste em criar um endpoint de descoberta para listar as ações possíveis durante um encontro específico (ex: Atacar, Fugir, Investigar), tornando os encontros interativos.
 - **Objetivos**:
-    1.  **Criar `SeaEncounter.java`**: Uma nova entidade para representar um encontro no mar. Ela terá uma `description` (ex: "Você avista um navio mercante navegando lentamente.") e um tipo (ex: `MERCHANT_SHIP`, `PIRATE_VESSEL`).
-    2.  **Criar `SeaEncounterDTO.java`**: Um DTO para expor os detalhes do encontro para a API.
-    3.  **Refatorar `GameService.travelToPort`**: Modificar o método de viagem. Em vez de teletransportar o jogador, ele irá gerar e retornar um `SeaEncounter`. O estado do jogador passará de "atracado" para "em viagem".
-    4.  **Modificar `Game.java`**: Adicionar um campo para rastrear o `currentEncounter`.
+    1.  **Criar `EncounterActionType.java`**: Um enum para as ações possíveis (`ATTACK`, `FLEE`, `INVESTIGATE`, etc.).
+    2.  **Criar `EncounterActionDTO.java`**: Um DTO para descrever a ação para o cliente.
+    3.  **Implementar `GET /api/games/{gameId}/encounter/actions`**: Um novo endpoint e a lógica de serviço que retorna uma lista de ações com base no tipo do `currentEncounter` do jogo.
 - **Status Atual**: **Aguardando Aprovação.**

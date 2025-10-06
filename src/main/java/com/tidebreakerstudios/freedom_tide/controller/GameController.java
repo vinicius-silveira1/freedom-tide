@@ -53,11 +53,11 @@ public class GameController {
     }
 
     @PostMapping("/{gameId}/travel")
-    public ResponseEntity<GameStatusResponseDTO> travelToPort(
+    public ResponseEntity<SeaEncounterDTO> travelToPort(
             @PathVariable Long gameId,
             @Valid @RequestBody TravelRequestDTO request) {
-        Game updatedGame = gameService.travelToPort(gameId, request);
-        return ResponseEntity.ok(gameMapper.toGameStatusResponseDTO(updatedGame));
+        com.tidebreakerstudios.freedom_tide.model.SeaEncounter encounter = gameService.travelToPort(gameId, request);
+        return ResponseEntity.ok(gameMapper.toSeaEncounterDTO(encounter));
     }
 
     @PostMapping("/{gameId}/ship/crew")

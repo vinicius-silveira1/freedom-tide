@@ -9,6 +9,7 @@ import com.tidebreakerstudios.freedom_tide.repository.ContractRepository;
 import com.tidebreakerstudios.freedom_tide.repository.EventOptionRepository;
 import com.tidebreakerstudios.freedom_tide.repository.GameRepository;
 import com.tidebreakerstudios.freedom_tide.repository.PortRepository;
+import com.tidebreakerstudios.freedom_tide.repository.SeaEncounterRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -30,6 +31,7 @@ public class GameService {
     private final EventOptionRepository eventOptionRepository;
     private final ContractRepository contractRepository;
     private final PortRepository portRepository;
+    private final SeaEncounterRepository seaEncounterRepository;
     private final GameMapper gameMapper; // Injetado para conversão de DTO
 
     // Constantes de Moral
@@ -77,20 +79,42 @@ public class GameService {
     }
 
     @Transactional
-    public Game travelToPort(Long gameId, com.tidebreakerstudios.freedom_tide.dto.TravelRequestDTO request) {
+    public SeaEncounter travelToPort(Long gameId, com.tidebreakerstudios.freedom_tide.dto.TravelRequestDTO request) {
         Game game = findGameById(gameId);
-        Long destinationPortId = request.destinationPortId();
 
-        Port destinationPort = portRepository.findById(destinationPortId)
-                .orElseThrow(() -> new EntityNotFoundException("Porto de destino não encontrado com o ID: " + destinationPortId));
-
-        Port currentPort = game.getCurrentPort();
-        if (currentPort != null && currentPort.getId().equals(destinationPortId)) {
-            throw new IllegalStateException("O jogador já está no porto de destino.");
+        if (game.getCurrentPort() == null) {
+            throw new IllegalStateException("Não é possível viajar, o jogo já está em alto mar.");
+        }
+        if (game.getCurrentEncounter() != null) {
+            throw new IllegalStateException("Não é possível viajar durante um encontro.");
         }
 
-        game.setCurrentPort(destinationPort);
-        return gameRepository.save(game);
+        // Lógica de transição de estado: do porto para o mar
+        game.setCurrentPort(null);
+        SeaEncounter encounter = generateRandomEncounter();
+        game.setCurrentEncounter(encounter);
+
+        seaEncounterRepository.save(encounter);
+        gameRepository.save(game);
+
+        return encounter;
+    }
+
+    private SeaEncounter generateRandomEncounter() {
+        SeaEncounterType[] encounterTypes = SeaEncounterType.values();
+        SeaEncounterType randomType = encounterTypes[new Random().nextInt(encounterTypes.length)];
+
+        String description = switch (randomType) {
+            case MERCHANT_SHIP -> "No horizonte, você avista as velas de um navio mercante solitário, navegando lentamente com sua carga.";
+            case PIRATE_VESSEL -> "Um navio de velas negras e uma bandeira ameaçadora surge rapidamente, em rota de interceptação.";
+            case NAVY_PATROL -> "Uma patrulha da Marinha Imperial, com seus canhões polidos e disciplina rígida, cruza o seu caminho.";
+            case MYSTERIOUS_WRECK -> "Os destroços de um naufrágio aparecem à deriva, mastros quebrados apontando para o céu como dedos esqueléticos.";
+        };
+
+        return SeaEncounter.builder()
+                .type(randomType)
+                .description(description)
+                .build();
     }
 
     @Transactional(readOnly = true)
