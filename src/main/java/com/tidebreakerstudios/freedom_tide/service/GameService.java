@@ -411,24 +411,38 @@ public class GameService {
     @Transactional
     public GameActionResponseDTO fleeEncounter(Long gameId) {
         Game game = findGameById(gameId);
+        Ship ship = game.getShip();
         List<String> eventLog = new ArrayList<>();
 
         if (game.getCurrentEncounter() == null || game.getDestinationPort() == null) {
             throw new IllegalStateException("Não há um encontro em andamento ou um destino definido para o qual fugir.");
         }
 
-        // MVP: A fuga sempre tem sucesso.
-        // Futuramente, podemos adicionar uma lógica baseada em atributos (Navegação vs. do inimigo).
-        Port destination = game.getDestinationPort();
-        game.setCurrentPort(destination);
-        game.setCurrentEncounter(null);
-        game.setDestinationPort(null);
+        // Lógica de Fuga baseada em Habilidade
+        int crewNavigationSkill = ship.getCrew().stream().mapToInt(CrewMember::getNavigation).sum();
+        int escapeDifficulty = 10; // Dificuldade base REDUZIDA para 10
+        int randomFactor = ThreadLocalRandom.current().nextInt(1, 21); // Fator de sorte/azar (d20)
+        boolean success = crewNavigationSkill > (escapeDifficulty + randomFactor);
 
-        eventLog.add("Você conseguiu escapar do encontro e navegar em segurança.");
-        eventLog.add("Você chegou ao seu destino: " + destination.getName());
+        if (success) {
+            Port destination = game.getDestinationPort();
+            game.setCurrentPort(destination);
+            game.setCurrentEncounter(null);
+            game.setDestinationPort(null);
 
-        // O ciclo de fim de turno (consumo/salários) pode ser acionado aqui para representar a passagem do tempo na viagem.
-        endTurnCycle(game.getShip(), eventLog);
+            eventLog.add(String.format("Com uma tripulação de Navegação %d, você superou a dificuldade (%d) e escapou!", crewNavigationSkill, escapeDifficulty + randomFactor));
+            eventLog.add("Você chegou ao seu destino: " + destination.getName());
+
+            // O ciclo de fim de turno (consumo/salários) é acionado para representar a passagem do tempo na viagem.
+            endTurnCycle(ship, eventLog);
+        } else {
+            int hullDamage = 5;
+            ship.setHullIntegrity(ship.getHullIntegrity() - hullDamage);
+            eventLog.add(String.format("Sua tripulação (Navegação %d) não foi páreo para a dificuldade (%d)!", crewNavigationSkill, escapeDifficulty + randomFactor));
+            eventLog.add(String.format("Na tentativa de fuga desesperada, o navio sofreu %d de dano ao casco.", hullDamage));
+
+            // O jogador permanece no encontro. O estado não muda, exceto pelo dano.
+        }
 
         Game savedGame = gameRepository.save(game);
 
@@ -436,5 +450,71 @@ public class GameService {
                 .gameStatus(gameMapper.toGameStatusResponseDTO(savedGame))
                 .eventLog(eventLog)
                 .build();
+    }
+
+    @Transactional
+    public GameActionResponseDTO investigateEncounter(Long gameId) {
+        Game game = findGameById(gameId);
+        Ship ship = game.getShip();
+        List<String> eventLog = new ArrayList<>();
+
+        SeaEncounter encounter = game.getCurrentEncounter();
+        if (encounter == null || encounter.getType() != SeaEncounterType.MYSTERIOUS_WRECK) {
+            throw new IllegalStateException("A ação 'Investigar' só pode ser usada em destroços misteriosos.");
+        }
+
+        Port destination = game.getDestinationPort();
+        if (destination == null) {
+            throw new IllegalStateException("Não há um destino definido para o qual viajar após a investigação.");
+        }
+
+        eventLog.add("Você ordena que a tripulação investigue os destroços...");
+
+        // Risco: Chance de dano ao se aproximar dos destroços
+        if (ThreadLocalRandom.current().nextDouble() < 0.15) { // 15% de chance de dano
+            int hullDamage = ThreadLocalRandom.current().nextInt(3, 8); // Dano de 3 a 7
+            ship.setHullIntegrity(ship.getHullIntegrity() - hullDamage);
+            eventLog.add(String.format("RISCO: Ao se aproximar, destroços ocultos arranham o casco, causando %d de dano!", hullDamage));
+        }
+
+        // Recompensa: Teste de Inteligência para encontrar loot
+        int crewIntelligence = ship.getCrew().stream().mapToInt(CrewMember::getIntelligence).sum();
+        int difficulty = 15;
+        int randomFactor = ThreadLocalRandom.current().nextInt(1, 21); // d20
+        boolean success = crewIntelligence + randomFactor > difficulty;
+
+        if (success) {
+            int goldFound = ThreadLocalRandom.current().nextInt(100, 251);
+            int partsFound = ThreadLocalRandom.current().nextInt(5, 11);
+            ship.setGold(ship.getGold() + goldFound);
+            ship.setRepairParts(ship.getRepairParts() + partsFound);
+            eventLog.add(String.format(
+                "SUCESSO: A tripulação (Inteligência %d + rolagem %d) superou a dificuldade (%d)! Eles encontram um compartimento secreto contendo %d de ouro e %d peças de reparo.",
+                crewIntelligence, randomFactor, difficulty, goldFound, partsFound
+            ));
+        } else {
+            int goldFound = ThreadLocalRandom.current().nextInt(20, 51);
+            ship.setGold(ship.getGold() + goldFound);
+            eventLog.add(String.format(
+                "FALHA: A tripulação (Inteligência %d + rolagem %d) não superou a dificuldade (%d). Após muita busca, encontram apenas %d de ouro nos bolsos de um esqueleto.",
+                crewIntelligence, randomFactor, difficulty, goldFound
+            ));
+        }
+
+        // Conclusão do encontro
+        game.setCurrentPort(destination);
+        game.setCurrentEncounter(null);
+        game.setDestinationPort(null);
+        eventLog.add("Com os destroços vasculhados, você continua sua viagem e chega a " + destination.getName() + ".");
+
+        // O ciclo de fim de turno é acionado para representar a passagem do tempo na viagem.
+        endTurnCycle(ship, eventLog);
+
+        Game savedGame = gameRepository.save(game);
+
+        return GameActionResponseDTO.builder()
+            .gameStatus(gameMapper.toGameStatusResponseDTO(savedGame))
+            .eventLog(eventLog)
+            .build();
     }
 }

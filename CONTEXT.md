@@ -53,87 +53,39 @@ Este documento serve como um "save state" do nosso processo de desenvolvimento. 
 
 ---
 
-## v1.3: Fase 1 - Modelagem de Portos (Concluído)
+## v1.3: Fundações do Mundo Interativo (Concluído)
 
-- **Descrição**: Implementada a base para a "Fase de Planejamento" do GDD, introduzindo o conceito de Portos e refatorando as entidades relacionadas.
-- **Mudanças**:
-    1.  **`PortType.java`**: Enum criado com os tipos `IMPERIAL`, `GUILD`, `PIRATE`, `FREE`.
-    2.  **`Port.java`**: Entidade criada, representando os portos do jogo.
-    3.  **`Game.java`**: Modificada para incluir o campo `currentPort`, que rastreia onde o jogador está atracado.
-    4.  **`Contract.java`**: Refatorada para incluir o campo `originPort` e a anotação `@JsonBackReference` para gerenciar a relação bidirecional.
-    5.  **`PortRepository.java`**: Interface de repositório criada.
-    6.  **`DataSeeder.java`**: Refatorado para criar portos e associar os contratos existentes a eles.
-- **Status**: **Concluído e Verificado.** A aplicação inicia sem erros e o `DataSeeder` popula e associa os dados corretamente.
+- **Fase 1: Modelagem de Portos**: Introduzido o conceito de Portos.
+- **Fase 2: API de Viagem e Estado do Porto**: Permitido ao jogador se mover pelo mundo.
+- **Fase 3: Contratos por Porto**: Contratos passaram a ser específicos de cada porto.
+- **Fase 4: Ações de Porto**: Endpoint de descoberta para ações possíveis em um porto.
+- **Fase 5: Encontros no Mar (Fundação)**: Viagem passou a gerar encontros em alto mar.
+- **Fase 6: Ações de Encontro no Mar**: Endpoint de descoberta para ações possíveis em um encontro.
+- **Fase 7: Resolução de Encontros (Fugir)**: Fechado o primeiro loop de gameplay (Viajar -> Encontro -> Fugir -> Chegar).
 
 ---
 
-## v1.3: Fase 2 - API de Viagem e Estado do Porto (Concluído)
+## v1.4: Aprofundando Consequências
 
-- **Descrição**: Implementada a API que dá vida aos portos, permitindo ao jogador saber onde está e se mover pelo mundo.
+### Fase 1: Fuga Baseada em Habilidade (Concluído)
+
+- **Descrição**: Alinhada a ação "Fugir" com o pilar de design "Consequência". A fuga agora é um teste de habilidade (Navegação da tripulação) contra uma dificuldade aleatória.
 - **Mudanças**:
-    1.  **`PortDTO` e `TravelRequestDTO`**: DTOs criados para comunicação com a API.
-    2.  **`GameMapper`**: Atualizado para converter `Port` em `PortDTO`.
-    3.  **`GameService`**: Lógica implementada para buscar o porto atual e para viajar entre portos. O método `createNewGame` agora define um porto inicial.
-    4.  **`GameController`**: Adicionados os endpoints `GET /api/games/{gameId}/port` e `POST /api/games/{gameId}/travel`.
-- **Status**: **Concluído e Verificado.** Os endpoints funcionam, a validação de viagem impede movimentos redundantes e o estado do jogo é atualizado corretamente.
+    1.  **`GameService.fleeEncounter`**: A lógica foi refatorada para incluir o teste de habilidade.
+    2.  **Penalidade de Falha**: Falhar na fuga agora causa dano ao casco do navio e mantém o jogador no encontro.
+    3.  **Feedback Melhorado**: O log de eventos informa o jogador sobre o resultado do teste, sua habilidade e a dificuldade, tornando a mecânica transparente.
+- **Status**: **Concluído e Verificado.**
+- **Nota de Manutenção**: Durante testes subsequentes, foi identificado e corrigido um bug onde a dificuldade de fuga era excessivamente alta. A fórmula foi rebalanceada para ser mais justa.
+
+### Fase 2: Resolução de Encontros (Investigar) (Concluído)
+
+- **Descrição**: Implementada a funcionalidade da ação "Investigar" para o encontro `MYSTERIOUS_WRECK`, adicionando uma camada de exploração e recompensa ao jogo.
+- **Mudanças**:
+    1.  **Endpoint Adicionado**: `POST /api/games/{gameId}/encounter/investigate` foi criado no `GameController`.
+    2.  **Lógica de Serviço**: O método `investigateEncounter` foi implementado no `GameService`.
+    3.  **Risco vs. Recompensa**: A investigação agora inclui um teste de habilidade (Inteligência da tripulação) contra uma dificuldade. O sucesso rende mais recursos (ouro, peças de reparo), enquanto a falha rende menos. Há também uma pequena chance de dano ao casco, adicionando um elemento de risco.
+    4.  **Conclusão do Loop**: Após a investigação, o encontro é concluído e o jogador chega ao seu destino, finalizando o loop de viagem.
+- **Status**: **Concluído e Verificado.** Cenários de sucesso (com tripulação inteligente) e falha (com tripulação não inteligente) funcionam como esperado.
 
 ---
 
-## v1.3: Fase 3 - Contratos por Porto (Concluído)
-
-- **Descrição**: A localização do jogador agora determina quais contratos estão disponíveis, tornando a viagem uma decisão estratégica.
-- **Mudanças**:
-    1.  **`ContractRepository`**: Adicionado um método de busca que filtra contratos por `originPort`, status e pré-requisitos da Bússola do Capitão.
-    2.  **`ContractService`**: O método `getAvailableContractsForGame` foi refatorado para usar a nova consulta do repositório, delegando a lógica de filtragem para o banco de dados e retornando apenas os contratos relevantes para a localização atual do jogador.
-- **Status**: **Concluído e Verificado.** A API `GET /api/games/{gameId}/contracts` agora retorna apenas os contratos do porto onde o jogador está atracado.
-
----
-
-## v1.3: Fase 4 - Ações de Porto (Concluído)
-
-- **Descrição**: Criado um endpoint de descoberta que informa ao cliente quais ações são possíveis em um porto, tornando a API mais robusta e escalável.
-- **Mudanças**:
-    1.  **`PortActionType.java` e `PortActionDTO.java`**: Criados para modelar as ações de porto e suas representações para o cliente.
-    2.  **`GameService`**: Implementado o método `getAvailablePortActions` que constrói a lista de ações disponíveis.
-    3.  **`GameController`**: Adicionado o endpoint `GET /api/games/{gameId}/port/actions`.
-- **Status**: **Concluído e Verificado.** O endpoint retorna corretamente a lista de ações (`VIEW_CONTRACTS`, `TRAVEL`) disponíveis em um porto.
-
----
-
-## v1.3: Fase 5 - Encontros no Mar (Fundação) (Concluído)
-
-- **Descrição**: A viagem foi transformada de um teletransporte para o início de uma jornada, introduzindo o conceito de encontros em alto mar e mudando o estado do jogador.
-- **Mudanças**:
-    1.  **`SeaEncounterType`**, **`SeaEncounter`**, **`SeaEncounterDTO`**: Novas classes para modelar, persistir e expor os encontros.
-    2.  **`Game.java`**: Modificada para incluir o campo `currentEncounter`, rastreando o estado do jogador em alto mar.
-    3.  **`GameService.travelToPort`**: O método foi refatorado para remover o jogador de um porto, gerar um encontro aleatório e associá-lo ao jogo.
-    4.  **`GameController.travelToPort`**: O endpoint agora retorna um `SeaEncounterDTO`, informando ao cliente sobre o encontro iniciado.
-- **Status**: **Concluído e Verificado.** A API de viagem agora inicia um encontro, e o estado do jogo reflete corretamente a transição de "atracado" para "em alto mar".
-
----
-
-## v1.3: Fase 6 - Ações de Encontro no Mar (Concluído)
-
-- **Descrição**: Criado um endpoint de descoberta que informa ao cliente quais ações são possíveis durante um encontro no mar, com base no tipo de encontro.
-- **Mudanças**:
-    1.  **`EncounterActionType.java` e `EncounterActionDTO.java`**: Criados para modelar as ações e suas representações para o cliente.
-    2.  **`GameService`**: Implementado o método `getAvailableEncounterActions` que constrói a lista de ações contextuais (ex: `INVESTIGATE` para destroços, `ATTACK`/`FLEE` para navios).
-    3.  **`GameController`**: Adicionado o endpoint `GET /api/games/{gameId}/encounter/actions`.
-- **Status**: **Concluído e Verificado.** O endpoint retorna corretamente a lista de ações apropriadas para o tipo de encontro gerado.
-
----
-
-## v1.3: Fase 7 - Resolução de Encontros (Fugir) (Concluído)
-
-- **Descrição**: Fechado o primeiro ciclo de gameplay da "Fase de Execução" ao implementar a resolução da ação "Fugir".
-- **Mudanças**:
-    1.  **`Game.java`**: Adicionado o campo `destinationPort` para rastrear o destino da viagem.
-    2.  **`GameService.travelToPort`**: Atualizado para salvar o `destinationPort` no início da viagem.
-    3.  **`GameService.fleeEncounter`**: Novo método que move o jogador para o destino, limpa o encontro e aciona o ciclo de fim de turno.
-    4.  **`GameController`**: Adicionado o endpoint `POST /api/games/{gameId}/encounter/flee`.
-    5.  **Correção de Bug**: Corrigida a chamada de método no `GameService` para `TravelRequestDTO` (um `record`), usando `request.destinationPortId()` em vez de `request.getDestinationPortId()`.
-- **Status**: **Concluído e Verificado.** O ciclo completo de viajar, encontrar um evento, ver as ações, fugir e chegar ao destino funciona como esperado.
-
----
-
-## Próxima Tarefa: Aguardando Definição

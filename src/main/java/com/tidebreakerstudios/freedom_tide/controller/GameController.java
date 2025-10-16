@@ -74,6 +74,12 @@ public class GameController {
         return ResponseEntity.ok(response);
     }
 
+    @PostMapping("/{gameId}/encounter/investigate")
+    public ResponseEntity<GameActionResponseDTO> investigateEncounter(@PathVariable Long gameId) {
+        GameActionResponseDTO response = gameService.investigateEncounter(gameId);
+        return ResponseEntity.ok(response);
+    }
+
     @PostMapping("/{gameId}/ship/crew")
     public ResponseEntity<CrewMemberResponseDTO> recruitCrewMember(
             @PathVariable Long gameId,
