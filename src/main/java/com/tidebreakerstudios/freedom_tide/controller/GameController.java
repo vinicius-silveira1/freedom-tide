@@ -60,6 +60,20 @@ public class GameController {
         return ResponseEntity.ok(gameMapper.toSeaEncounterDTO(encounter));
     }
 
+    // --- Endpoints de Encontro ---
+
+    @GetMapping("/{gameId}/encounter/actions")
+    public ResponseEntity<List<EncounterActionDTO>> getEncounterActions(@PathVariable Long gameId) {
+        List<EncounterActionDTO> actions = gameService.getAvailableEncounterActions(gameId);
+        return ResponseEntity.ok(actions);
+    }
+
+    @PostMapping("/{gameId}/encounter/flee")
+    public ResponseEntity<GameActionResponseDTO> fleeEncounter(@PathVariable Long gameId) {
+        GameActionResponseDTO response = gameService.fleeEncounter(gameId);
+        return ResponseEntity.ok(response);
+    }
+
     @PostMapping("/{gameId}/ship/crew")
     public ResponseEntity<CrewMemberResponseDTO> recruitCrewMember(
             @PathVariable Long gameId,

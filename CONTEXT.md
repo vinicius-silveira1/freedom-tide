@@ -112,11 +112,28 @@ Este documento serve como um "save state" do nosso processo de desenvolvimento. 
 
 ---
 
-## Próxima Tarefa: Fase 6 - Ações de Encontro no Mar
+## v1.3: Fase 6 - Ações de Encontro no Mar (Concluído)
 
-- **Descrição**: Agora que o jogador pode ter encontros, ele precisa poder reagir a eles. Esta tarefa consiste em criar um endpoint de descoberta para listar as ações possíveis durante um encontro específico (ex: Atacar, Fugir, Investigar), tornando os encontros interativos.
-- **Objetivos**:
-    1.  **Criar `EncounterActionType.java`**: Um enum para as ações possíveis (`ATTACK`, `FLEE`, `INVESTIGATE`, etc.).
-    2.  **Criar `EncounterActionDTO.java`**: Um DTO para descrever a ação para o cliente.
-    3.  **Implementar `GET /api/games/{gameId}/encounter/actions`**: Um novo endpoint e a lógica de serviço que retorna uma lista de ações com base no tipo do `currentEncounter` do jogo.
-- **Status Atual**: **Aguardando Aprovação.**
+- **Descrição**: Criado um endpoint de descoberta que informa ao cliente quais ações são possíveis durante um encontro no mar, com base no tipo de encontro.
+- **Mudanças**:
+    1.  **`EncounterActionType.java` e `EncounterActionDTO.java`**: Criados para modelar as ações e suas representações para o cliente.
+    2.  **`GameService`**: Implementado o método `getAvailableEncounterActions` que constrói a lista de ações contextuais (ex: `INVESTIGATE` para destroços, `ATTACK`/`FLEE` para navios).
+    3.  **`GameController`**: Adicionado o endpoint `GET /api/games/{gameId}/encounter/actions`.
+- **Status**: **Concluído e Verificado.** O endpoint retorna corretamente a lista de ações apropriadas para o tipo de encontro gerado.
+
+---
+
+## v1.3: Fase 7 - Resolução de Encontros (Fugir) (Concluído)
+
+- **Descrição**: Fechado o primeiro ciclo de gameplay da "Fase de Execução" ao implementar a resolução da ação "Fugir".
+- **Mudanças**:
+    1.  **`Game.java`**: Adicionado o campo `destinationPort` para rastrear o destino da viagem.
+    2.  **`GameService.travelToPort`**: Atualizado para salvar o `destinationPort` no início da viagem.
+    3.  **`GameService.fleeEncounter`**: Novo método que move o jogador para o destino, limpa o encontro e aciona o ciclo de fim de turno.
+    4.  **`GameController`**: Adicionado o endpoint `POST /api/games/{gameId}/encounter/flee`.
+    5.  **Correção de Bug**: Corrigida a chamada de método no `GameService` para `TravelRequestDTO` (um `record`), usando `request.destinationPortId()` em vez de `request.getDestinationPortId()`.
+- **Status**: **Concluído e Verificado.** O ciclo completo de viajar, encontrar um evento, ver as ações, fugir e chegar ao destino funciona como esperado.
+
+---
+
+## Próxima Tarefa: Aguardando Definição

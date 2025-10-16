@@ -61,6 +61,10 @@ public class Game {
     @JoinColumn(name = "current_port_id")
     private Port currentPort;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "destination_port_id")
+    private Port destinationPort;
+
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "current_encounter_id")
     private SeaEncounter currentEncounter;
