@@ -25,4 +25,14 @@ public class SeaEncounter {
     @Column(nullable = false)
     private SeaEncounterType type;
 
+    // Atributos de Combate do Inimigo
+    @Builder.Default
+    private Integer hull = 100;
+
+    @Builder.Default
+    private Integer cannons = 5;
+
+    @Builder.Default
+    private Integer sails = 5;
+
 }

@@ -80,6 +80,18 @@ public class GameController {
         return ResponseEntity.ok(response);
     }
 
+    @PostMapping("/{gameId}/encounter/attack")
+    public ResponseEntity<GameActionResponseDTO> attackEncounter(@PathVariable Long gameId) {
+        GameActionResponseDTO response = gameService.attackEncounter(gameId);
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/{gameId}/encounter/board")
+    public ResponseEntity<GameActionResponseDTO> boardEncounter(@PathVariable Long gameId) {
+        GameActionResponseDTO response = gameService.boardEncounter(gameId);
+        return ResponseEntity.ok(response);
+    }
+
     @PostMapping("/{gameId}/ship/crew")
     public ResponseEntity<CrewMemberResponseDTO> recruitCrewMember(
             @PathVariable Long gameId,

@@ -104,17 +104,40 @@ public class GameService {
         SeaEncounterType[] encounterTypes = SeaEncounterType.values();
         SeaEncounterType randomType = encounterTypes[new Random().nextInt(encounterTypes.length)];
 
-        String description = switch (randomType) {
-            case MERCHANT_SHIP -> "No horizonte, você avista as velas de um navio mercante solitário, navegando lentamente com sua carga.";
-            case PIRATE_VESSEL -> "Um navio de velas negras e uma bandeira ameaçadora surge rapidamente, em rota de interceptação.";
-            case NAVY_PATROL -> "Uma patrulha da Marinha Imperial, com seus canhões polidos e disciplina rígida, cruza o seu caminho.";
-            case MYSTERIOUS_WRECK -> "Os destroços de um naufrágio aparecem à deriva, mastros quebrados apontando para o céu como dedos esqueléticos.";
-        };
+        SeaEncounter.SeaEncounterBuilder encounterBuilder = SeaEncounter.builder().type(randomType);
 
-        return SeaEncounter.builder()
-                .type(randomType)
-                .description(description)
-                .build();
+        switch (randomType) {
+            case MERCHANT_SHIP -> {
+                encounterBuilder
+                    .description("No horizonte, você avista as velas de um navio mercante solitário, navegando lentamente com sua carga.")
+                    .hull(50)   // Casco fraco
+                    .cannons(4) // Poucos canhões
+                    .sails(6);
+            }
+            case PIRATE_VESSEL -> {
+                encounterBuilder
+                    .description("Um navio de velas negras e uma bandeira ameaçadora surge rapidamente, em rota de interceptação.")
+                    .hull(80)   // Casco médio
+                    .cannons(8) // Canhões médios
+                    .sails(8);
+            }
+            case NAVY_PATROL -> {
+                encounterBuilder
+                    .description("Uma patrulha da Marinha Imperial, com seus canhões polidos e disciplina rígida, cruza o seu caminho.")
+                    .hull(120)  // Casco forte
+                    .cannons(12) // Muitos canhões
+                    .sails(7);
+            }
+            case MYSTERIOUS_WRECK -> {
+                encounterBuilder
+                    .description("Os destroços de um naufrágio aparecem à deriva, mastros quebrados apontando para o céu como dedos esqueléticos.")
+                    .hull(0)
+                    .cannons(0)
+                    .sails(0);
+            }
+        }
+
+        return encounterBuilder.build();
     }
 
     @Transactional(readOnly = true)
@@ -158,6 +181,7 @@ public class GameService {
         switch (encounter.getType()) {
             case MERCHANT_SHIP, PIRATE_VESSEL, NAVY_PATROL -> {
                 actions.add(new EncounterActionDTO(EncounterActionType.ATTACK, "Atacar", "Iniciar combate naval.", basePath + "attack"));
+                actions.add(new EncounterActionDTO(EncounterActionType.BOARD, "Abordar", "Tentar uma abordagem para capturar o navio.", basePath + "board"));
                 actions.add(new EncounterActionDTO(EncounterActionType.FLEE, "Fugir", "Tentar escapar do encontro.", basePath + "flee"));
             }
             case MYSTERIOUS_WRECK -> {
@@ -516,5 +540,152 @@ public class GameService {
             .gameStatus(gameMapper.toGameStatusResponseDTO(savedGame))
             .eventLog(eventLog)
             .build();
+    }
+
+    @Transactional
+    public GameActionResponseDTO attackEncounter(Long gameId) {
+        Game game = findGameById(gameId);
+        Ship ship = game.getShip();
+        SeaEncounter encounter = game.getCurrentEncounter();
+        List<String> eventLog = new ArrayList<>();
+
+        if (encounter == null || encounter.getType() == SeaEncounterType.MYSTERIOUS_WRECK) {
+            throw new IllegalStateException("Não há um alvo válido para atacar.");
+        }
+
+        // Fase de Ataque do Jogador
+        int playerArtillery = ship.getCrew().stream().mapToInt(CrewMember::getArtillery).sum();
+        int playerDamage = playerArtillery + ThreadLocalRandom.current().nextInt(5, 11); // Dano = Artilharia + d6+4
+        encounter.setHull(encounter.getHull() - playerDamage);
+        eventLog.add(String.format("Você ordena o ataque! Seus artilheiros (Habilidade %d) disparam uma salva de canhões, causando %d de dano ao casco inimigo.", playerArtillery, playerDamage));
+
+        // Verifica a Vitória do Jogador
+        if (encounter.getHull() <= 0) {
+            eventLog.add(String.format("VITÓRIA! O navio inimigo, %s, está em destroços!", encounter.getType()));
+
+            // Recompensas e Consequências
+            int goldReward = 0;
+            switch (encounter.getType()) {
+                case MERCHANT_SHIP -> {
+                    goldReward = 200;
+                    game.setInfamy(game.getInfamy() + 25);
+                    eventLog.add(String.format("Você saqueia os destroços e encontra %d de ouro. Sua infâmia aumenta.", goldReward));
+                }
+                case PIRATE_VESSEL -> {
+                    goldReward = 100;
+                    game.setReputation(game.getReputation() + 15);
+                    eventLog.add(String.format("Você recupera %d de ouro dos piratas. O Império vê sua ação com bons olhos.", goldReward));
+                }
+                case NAVY_PATROL -> {
+                    goldReward = 50; // Pouca recompensa monetária
+                    game.setAlliance(game.getAlliance() + 30);
+                    eventLog.add(String.format("Apesar de encontrar apenas %d de ouro, derrotar a patrulha inspira os oprimidos. Sua Aliança cresce.", goldReward));
+                }
+            }
+            ship.setGold(ship.getGold() + goldReward);
+
+            // Conclusão do Encontro
+            Port destination = game.getDestinationPort();
+            game.setCurrentPort(destination);
+            game.setCurrentEncounter(null);
+            game.setDestinationPort(null);
+            eventLog.add("Com a batalha terminada, você continua sua viagem e chega a " + destination.getName() + ".");
+            endTurnCycle(ship, eventLog);
+
+        } else {
+            // Fase de Ataque do Inimigo
+            int enemyDamage = encounter.getCannons() + ThreadLocalRandom.current().nextInt(1, 7); // d6
+            ship.setHullIntegrity(ship.getHullIntegrity() - enemyDamage);
+            eventLog.add(String.format("O inimigo revida! Os canhões deles causam %d de dano ao seu casco.", enemyDamage));
+
+            if (ship.getHullIntegrity() <= 0) {
+                eventLog.add("DERROTA! Seu navio foi destruído. As ondas consomem seus destroços e seus sonhos...");
+                // Futuramente, implementar um estado de Game Over aqui.
+            }
+        }
+
+        Game savedGame = gameRepository.save(game);
+        return GameActionResponseDTO.builder()
+                .gameStatus(gameMapper.toGameStatusResponseDTO(savedGame))
+                .eventLog(eventLog)
+                .build();
+    }
+
+    @Transactional
+    public GameActionResponseDTO boardEncounter(Long gameId) {
+        Game game = findGameById(gameId);
+        Ship ship = game.getShip();
+        SeaEncounter encounter = game.getCurrentEncounter();
+        List<String> eventLog = new ArrayList<>();
+
+        if (encounter == null || encounter.getType() == SeaEncounterType.MYSTERIOUS_WRECK) {
+            throw new IllegalStateException("Não há um alvo válido para abordar.");
+        }
+
+        eventLog.add("Você dá a ordem e sua tripulação se prepara para a abordagem!");
+
+        // Fase de Cálculo de Força
+        int playerCombatStrength = ship.getCrew().stream().mapToInt(CrewMember::getCombat).sum();
+        int enemyBaseStrength = switch (encounter.getType()) {
+            case MERCHANT_SHIP -> 10;
+            case PIRATE_VESSEL -> 20;
+            case NAVY_PATROL -> 30;
+            default -> 0;
+        };
+
+        // Rolagem contestada
+        int playerRoll = playerCombatStrength + ThreadLocalRandom.current().nextInt(1, 21);
+        int enemyRoll = enemyBaseStrength + ThreadLocalRandom.current().nextInt(1, 21);
+
+        eventLog.add(String.format("Sua força de abordagem (Combate %d + rolagem) resultou em %d.", playerCombatStrength, playerRoll));
+        eventLog.add(String.format("A força de defesa inimiga (Base %d + rolagem) resultou em %d.", enemyBaseStrength, enemyRoll));
+
+        if (playerRoll > enemyRoll) {
+            // Vitória na Abordagem
+            eventLog.add("VITÓRIA! Sua tripulação domina o convés inimigo e força a rendição!");
+
+            int goldReward = 0;
+            switch (encounter.getType()) {
+                case MERCHANT_SHIP -> {
+                    goldReward = 400; // Recompensa maior por não destruir a carga
+                    game.setInfamy(game.getInfamy() + 30);
+                    eventLog.add(String.format("Você captura o navio e sua carga, obtendo %d de ouro. Sua infâmia cresce.", goldReward));
+                }
+                case PIRATE_VESSEL -> {
+                    goldReward = 200;
+                    game.setReputation(game.getReputation() + 20);
+                    eventLog.add(String.format("Você captura os piratas, recuperando %d de ouro. O Império agradece.", goldReward));
+                }
+                case NAVY_PATROL -> {
+                    goldReward = 100;
+                    game.setAlliance(game.getAlliance() + 40);
+                    eventLog.add(String.format("Capturar um navio da Marinha é um ato ousado! Você encontra %d de ouro e sua Aliança com os rebeldes se fortalece.", goldReward));
+                }
+            }
+            ship.setGold(ship.getGold() + goldReward);
+
+            // Conclusão do Encontro
+            Port destination = game.getDestinationPort();
+            game.setCurrentPort(destination);
+            game.setCurrentEncounter(null);
+            game.setDestinationPort(null);
+            eventLog.add("Com o navio inimigo capturado, você continua sua viagem e chega a " + destination.getName() + ".");
+            endTurnCycle(ship, eventLog);
+
+        } else {
+            // Derrota na Abordagem
+            int hullDamage = ThreadLocalRandom.current().nextInt(10, 21); // Dano pesado
+            int moralePenalty = -15;
+            ship.setHullIntegrity(ship.getHullIntegrity() - hullDamage);
+            ship.getCrew().forEach(member -> member.setMoral(member.getMoral() + moralePenalty));
+
+            eventLog.add(String.format("DERROTA! Sua tripulação foi repelida! Em meio à retirada caótica, seu navio sofre %d de dano ao casco e a moral da tripulação despenca.", hullDamage));
+        }
+
+        Game savedGame = gameRepository.save(game);
+        return GameActionResponseDTO.builder()
+                .gameStatus(gameMapper.toGameStatusResponseDTO(savedGame))
+                .eventLog(eventLog)
+                .build();
     }
 }
