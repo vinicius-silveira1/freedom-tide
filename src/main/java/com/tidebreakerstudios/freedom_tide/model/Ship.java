@@ -41,8 +41,12 @@ public class Ship {
      * A integridade do casco (0-100), funcionando como os "pontos de vida" do navio.
      * Se chegar a 0, o navio afunda.
      */
-    @Builder.Default
-    private Integer hullIntegrity = 100;
+    private Integer hullIntegrity;
+
+    /**
+     * A integridade máxima do casco do navio. Pode ser aumentada com melhorias.
+     */
+    private Integer maxHullIntegrity;
 
     /**
      * Rações de comida para a tripulação. Essencial para manter o moral.
@@ -69,10 +73,11 @@ public class Ship {
     private Integer cannonballs = 40;
 
     /**
-     * A quantidade de ouro (dinheiro) que o jogador possui.
+    /**
+     * O número de canhões no navio.
      */
     @Builder.Default
-    private Integer gold = 100;
+    private Integer cannons = 8;
 
     /**
      * A tripulação atualmente a bordo do navio.

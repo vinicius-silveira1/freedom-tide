@@ -46,7 +46,7 @@ public class GameMapper {
                 .name(ship.getName())
                 .type(ship.getType().name())
                 .hullIntegrity(ship.getHullIntegrity())
-                .gold(ship.getGold())
+                .gold(game.getGold()) // Correção: Obter ouro do Game
                 .foodRations(ship.getFoodRations())
                 .rumRations(ship.getRumRations())
                 .repairParts(ship.getRepairParts())

@@ -40,27 +40,42 @@ public class GameService {
     private static final int MORALE_PENALTY_NO_RUM = -10;
     private static final int MORALE_PENALTY_NO_PAY = -20;
 
-    // ... (rest of the class methods from before)
+    // Constantes do Estaleiro
+    private static final int REPAIR_COST_PER_POINT = 10;
 
-    @Transactional
+    
     public Game createNewGame() {
         Port startingPort = portRepository.findByName("Porto Real")
                 .orElseThrow(() -> new IllegalStateException("Porto inicial 'Porto Real' não encontrado. O DataSeeder falhou?"));
 
-        Ship newShip = Ship.builder().name("O Andarilho").type(ShipType.SCHOONER).crew(new ArrayList<>()).build();
-        Game newGame = Game.builder().ship(newShip).currentPort(startingPort).build();
+        ShipType initialShipType = ShipType.SCHOONER;
+        Ship newShip = Ship.builder()
+                .name("O Andarilho")
+                .type(initialShipType)
+                .cannons(8)
+                .crew(new ArrayList<>())
+                .maxHullIntegrity(initialShipType.getMaxHull())
+                .hullIntegrity(initialShipType.getMaxHull() - 20) // Navio começa com 20 de dano
+                .build();
+
+        Game newGame = Game.builder()
+                .ship(newShip)
+                .currentPort(startingPort)
+                .gold(500) // Ouro inicial para testes
+                .build();
+
         newShip.setGame(newGame);
         return gameRepository.save(newGame);
     }
 
-    @Transactional(readOnly = true)
+    
     public Game findGameById(Long id) {
         return gameRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Jogo não encontrado com o ID: " + id));
     }
 
-    @Transactional(readOnly = true)
-    public com.tidebreakerstudios.freedom_tide.dto.PortDTO getCurrentPort(Long gameId) {
+    
+    public PortDTO getCurrentPort(Long gameId) {
         Game game = findGameById(gameId);
         Port currentPort = game.getCurrentPort();
         if (currentPort == null) {
@@ -69,8 +84,8 @@ public class GameService {
         return gameMapper.toPortDTO(currentPort);
     }
 
-    @Transactional
-    public SeaEncounter travelToPort(Long gameId, com.tidebreakerstudios.freedom_tide.dto.TravelRequestDTO request) {
+    
+    public SeaEncounter travelToPort(Long gameId, TravelRequestDTO request) {
         Game game = findGameById(gameId);
         Port currentPort = game.getCurrentPort();
 
@@ -110,22 +125,22 @@ public class GameService {
             case MERCHANT_SHIP -> {
                 encounterBuilder
                     .description("No horizonte, você avista as velas de um navio mercante solitário, navegando lentamente com sua carga.")
-                    .hull(50)   // Casco fraco
-                    .cannons(4) // Poucos canhões
+                    .hull(50)
+                    .cannons(4)
                     .sails(6);
             }
             case PIRATE_VESSEL -> {
                 encounterBuilder
                     .description("Um navio de velas negras e uma bandeira ameaçadora surge rapidamente, em rota de interceptação.")
-                    .hull(80)   // Casco médio
-                    .cannons(8) // Canhões médios
+                    .hull(80)
+                    .cannons(8)
                     .sails(8);
             }
             case NAVY_PATROL -> {
                 encounterBuilder
                     .description("Uma patrulha da Marinha Imperial, com seus canhões polidos e disciplina rígida, cruza o seu caminho.")
-                    .hull(120)  // Casco forte
-                    .cannons(12) // Muitos canhões
+                    .hull(120)
+                    .cannons(12)
                     .sails(7);
             }
             case MYSTERIOUS_WRECK -> {
@@ -140,33 +155,40 @@ public class GameService {
         return encounterBuilder.build();
     }
 
-    @Transactional(readOnly = true)
-    public List<com.tidebreakerstudios.freedom_tide.dto.PortActionDTO> getAvailablePortActions(Long gameId) {
+    
+    public List<PortActionDTO> getAvailablePortActions(Long gameId) {
         Game game = findGameById(gameId);
         if (game.getCurrentPort() == null) {
             return List.of();
         }
 
-        List<com.tidebreakerstudios.freedom_tide.dto.PortActionDTO> actions = new ArrayList<>();
+        List<PortActionDTO> actions = new ArrayList<>();
 
-        actions.add(new com.tidebreakerstudios.freedom_tide.dto.PortActionDTO(
+        actions.add(new PortActionDTO(
                 PortActionType.VIEW_CONTRACTS,
                 "Ver Contratos Disponíveis",
                 "Veja os trabalhos e missões oferecidos neste porto.",
                 "/api/games/" + gameId + "/contracts"
         ));
 
-        actions.add(new com.tidebreakerstudios.freedom_tide.dto.PortActionDTO(
+        actions.add(new PortActionDTO(
                 PortActionType.TRAVEL,
                 "Viajar",
                 "Abra o mapa e escolha um destino para zarpar.",
                 "/api/games/" + gameId + "/travel"
         ));
 
+        actions.add(new PortActionDTO(
+                PortActionType.GO_TO_SHIPYARD,
+                "Ir ao Estaleiro",
+                "Repare seu navio ou compre melhorias.",
+                "/api/games/" + gameId + "/port/shipyard"
+        ));
+
         return actions;
     }
 
-    @Transactional(readOnly = true)
+    
     public List<EncounterActionDTO> getAvailableEncounterActions(Long gameId) {
         Game game = findGameById(gameId);
         SeaEncounter encounter = game.getCurrentEncounter();
@@ -195,8 +217,7 @@ public class GameService {
         return actions;
     }
 
-    // ... (rest of the class methods)
-    @Transactional
+    
     public CrewMember recruitCrewMember(Long gameId, RecruitCrewMemberRequest request) {
         Game game = findGameById(gameId);
         Ship ship = game.getShip();
@@ -224,10 +245,9 @@ public class GameService {
         return ship.getCrew().get(ship.getCrew().size() - 1);
     }
 
-    @Transactional
+    
     public GameActionResponseDTO resolveEvent(Long gameId, ResolveEventRequest request) {
         Game game = findGameById(gameId);
-        Ship ship = game.getShip();
         List<String> eventLog = new ArrayList<>();
 
         EventOption chosenOption = eventOptionRepository.findById(request.getOptionId())
@@ -239,14 +259,14 @@ public class GameService {
         game.setReputation(game.getReputation() + consequence.getReputationChange());
         game.setInfamy(game.getInfamy() + consequence.getInfamyChange());
         game.setAlliance(game.getAlliance() + consequence.getAllianceChange());
-        ship.setFoodRations(ship.getFoodRations() + consequence.getFoodChange());
-        ship.setRumRations(ship.getRumRations() + consequence.getRumChange());
+        game.getShip().setFoodRations(game.getShip().getFoodRations() + consequence.getFoodChange());
+        game.getShip().setRumRations(game.getShip().getRumRations() + consequence.getRumChange());
 
-        handleMoraleConsequences(ship, consequence.getGoldChange(), eventLog);
+        handleMoraleConsequences(game, consequence.getGoldChange(), eventLog);
 
         if (consequence.getCrewMoralChange() != 0) {
             int baseMoralChange = consequence.getCrewMoralChange();
-            for (CrewMember member : ship.getCrew()) {
+            for (CrewMember member : game.getShip().getCrew()) {
                 double multiplier = 1.0;
                 if (baseMoralChange < 0) {
                     switch (member.getPersonality()) {
@@ -268,7 +288,7 @@ public class GameService {
             eventLog.add(String.format("A moral da tripulação mudou em resposta às suas ações."));
         }
 
-        endTurnCycle(ship, eventLog);
+        endTurnCycle(game, eventLog);
 
         Game savedGame = gameRepository.save(game);
 
@@ -278,7 +298,7 @@ public class GameService {
                 .build();
     }
 
-    @Transactional
+    
     public Game acceptContract(Long gameId, Long contractId) {
         Game game = findGameById(gameId);
         if (game.getActiveContract() != null) {
@@ -299,7 +319,7 @@ public class GameService {
         return gameRepository.save(game);
     }
 
-    @Transactional
+    
     public GameActionResponseDTO resolveContract(Long gameId) {
         Game game = findGameById(gameId);
         Contract activeContract = game.getActiveContract();
@@ -310,15 +330,14 @@ public class GameService {
         }
 
         eventLog.add("Contrato concluído: " + activeContract.getTitle());
-        Ship ship = game.getShip();
 
-        handleMoraleConsequences(ship, activeContract.getRewardGold(), eventLog);
+        handleMoraleConsequences(game, activeContract.getRewardGold(), eventLog);
 
         game.setReputation(game.getReputation() + activeContract.getRewardReputation());
         game.setInfamy(game.getInfamy() + activeContract.getRewardInfamy());
         game.setAlliance(game.getAlliance() + activeContract.getRewardAlliance());
 
-        endTurnCycle(ship, eventLog);
+        endTurnCycle(game, eventLog);
 
         activeContract.setStatus(ContractStatus.COMPLETED);
         game.setActiveContract(null);
@@ -332,13 +351,14 @@ public class GameService {
                 .build();
     }
 
-    private void handleMoraleConsequences(Ship ship, int goldReward, List<String> eventLog) {
+    private void handleMoraleConsequences(Game game, int goldReward, List<String> eventLog) {
+        Ship ship = game.getShip();
         double averageMorale = ship.getAverageMorale();
 
         if (averageMorale < INSUBORDINATION_THRESHOLD) {
             if (ThreadLocalRandom.current().nextDouble() < INSUBORDINATION_CHANCE) {
                 applyInsubordinationPenalty(ship, eventLog);
-                ship.setGold(ship.getGold() + goldReward);
+                game.setGold(game.getGold() + goldReward);
                 eventLog.add(String.format("Você recebeu %d de ouro.", goldReward));
                 return;
             }
@@ -348,7 +368,7 @@ public class GameService {
             if (goldReward > 0 && ThreadLocalRandom.current().nextDouble() < DISCONTENTMENT_CHANCE) {
                 int penalty = (int) (goldReward * GOLD_PENALTY_PERCENTAGE);
                 int finalGold = goldReward - penalty;
-                ship.setGold(ship.getGold() + finalGold);
+                game.setGold(game.getGold() + finalGold);
                 eventLog.add(String.format(
                     "MORAL BAIXA: Tripulantes descontentes causaram problemas! Um pequeno 'acidente' resultou na perda de %d de ouro.",
                     penalty
@@ -358,7 +378,7 @@ public class GameService {
             }
         }
 
-        ship.setGold(ship.getGold() + goldReward);
+        game.setGold(game.getGold() + goldReward);
         if (goldReward > 0) {
             eventLog.add(String.format("Você recebeu %d de ouro.", goldReward));
         }
@@ -392,7 +412,8 @@ public class GameService {
         }
     }
 
-    private void endTurnCycle(Ship ship, List<String> eventLog) {
+    private void endTurnCycle(Game game, List<String> eventLog) {
+        Ship ship = game.getShip();
         List<CrewMember> crew = ship.getCrew();
         if (crew.isEmpty()) {
             return;
@@ -421,8 +442,8 @@ public class GameService {
             crew.forEach(member -> member.setMoral(member.getMoral() + MORALE_PENALTY_NO_RUM));
         }
 
-        if (ship.getGold() >= totalSalary) {
-            ship.setGold(ship.getGold() - totalSalary);
+        if (game.getGold() >= totalSalary) {
+            game.setGold(game.getGold() - totalSalary);
             eventLog.add(String.format("Você pagou %d de ouro em salários.", totalSalary));
         } else {
             eventLog.add("FIM DO TURNO: Ouro insuficiente para pagar os salários! A tripulação está à beira de um motim.");
@@ -432,7 +453,7 @@ public class GameService {
         crew.forEach(member -> member.setMoral(Math.max(0, Math.min(100, member.getMoral()))));
     }
 
-    @Transactional
+    
     public GameActionResponseDTO fleeEncounter(Long gameId) {
         Game game = findGameById(gameId);
         Ship ship = game.getShip();
@@ -442,10 +463,9 @@ public class GameService {
             throw new IllegalStateException("Não há um encontro em andamento ou um destino definido para o qual fugir.");
         }
 
-        // Lógica de Fuga baseada em Habilidade
         int crewNavigationSkill = ship.getCrew().stream().mapToInt(CrewMember::getNavigation).sum();
-        int escapeDifficulty = 10; // Dificuldade base REDUZIDA para 10
-        int randomFactor = ThreadLocalRandom.current().nextInt(1, 21); // Fator de sorte/azar (d20)
+        int escapeDifficulty = 10;
+        int randomFactor = ThreadLocalRandom.current().nextInt(1, 21);
         boolean success = crewNavigationSkill > (escapeDifficulty + randomFactor);
 
         if (success) {
@@ -457,15 +477,12 @@ public class GameService {
             eventLog.add(String.format("Com uma tripulação de Navegação %d, você superou a dificuldade (%d) e escapou!", crewNavigationSkill, escapeDifficulty + randomFactor));
             eventLog.add("Você chegou ao seu destino: " + destination.getName());
 
-            // O ciclo de fim de turno (consumo/salários) é acionado para representar a passagem do tempo na viagem.
-            endTurnCycle(ship, eventLog);
+            endTurnCycle(game, eventLog);
         } else {
             int hullDamage = 5;
             ship.setHullIntegrity(ship.getHullIntegrity() - hullDamage);
             eventLog.add(String.format("Sua tripulação (Navegação %d) não foi páreo para a dificuldade (%d)!", crewNavigationSkill, escapeDifficulty + randomFactor));
             eventLog.add(String.format("Na tentativa de fuga desesperada, o navio sofreu %d de dano ao casco.", hullDamage));
-
-            // O jogador permanece no encontro. O estado não muda, exceto pelo dano.
         }
 
         Game savedGame = gameRepository.save(game);
@@ -476,7 +493,7 @@ public class GameService {
                 .build();
     }
 
-    @Transactional
+    
     public GameActionResponseDTO investigateEncounter(Long gameId) {
         Game game = findGameById(gameId);
         Ship ship = game.getShip();
@@ -494,23 +511,21 @@ public class GameService {
 
         eventLog.add("Você ordena que a tripulação investigue os destroços...");
 
-        // Risco: Chance de dano ao se aproximar dos destroços
-        if (ThreadLocalRandom.current().nextDouble() < 0.15) { // 15% de chance de dano
-            int hullDamage = ThreadLocalRandom.current().nextInt(3, 8); // Dano de 3 a 7
+        if (ThreadLocalRandom.current().nextDouble() < 0.15) {
+            int hullDamage = ThreadLocalRandom.current().nextInt(3, 8);
             ship.setHullIntegrity(ship.getHullIntegrity() - hullDamage);
             eventLog.add(String.format("RISCO: Ao se aproximar, destroços ocultos arranham o casco, causando %d de dano!", hullDamage));
         }
 
-        // Recompensa: Teste de Inteligência para encontrar loot
         int crewIntelligence = ship.getCrew().stream().mapToInt(CrewMember::getIntelligence).sum();
         int difficulty = 15;
-        int randomFactor = ThreadLocalRandom.current().nextInt(1, 21); // d20
+        int randomFactor = ThreadLocalRandom.current().nextInt(1, 21);
         boolean success = crewIntelligence + randomFactor > difficulty;
 
         if (success) {
             int goldFound = ThreadLocalRandom.current().nextInt(100, 251);
             int partsFound = ThreadLocalRandom.current().nextInt(5, 11);
-            ship.setGold(ship.getGold() + goldFound);
+            game.setGold(game.getGold() + goldFound);
             ship.setRepairParts(ship.getRepairParts() + partsFound);
             eventLog.add(String.format(
                 "SUCESSO: A tripulação (Inteligência %d + rolagem %d) superou a dificuldade (%d)! Eles encontram um compartimento secreto contendo %d de ouro e %d peças de reparo.",
@@ -518,21 +533,19 @@ public class GameService {
             ));
         } else {
             int goldFound = ThreadLocalRandom.current().nextInt(20, 51);
-            ship.setGold(ship.getGold() + goldFound);
+            game.setGold(game.getGold() + goldFound);
             eventLog.add(String.format(
                 "FALHA: A tripulação (Inteligência %d + rolagem %d) não superou a dificuldade (%d). Após muita busca, encontram apenas %d de ouro nos bolsos de um esqueleto.",
                 crewIntelligence, randomFactor, difficulty, goldFound
             ));
         }
 
-        // Conclusão do encontro
         game.setCurrentPort(destination);
         game.setCurrentEncounter(null);
         game.setDestinationPort(null);
         eventLog.add("Com os destroços vasculhados, você continua sua viagem e chega a " + destination.getName() + ".");
 
-        // O ciclo de fim de turno é acionado para representar a passagem do tempo na viagem.
-        endTurnCycle(ship, eventLog);
+        endTurnCycle(game, eventLog);
 
         Game savedGame = gameRepository.save(game);
 
@@ -542,7 +555,7 @@ public class GameService {
             .build();
     }
 
-    @Transactional
+    
     public GameActionResponseDTO attackEncounter(Long gameId) {
         Game game = findGameById(gameId);
         Ship ship = game.getShip();
@@ -553,17 +566,14 @@ public class GameService {
             throw new IllegalStateException("Não há um alvo válido para atacar.");
         }
 
-        // Fase de Ataque do Jogador
         int playerArtillery = ship.getCrew().stream().mapToInt(CrewMember::getArtillery).sum();
-        int playerDamage = playerArtillery + ThreadLocalRandom.current().nextInt(5, 11); // Dano = Artilharia + d6+4
+        int playerDamage = playerArtillery + ThreadLocalRandom.current().nextInt(5, 11);
         encounter.setHull(encounter.getHull() - playerDamage);
         eventLog.add(String.format("Você ordena o ataque! Seus artilheiros (Habilidade %d) disparam uma salva de canhões, causando %d de dano ao casco inimigo.", playerArtillery, playerDamage));
 
-        // Verifica a Vitória do Jogador
         if (encounter.getHull() <= 0) {
             eventLog.add(String.format("VITÓRIA! O navio inimigo, %s, está em destroços!", encounter.getType()));
 
-            // Recompensas e Consequências
             int goldReward = 0;
             switch (encounter.getType()) {
                 case MERCHANT_SHIP -> {
@@ -577,30 +587,27 @@ public class GameService {
                     eventLog.add(String.format("Você recupera %d de ouro dos piratas. O Império vê sua ação com bons olhos.", goldReward));
                 }
                 case NAVY_PATROL -> {
-                    goldReward = 50; // Pouca recompensa monetária
+                    goldReward = 50;
                     game.setAlliance(game.getAlliance() + 30);
                     eventLog.add(String.format("Apesar de encontrar apenas %d de ouro, derrotar a patrulha inspira os oprimidos. Sua Aliança cresce.", goldReward));
                 }
             }
-            ship.setGold(ship.getGold() + goldReward);
+            game.setGold(game.getGold() + goldReward);
 
-            // Conclusão do Encontro
             Port destination = game.getDestinationPort();
             game.setCurrentPort(destination);
             game.setCurrentEncounter(null);
             game.setDestinationPort(null);
             eventLog.add("Com a batalha terminada, você continua sua viagem e chega a " + destination.getName() + ".");
-            endTurnCycle(ship, eventLog);
+            endTurnCycle(game, eventLog);
 
         } else {
-            // Fase de Ataque do Inimigo
-            int enemyDamage = encounter.getCannons() + ThreadLocalRandom.current().nextInt(1, 7); // d6
+            int enemyDamage = encounter.getCannons() + ThreadLocalRandom.current().nextInt(1, 7);
             ship.setHullIntegrity(ship.getHullIntegrity() - enemyDamage);
             eventLog.add(String.format("O inimigo revida! Os canhões deles causam %d de dano ao seu casco.", enemyDamage));
 
             if (ship.getHullIntegrity() <= 0) {
                 eventLog.add("DERROTA! Seu navio foi destruído. As ondas consomem seus destroços e seus sonhos...");
-                // Futuramente, implementar um estado de Game Over aqui.
             }
         }
 
@@ -611,7 +618,7 @@ public class GameService {
                 .build();
     }
 
-    @Transactional
+    
     public GameActionResponseDTO boardEncounter(Long gameId) {
         Game game = findGameById(gameId);
         Ship ship = game.getShip();
@@ -624,7 +631,6 @@ public class GameService {
 
         eventLog.add("Você dá a ordem e sua tripulação se prepara para a abordagem!");
 
-        // Fase de Cálculo de Força
         int playerCombatStrength = ship.getCrew().stream().mapToInt(CrewMember::getCombat).sum();
         int enemyBaseStrength = switch (encounter.getType()) {
             case MERCHANT_SHIP -> 10;
@@ -633,7 +639,6 @@ public class GameService {
             default -> 0;
         };
 
-        // Rolagem contestada
         int playerRoll = playerCombatStrength + ThreadLocalRandom.current().nextInt(1, 21);
         int enemyRoll = enemyBaseStrength + ThreadLocalRandom.current().nextInt(1, 21);
 
@@ -641,13 +646,12 @@ public class GameService {
         eventLog.add(String.format("A força de defesa inimiga (Base %d + rolagem) resultou em %d.", enemyBaseStrength, enemyRoll));
 
         if (playerRoll > enemyRoll) {
-            // Vitória na Abordagem
             eventLog.add("VITÓRIA! Sua tripulação domina o convés inimigo e força a rendição!");
 
             int goldReward = 0;
             switch (encounter.getType()) {
                 case MERCHANT_SHIP -> {
-                    goldReward = 400; // Recompensa maior por não destruir a carga
+                    goldReward = 400;
                     game.setInfamy(game.getInfamy() + 30);
                     eventLog.add(String.format("Você captura o navio e sua carga, obtendo %d de ouro. Sua infâmia cresce.", goldReward));
                 }
@@ -662,25 +666,87 @@ public class GameService {
                     eventLog.add(String.format("Capturar um navio da Marinha é um ato ousado! Você encontra %d de ouro e sua Aliança com os rebeldes se fortalece.", goldReward));
                 }
             }
-            ship.setGold(ship.getGold() + goldReward);
+            game.setGold(game.getGold() + goldReward);
 
-            // Conclusão do Encontro
             Port destination = game.getDestinationPort();
             game.setCurrentPort(destination);
             game.setCurrentEncounter(null);
             game.setDestinationPort(null);
             eventLog.add("Com o navio inimigo capturado, você continua sua viagem e chega a " + destination.getName() + ".");
-            endTurnCycle(ship, eventLog);
+            endTurnCycle(game, eventLog);
 
         } else {
-            // Derrota na Abordagem
-            int hullDamage = ThreadLocalRandom.current().nextInt(10, 21); // Dano pesado
+            int hullDamage = ThreadLocalRandom.current().nextInt(10, 21);
             int moralePenalty = -15;
             ship.setHullIntegrity(ship.getHullIntegrity() - hullDamage);
             ship.getCrew().forEach(member -> member.setMoral(member.getMoral() + moralePenalty));
 
             eventLog.add(String.format("DERROTA! Sua tripulação foi repelida! Em meio à retirada caótica, seu navio sofre %d de dano ao casco e a moral da tripulação despenca.", hullDamage));
         }
+
+        Game savedGame = gameRepository.save(game);
+        return GameActionResponseDTO.builder()
+                .gameStatus(gameMapper.toGameStatusResponseDTO(savedGame))
+                .eventLog(eventLog)
+                .build();
+    }
+
+    
+    public ShipyardDTO getShipyardInfo(Long gameId) {
+        Game game = findGameById(gameId);
+        Ship ship = game.getShip();
+        if (game.getCurrentPort() == null) {
+            throw new IllegalStateException("O navio deve estar em um porto para acessar o estaleiro.");
+        }
+
+        int damage = ship.getMaxHullIntegrity() - ship.getHullIntegrity();
+        if (damage <= 0) {
+            return ShipyardDTO.builder()
+                    .message("O estaleiro não tem trabalho a fazer. Seu navio está em perfeitas condições.")
+                    .repairCost(0)
+                    .hullIntegrity(ship.getHullIntegrity())
+                    .maxHullIntegrity(ship.getMaxHullIntegrity())
+                    .build();
+        }
+
+        int repairCost = damage * REPAIR_COST_PER_POINT;
+
+        return ShipyardDTO.builder()
+                .message(String.format("O mestre do estaleiro estima o custo para reparar %d pontos de dano no casco.", damage))
+                .repairCost(repairCost)
+                .hullIntegrity(ship.getHullIntegrity())
+                .maxHullIntegrity(ship.getMaxHullIntegrity())
+                .build();
+    }
+
+    
+    public GameActionResponseDTO repairShip(Long gameId) {
+        Game game = findGameById(gameId);
+        Ship ship = game.getShip();
+        List<String> eventLog = new ArrayList<>();
+
+        if (game.getCurrentPort() == null) {
+            throw new IllegalStateException("O navio deve estar em um porto para reparos.");
+        }
+
+        int damage = ship.getMaxHullIntegrity() - ship.getHullIntegrity();
+        if (damage <= 0) {
+            eventLog.add("Seu navio já está com o casco em estado máximo. Nenhum reparo foi necessário.");
+            return GameActionResponseDTO.builder()
+                    .gameStatus(gameMapper.toGameStatusResponseDTO(game))
+                    .eventLog(eventLog)
+                    .build();
+        }
+
+        int repairCost = damage * REPAIR_COST_PER_POINT;
+        if (game.getGold() < repairCost) {
+            throw new IllegalStateException(String.format("Ouro insuficiente. Você precisa de %d de ouro para os reparos, mas possui apenas %d.", repairCost, game.getGold()));
+        }
+
+        game.setGold(game.getGold() - repairCost);
+        ship.setHullIntegrity(ship.getMaxHullIntegrity());
+
+        eventLog.add(String.format("Você pagou %d de ouro ao estaleiro. O casco do seu navio foi totalmente reparado!", repairCost));
 
         Game savedGame = gameRepository.save(game);
         return GameActionResponseDTO.builder()

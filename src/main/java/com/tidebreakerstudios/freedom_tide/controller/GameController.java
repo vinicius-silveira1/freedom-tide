@@ -92,6 +92,20 @@ public class GameController {
         return ResponseEntity.ok(response);
     }
 
+    // --- Endpoints de Porto ---
+
+    @GetMapping("/{gameId}/port/shipyard")
+    public ResponseEntity<ShipyardDTO> getShipyardInfo(@PathVariable Long gameId) {
+        ShipyardDTO shipyardDTO = gameService.getShipyardInfo(gameId);
+        return ResponseEntity.ok(shipyardDTO);
+    }
+
+    @PostMapping("/{gameId}/port/shipyard/repair")
+    public ResponseEntity<GameActionResponseDTO> repairShip(@PathVariable Long gameId) {
+        GameActionResponseDTO response = gameService.repairShip(gameId);
+        return ResponseEntity.ok(response);
+    }
+
     @PostMapping("/{gameId}/ship/crew")
     public ResponseEntity<CrewMemberResponseDTO> recruitCrewMember(
             @PathVariable Long gameId,

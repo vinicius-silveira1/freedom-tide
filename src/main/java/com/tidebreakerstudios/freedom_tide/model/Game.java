@@ -24,6 +24,12 @@ public class Game {
     private Long id;
 
     /**
+     * A quantidade de ouro (dinheiro) que o jogador possui.
+     */
+    @Builder.Default
+    private Integer gold = 500;
+
+    /**
      * Reputação (0-1000): A posição do jogador dentro do sistema opressor.
      * Aumenta ao servir os interesses do Império e da Guilda.
      */

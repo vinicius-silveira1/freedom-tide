@@ -88,14 +88,23 @@ Este documento serve como um "save state" do nosso processo de desenvolvimento. 
 
 ---
 
+## v1.6 - Tornando os Portos Vivos (Em Andamento)
+
+### Fase 1: Ação de Porto "Ir ao Estaleiro" (Concluído)
+
+- **Descrição**: Implementada a ação de porto "Ir ao Estaleiro" e a funcionalidade de reparo do casco do navio. Isso cria um ciclo de jogabilidade onde o dano sofrido no mar tem um custo financeiro, dando mais propósito à acumulação de ouro.
+- **Status**: **Concluído e Verificado.**
+
+---
+
 ## Próxima Tarefa: v1.6 - Tornando os Portos Vivos
 
-### Fase 1: Ação de Porto "Ir ao Estaleiro"
+### Fase 2: Melhorias de Navio no Estaleiro
 
-- **[Próximo Passo Lógico]**: Implementar a Ação de Porto "Ir ao Estaleiro".
-- **[Justificativa (Lição de Arquitetura/Design)]**: Nosso loop no mar está robusto, mas os portos ainda são apenas pontos de transição. Para dar profundidade ao pilar de "Customização" e criar um ciclo de recompensa significativo, precisamos de uma forma para o jogador gastar o ouro e os recursos que acumula. Implementar um "Estaleiro" nos portos é o passo fundamental. Isso introduz uma nova camada de gameplay (gerenciamento e upgrade do navio) e dá um propósito maior para as atividades de risco no mar. Arquitetonicamente, isso significa adicionar uma nova ação de porto e, crucialmente, um novo conjunto de endpoints para listar e comprar melhorias para o navio, conectando a economia do jogo com a progressão do jogador.
+- **[Próximo Passo Lógico]**: Implementar a compra de melhorias para o navio no Estaleiro.
+- **[Justificativa (Lição de Arquitetura/Design)]**: Com o reparo funcionando, o estaleiro cumpre sua função básica. Para aprofundar o pilar de "Customização" e dar aos jogadores metas de longo prazo, precisamos de um sistema de progressão para o navio. Introduzir melhorias de atributos (canhões, velas, etc.) é o próximo passo natural. Isso cria um "money sink" (sumidouro de dinheiro) estratégico e recompensa o jogador por acumular riqueza, permitindo que ele especialize seu navio para seu estilo de jogo (Comerciante, Pirata, Libertador).
 - **[Opções ou Considerações Criativas]**:
-    1.  **Reparo do Casco (Fase 1)**: A primeira e mais óbvia funcionalidade do estaleiro é permitir que o jogador pague para reparar o `hullIntegrity` do navio. Isso cria uma mecânica de "money sink" e torna o dano sofrido em combate mais significativo.
-    2.  **Melhorias de Atributos (Fase 2 - Futuro)**: O estaleiro pode oferecer a compra de melhorias permanentes, como "Canhões de Qualidade Superior" (+5% de dano de artilharia) ou "Velas Reforçadas" (+5 de bônus em testes de fuga). Isso cria um sistema de progressão de longo prazo para o navio.
-    3.  **Disponibilidade por Porto**: Nem todos os estaleiros precisam ser iguais. Portos da Marinha Imperial podem ter as melhores melhorias de canhão, enquanto Portos Livres podem se especializar em porões de contrabando ou melhorias de velocidade, incentivando o jogador a explorar o mundo.
-- **Status Atual**: **Aguardando Aprovação.**
+    1.  **Modelagem**: Precisaremos de uma nova entidade `Upgrade` ou `ShipUpgrade` e uma relação `OneToMany` com o `Ship`. Cada `Upgrade` teria um `UpgradeType` (e.g., CANNONS, HULL, SAILS), um bônus de atributo e um custo.
+    2.  **Disponibilidade**: Podemos ter diferentes melhorias disponíveis em diferentes tipos de portos (e.g., Canhões melhores em portos do Império, porões de contrabando em portos Piratas), incentivando a exploração.
+    3.  **API**: O endpoint do estaleiro (`GET /api/games/{gameId}/port/shipyard`) precisará ser expandido para listar as melhorias disponíveis para compra, além do custo de reparo. Um novo endpoint (`POST /api/games/{gameId}/port/shipyard/purchase_upgrade`) será necessário.
+- **Status Atual**: **Aguardando aprovação.**
