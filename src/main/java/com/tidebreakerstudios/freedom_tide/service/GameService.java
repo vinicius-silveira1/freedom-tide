@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -23,6 +24,7 @@ public class GameService {
     private final ContractRepository contractRepository;
     private final PortRepository portRepository;
     private final SeaEncounterRepository seaEncounterRepository;
+    private final ShipUpgradeRepository shipUpgradeRepository;
     private final GameMapper gameMapper;
 
     // Constantes de Moral
@@ -692,6 +694,7 @@ public class GameService {
     }
 
     
+    @Transactional(readOnly = true)
     public ShipyardDTO getShipyardInfo(Long gameId) {
         Game game = findGameById(gameId);
         Ship ship = game.getShip();
@@ -700,22 +703,26 @@ public class GameService {
         }
 
         int damage = ship.getMaxHullIntegrity() - ship.getHullIntegrity();
-        if (damage <= 0) {
-            return ShipyardDTO.builder()
-                    .message("O estaleiro não tem trabalho a fazer. Seu navio está em perfeitas condições.")
-                    .repairCost(0)
-                    .hullIntegrity(ship.getHullIntegrity())
-                    .maxHullIntegrity(ship.getMaxHullIntegrity())
-                    .build();
-        }
+        int repairCost = (damage > 0) ? damage * REPAIR_COST_PER_POINT : 0;
 
-        int repairCost = damage * REPAIR_COST_PER_POINT;
+        List<ShipUpgrade> allUpgrades = shipUpgradeRepository.findAll();
+        List<ShipUpgrade> currentUpgrades = ship.getUpgrades();
+
+        List<ShipUpgradeDTO> availableUpgrades = allUpgrades.stream()
+                .filter(upgrade -> !currentUpgrades.contains(upgrade))
+                .map(gameMapper::toShipUpgradeDTO)
+                .collect(Collectors.toList());
+
+        String message = (damage > 0)
+                ? String.format("O mestre do estaleiro estima o custo para reparar %d pontos de dano no casco.", damage)
+                : "O estaleiro não tem trabalho a fazer. Seu navio está em perfeitas condições.";
 
         return ShipyardDTO.builder()
-                .message(String.format("O mestre do estaleiro estima o custo para reparar %d pontos de dano no casco.", damage))
+                .message(message)
                 .repairCost(repairCost)
                 .hullIntegrity(ship.getHullIntegrity())
                 .maxHullIntegrity(ship.getMaxHullIntegrity())
+                .availableUpgrades(availableUpgrades)
                 .build();
     }
 
@@ -747,6 +754,54 @@ public class GameService {
         ship.setHullIntegrity(ship.getMaxHullIntegrity());
 
         eventLog.add(String.format("Você pagou %d de ouro ao estaleiro. O casco do seu navio foi totalmente reparado!", repairCost));
+
+        Game savedGame = gameRepository.save(game);
+        return GameActionResponseDTO.builder()
+                .gameStatus(gameMapper.toGameStatusResponseDTO(savedGame))
+                .eventLog(eventLog)
+                .build();
+    }
+
+    @Transactional
+    public GameActionResponseDTO purchaseUpgrade(Long gameId, Long upgradeId) {
+        Game game = findGameById(gameId);
+        Ship ship = game.getShip();
+        List<String> eventLog = new ArrayList<>();
+
+        if (game.getCurrentPort() == null) {
+            throw new IllegalStateException("O navio deve estar em um porto para comprar melhorias.");
+        }
+
+        ShipUpgrade upgradeToPurchase = shipUpgradeRepository.findById(upgradeId)
+                .orElseThrow(() -> new EntityNotFoundException("Melhoria não encontrada com o ID: " + upgradeId));
+
+        if (ship.getUpgrades().contains(upgradeToPurchase)) {
+            throw new IllegalStateException("Seu navio já possui a melhoria: " + upgradeToPurchase.getName());
+        }
+
+        if (game.getGold() < upgradeToPurchase.getCost()) {
+            throw new IllegalStateException(String.format("Ouro insuficiente. Você precisa de %d de ouro para comprar '%s', mas possui apenas %d.",
+                    upgradeToPurchase.getCost(), upgradeToPurchase.getName(), game.getGold()));
+        }
+
+        // Apply purchase
+        game.setGold(game.getGold() - upgradeToPurchase.getCost());
+        ship.getUpgrades().add(upgradeToPurchase);
+
+        // Apply modifier
+        switch (upgradeToPurchase.getType()) {
+            case HULL:
+                ship.setMaxHullIntegrity(ship.getMaxHullIntegrity() + upgradeToPurchase.getModifier());
+                ship.setHullIntegrity(ship.getHullIntegrity() + upgradeToPurchase.getModifier()); // Also repair to the new max
+                break;
+            case CANNONS:
+                ship.setCannons(ship.getCannons() + upgradeToPurchase.getModifier());
+                break;
+            // Other cases for SAILS, CARGO etc. can be added here
+        }
+
+        eventLog.add(String.format("Você pagou %d de ouro e instalou a melhoria: %s!",
+                upgradeToPurchase.getCost(), upgradeToPurchase.getName()));
 
         Game savedGame = gameRepository.save(game);
         return GameActionResponseDTO.builder()

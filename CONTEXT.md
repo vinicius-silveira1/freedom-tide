@@ -97,14 +97,21 @@ Este documento serve como um "save state" do nosso processo de desenvolvimento. 
 
 ---
 
+### Fase 2: Melhorias de Navio no Estaleiro (Concluído)
+
+- **Descrição**: Implementado o sistema de compra de melhorias para o navio. O jogador agora pode gastar ouro para adquirir melhorias que afetam os atributos do navio, como casco e canhões. A API lista apenas melhorias que o jogador não possui e valida a compra contra o ouro do jogador e duplicatas.
+- **Status**: **Concluído e Verificado.**
+
+---
+
 ## Próxima Tarefa: v1.6 - Tornando os Portos Vivos
 
-### Fase 2: Melhorias de Navio no Estaleiro
+### Fase 3: Inventário do Estaleiro por Facção
 
-- **[Próximo Passo Lógico]**: Implementar a compra de melhorias para o navio no Estaleiro.
-- **[Justificativa (Lição de Arquitetura/Design)]**: Com o reparo funcionando, o estaleiro cumpre sua função básica. Para aprofundar o pilar de "Customização" e dar aos jogadores metas de longo prazo, precisamos de um sistema de progressão para o navio. Introduzir melhorias de atributos (canhões, velas, etc.) é o próximo passo natural. Isso cria um "money sink" (sumidouro de dinheiro) estratégico e recompensa o jogador por acumular riqueza, permitindo que ele especialize seu navio para seu estilo de jogo (Comerciante, Pirata, Libertador).
+- **[Próximo Passo Lógico]**: Fazer com que o inventário de melhorias do estaleiro dependa da facção do porto.
+- **[Justificativa (Lição de Arquitetura/Design)]**: Atualmente, todos os estaleiros vendem as mesmas melhorias. Para aprofundar a imersão no mundo e tornar a exploração mais recompensadora, o inventário deve refletir a ideologia da facção que controla o porto. Portos do Império podem vender os melhores canhões, portos da Guilda podem focar em melhorias de carga, e portos Piratas/Livres podem oferecer modificações únicas como porões de contrabando. Isso força o jogador a viajar e interagir com diferentes facções para customizar seu navio, reforçando os pilares de "Mundo" e "Customização".
 - **[Opções ou Considerações Criativas]**:
-    1.  **Modelagem**: Precisaremos de uma nova entidade `Upgrade` ou `ShipUpgrade` e uma relação `OneToMany` com o `Ship`. Cada `Upgrade` teria um `UpgradeType` (e.g., CANNONS, HULL, SAILS), um bônus de atributo e um custo.
-    2.  **Disponibilidade**: Podemos ter diferentes melhorias disponíveis em diferentes tipos de portos (e.g., Canhões melhores em portos do Império, porões de contrabando em portos Piratas), incentivando a exploração.
-    3.  **API**: O endpoint do estaleiro (`GET /api/games/{gameId}/port/shipyard`) precisará ser expandido para listar as melhorias disponíveis para compra, além do custo de reparo. Um novo endpoint (`POST /api/games/{gameId}/port/shipyard/purchase_upgrade`) será necessário.
+    1.  **Modelagem**: Podemos adicionar um campo `PortType` à entidade `ShipUpgrade` para indicar onde ela pode ser encontrada. Uma abordagem mais flexível seria uma tabela de junção `port_type_upgrades` para permitir que uma melhoria seja vendida em múltiplos tipos de porto. Para começar, um simples campo `PortType` na melhoria é suficiente.
+    2.  **Lógica de Serviço**: O método `getShipyardInfo` no `GameService` precisará ser atualizado para filtrar as melhorias não apenas pelas que o jogador já possui, mas também pelo `PortType` do porto atual.
+    3.  **Balanceamento**: Isso nos dá uma alavanca para balancear o jogo. As melhores melhorias podem estar em portos de facções com as quais o jogador tem baixa reputação, criando um desafio interessante.
 - **Status Atual**: **Aguardando aprovação.**

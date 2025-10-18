@@ -16,5 +16,5 @@ public class ShipSummaryDTO {
     private Integer rumRations;
     private Integer repairParts;
     private Integer cannonballs;
-    private List<String> upgrades;
+    private List<ShipUpgradeDTO> upgrades;
 }

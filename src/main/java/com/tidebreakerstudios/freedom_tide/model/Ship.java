@@ -14,7 +14,7 @@ import java.util.List;
  */
 @Getter
 @Setter
-@ToString(exclude = {"game", "crew"})
+@ToString(exclude = {"game", "crew", "upgrades"})
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
@@ -86,6 +86,15 @@ public class Ship {
     @Builder.Default
     @JsonManagedReference("ship-crew")
     private List<CrewMember> crew = new ArrayList<>();
+
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(
+            name = "ship_upgrades_installed",
+            joinColumns = @JoinColumn(name = "ship_id"),
+            inverseJoinColumns = @JoinColumn(name = "upgrade_id")
+    )
+    @Builder.Default
+    private List<ShipUpgrade> upgrades = new ArrayList<>();
 
     /**
      * Melhoria ideológica: permite a criação de propaganda revolucionária.

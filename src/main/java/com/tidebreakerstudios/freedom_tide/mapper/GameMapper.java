@@ -1,14 +1,11 @@
 package com.tidebreakerstudios.freedom_tide.mapper;
 
 import com.tidebreakerstudios.freedom_tide.dto.*;
-import com.tidebreakerstudios.freedom_tide.model.Contract;
-import com.tidebreakerstudios.freedom_tide.model.CrewMember;
-import com.tidebreakerstudios.freedom_tide.model.Game;
-import com.tidebreakerstudios.freedom_tide.model.Ship;
+import com.tidebreakerstudios.freedom_tide.model.*;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Component
 public class GameMapper {
@@ -31,27 +28,16 @@ public class GameMapper {
                 .averageMorale(ship.getAverageMorale())
                 .build();
 
-        List<String> upgrades = new ArrayList<>();
-        if (ship.isHasPrintingPress()) {
-            upgrades.add("Printing Press");
-        }
-        if (ship.isHasSmugglingCompartments()) {
-            upgrades.add("Smuggling Compartments");
-        }
-        if (ship.isHasLuxuryCabin()) {
-            upgrades.add("Luxury Cabin");
-        }
-
         ShipSummaryDTO shipDTO = ShipSummaryDTO.builder()
                 .name(ship.getName())
                 .type(ship.getType().name())
                 .hullIntegrity(ship.getHullIntegrity())
-                .gold(game.getGold()) // Correção: Obter ouro do Game
+                .gold(game.getGold())
                 .foodRations(ship.getFoodRations())
                 .rumRations(ship.getRumRations())
                 .repairParts(ship.getRepairParts())
                 .cannonballs(ship.getCannonballs())
-                .upgrades(upgrades)
+                .upgrades(toShipUpgradeDTOList(ship.getUpgrades())) // Use new mapping
                 .build();
 
         return GameStatusResponseDTO.builder()
@@ -63,6 +49,29 @@ public class GameMapper {
                 .currentPort(toPortDTO(game.getCurrentPort()))
                 .currentEncounter(toSeaEncounterDTO(game.getCurrentEncounter()))
                 .build();
+    }
+
+    public List<ShipUpgradeDTO> toShipUpgradeDTOList(List<ShipUpgrade> upgrades) {
+        if (upgrades == null) {
+            return List.of();
+        }
+        return upgrades.stream()
+                .map(this::toShipUpgradeDTO)
+                .collect(Collectors.toList());
+    }
+
+    public ShipUpgradeDTO toShipUpgradeDTO(ShipUpgrade upgrade) {
+        if (upgrade == null) {
+            return null;
+        }
+        return new ShipUpgradeDTO(
+                upgrade.getId(),
+                upgrade.getName(),
+                upgrade.getDescription(),
+                upgrade.getType(),
+                upgrade.getModifier(),
+                upgrade.getCost()
+        );
     }
 
     public CrewMemberResponseDTO toCrewMemberResponseDTO(CrewMember crewMember) {

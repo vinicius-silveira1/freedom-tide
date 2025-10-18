@@ -106,6 +106,14 @@ public class GameController {
         return ResponseEntity.ok(response);
     }
 
+    @PostMapping("/{gameId}/port/shipyard/upgrades/{upgradeId}")
+    public ResponseEntity<GameActionResponseDTO> purchaseUpgrade(
+            @PathVariable Long gameId,
+            @PathVariable Long upgradeId) {
+        GameActionResponseDTO response = gameService.purchaseUpgrade(gameId, upgradeId);
+        return ResponseEntity.ok(response);
+    }
+
     @PostMapping("/{gameId}/ship/crew")
     public ResponseEntity<CrewMemberResponseDTO> recruitCrewMember(
             @PathVariable Long gameId,

@@ -4,6 +4,7 @@ import com.tidebreakerstudios.freedom_tide.model.*;
 import com.tidebreakerstudios.freedom_tide.repository.ContractRepository;
 import com.tidebreakerstudios.freedom_tide.repository.NarrativeEventRepository;
 import com.tidebreakerstudios.freedom_tide.repository.PortRepository;
+import com.tidebreakerstudios.freedom_tide.repository.ShipUpgradeRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
@@ -26,6 +27,7 @@ public class DataSeeder implements CommandLineRunner {
     private final NarrativeEventRepository narrativeEventRepository;
     private final ContractRepository contractRepository;
     private final PortRepository portRepository; // Repositório de Portos injetado
+    private final ShipUpgradeRepository shipUpgradeRepository;
 
     @Override
     @Transactional
@@ -35,6 +37,34 @@ public class DataSeeder implements CommandLineRunner {
         }
         Map<String, Port> ports = createAndGetPorts();
         seedContracts(ports);
+        seedUpgrades();
+    }
+
+    private void seedUpgrades() {
+        List<ShipUpgrade> upgradeBlueprints = Arrays.asList(
+                ShipUpgrade.builder().name("Canhões de Bronze").description("Canhões de qualidade superior que causam mais dano.").type(UpgradeType.CANNONS).modifier(5).cost(1000).build(),
+                ShipUpgrade.builder().name("Casco Reforçado").description("Placas de ferro adicionais reforçam o casco, aumentando sua durabilidade.").type(UpgradeType.HULL).modifier(20).cost(800).build(),
+                ShipUpgrade.builder().name("Velas de Linho").description("Velas mais leves e resistentes que melhoram a manobrabilidade.").type(UpgradeType.SAILS).modifier(10).cost(600).build(),
+                ShipUpgrade.builder().name("Porão Expandido").description("Uma reorganização inteligente do porão permite carregar mais carga.").type(UpgradeType.CARGO).modifier(50).cost(400).build()
+        );
+
+        upgradeBlueprints.forEach(blueprint -> {
+            shipUpgradeRepository.findByName(blueprint.getName()).ifPresentOrElse(
+                    existingUpgrade -> {
+                        // Upgrade found, update fields
+                        existingUpgrade.setDescription(blueprint.getDescription());
+                        existingUpgrade.setType(blueprint.getType());
+                        existingUpgrade.setModifier(blueprint.getModifier());
+                        existingUpgrade.setCost(blueprint.getCost());
+                        shipUpgradeRepository.save(existingUpgrade);
+                    },
+                    () -> {
+                        // Upgrade not found, create new one
+                        shipUpgradeRepository.save(blueprint);
+                    }
+            );
+        });
+        System.out.println("--- Melhorias de Navio Iniciais sincronizadas (Upsert). ---");
     }
 
     private Map<String, Port> createAndGetPorts() {
