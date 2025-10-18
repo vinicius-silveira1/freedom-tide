@@ -50,22 +50,22 @@ Este documento serve como um "save state" do nosso processo de desenvolvimento. 
 
 ### Fase 3: Inventário do Estaleiro por Facção (Concluído)
 - **Descrição**: O inventário de melhorias do estaleiro agora depende da facção do porto. Portos do Império, da Guilda e Piratas oferecem melhorias distintas, além das comuns, aprofundando a imersão e a necessidade de exploração.
-- **Mudanças**:
-    1.  A entidade `ShipUpgrade` agora tem um campo `portType` (anulável para itens comuns).
-    2.  O `DataSeeder` foi atualizado para atribuir `PortType`s às melhorias, incluindo itens específicos de facção.
-    3.  A lógica em `GameService.getShipyardInfo` foi modificada para filtrar as melhorias disponíveis com base no `PortType` do porto atual.
+- **Status**: **Conclúido e Verificado.**
+
+### Fase 4: Ação de Porto "Ir ao Mercado" (Concluído)
+- **Descrição**: Implementada a mecânica de mercado nos portos, permitindo ao jogador comprar e vender recursos essenciais (comida, rum, ferramentas, munição). Os preços variam conforme a facção do porto, criando um loop econômico e incentivando a viagem e o comércio.
 - **Status**: **Concluído e Verificado.**
 
 ---
 
 ## Próxima Tarefa: v1.6 - Tornando os Portos Vivos
 
-### Fase 4: Ação de Porto "Ir ao Mercado"
+### Fase 5: Ação de Porto "Ir à Taverna"
 
-- **[Próximo Passo Lógico]**: Implementar a ação de porto "Ir ao Mercado".
-- **[Justificativa (Lição de Arquitetura/Design)]**: Atualmente, o jogador não tem como gerenciar ativamente seus recursos (comida, rum, etc.), que são consumidos a cada turno. A introdução de um mercado em cada porto, com preços variados, cria um verdadeiro loop econômico. Isso dá ao jogador agência sobre sua logística e abre as portas para o pilar de gameplay de "Comerciante", permitindo a compra de suprimentos em portos onde são baratos e a venda onde são caros.
+- **[Próximo Passo Lógico]**: Implementar a ação de porto "Ir à Taverna".
+- **[Justificativa (Lição de Arquitetura/Design)]**: Atualmente, o recrutamento de tripulantes é feito por uma chamada de API direta, que não está integrada à experiência do jogo. A Taverna servirá como o hub narrativo e mecânico para o recrutamento. Isso conecta o sistema de tripulação ao loop de gameplay no porto, tornando a experiência mais imersiva e diegética. Em vez de apenas "adicionar um tripulante", o jogador "encontra e recruta alguém na taverna".
 - **[Opções ou Considerações Criativas]**:
-    1.  **Preços Dinâmicos**: Os preços dos recursos podem variar com base no `PortType`. Portos `IMPERIAL` podem ter comida barata, enquanto portos `PIRATE` podem ter rum barato. Isso incentiva ainda mais a viagem e o planejamento.
-    2.  **Modelagem**: Podemos adicionar campos como `foodPrice`, `rumPrice` na entidade `Port` e populá-los no `DataSeeder`. É uma abordagem simples e eficaz para começar.
-    3.  **API**: Criar um endpoint `GET /api/games/{gameId}/port/market` que retorna os bens disponíveis e seus preços, e endpoints `POST /api/games/{gameId}/port/market/buy` e `POST /api/games/{gameId}/port/market/sell` para as transações.
+    1.  **Tripulantes Gerados Procedimentalmente**: Ao entrar na taverna, o sistema pode gerar uma lista de 2 a 3 tripulantes disponíveis para recrutamento, com atributos, personalidades e níveis de desespero variados. Isso torna cada visita ao porto única.
+    2.  **Influência da Facção**: O tipo de tripulante encontrado pode variar com o `PortType`. Tavernas em portos Piratas teriam mais personalidades "Sedentas por Sangue", enquanto portos do Império teriam mais tripulantes "Honestos".
+    3.  **API**: Criar um endpoint `GET /api/games/{gameId}/port/tavern` que retorna a lista de recrutas disponíveis. O endpoint de recrutamento (`POST /api/games/{gameId}/ship/crew`) pode ser reutilizado, mas agora o front-end o chamaria com os dados de um recruta específico da taverna.
 - **Status Atual**: **Aguardando aprovação.**

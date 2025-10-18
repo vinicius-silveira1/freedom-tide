@@ -75,21 +75,25 @@ public class DataSeeder implements CommandLineRunner {
 
     private Map<String, Port> createAndGetPorts() {
         List<Port> portBlueprints = Arrays.asList(
-            Port.builder().name("Porto Real").type(PortType.IMPERIAL).build(),
-            Port.builder().name("Baía da Guilda").type(PortType.GUILD).build(),
-            Port.builder().name("Ninho do Corvo").type(PortType.PIRATE).build()
+                Port.builder().name("Porto Real").type(PortType.IMPERIAL).foodPrice(10).rumPrice(20).toolsPrice(30).shotPrice(40).build(),
+                Port.builder().name("Baía da Guilda").type(PortType.GUILD).foodPrice(15).rumPrice(25).toolsPrice(25).shotPrice(45).build(),
+                Port.builder().name("Ninho do Corvo").type(PortType.PIRATE).foodPrice(20).rumPrice(15).toolsPrice(35).shotPrice(30).build()
         );
 
         Map<String, Port> savedPorts = portBlueprints.stream()
-            .map(blueprint -> portRepository.findByName(blueprint.getName())
-                .map(existingPort -> {
-                    existingPort.setType(blueprint.getType());
-                    return portRepository.save(existingPort);
-                })
-                .orElseGet(() -> portRepository.save(blueprint)))
-            .collect(Collectors.toMap(Port::getName, Function.identity()));
+                .map(blueprint -> portRepository.findByName(blueprint.getName())
+                        .map(existingPort -> {
+                            existingPort.setType(blueprint.getType());
+                            existingPort.setFoodPrice(blueprint.getFoodPrice());
+                            existingPort.setRumPrice(blueprint.getRumPrice());
+                            existingPort.setToolsPrice(blueprint.getToolsPrice());
+                            existingPort.setShotPrice(blueprint.getShotPrice());
+                            return portRepository.save(existingPort);
+                        })
+                        .orElseGet(() -> portRepository.save(blueprint)))
+                .collect(Collectors.toMap(Port::getName, Function.identity()));
 
-        System.out.println("--- Portos Iniciais sincronizados (Upsert). ---");
+        System.out.println("--- Portos Iniciais e Preços de Mercado sincronizados (Upsert). ---");
         return savedPorts;
     }
 

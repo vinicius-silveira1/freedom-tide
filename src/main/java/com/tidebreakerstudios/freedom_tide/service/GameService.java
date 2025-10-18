@@ -187,6 +187,13 @@ public class GameService {
                 "/api/games/" + gameId + "/port/shipyard"
         ));
 
+        actions.add(new PortActionDTO(
+                PortActionType.GO_TO_MARKET,
+                "Ir ao Mercado",
+                "Compre e venda recursos como comida, rum e ferramentas.",
+                "/api/games/" + gameId + "/port/market"
+        ));
+
         return actions;
     }
 
@@ -806,6 +813,121 @@ public class GameService {
 
         eventLog.add(String.format("Você pagou %d de ouro e instalou a melhoria: %s!",
                 upgradeToPurchase.getCost(), upgradeToPurchase.getName()));
+
+        Game savedGame = gameRepository.save(game);
+        return GameActionResponseDTO.builder()
+                .gameStatus(gameMapper.toGameStatusResponseDTO(savedGame))
+                .eventLog(eventLog)
+                .build();
+    }
+
+    @Transactional(readOnly = true)
+    public MarketDTO getMarketInfo(Long gameId) {
+        Game game = findGameById(gameId);
+        Port currentPort = game.getCurrentPort();
+        if (currentPort == null) {
+            throw new IllegalStateException("O navio deve estar em um porto para acessar o mercado.");
+        }
+
+        Ship ship = game.getShip();
+        return MarketDTO.builder()
+                .foodPrice(currentPort.getFoodPrice())
+                .rumPrice(currentPort.getRumPrice())
+                .toolsPrice(currentPort.getToolsPrice())
+                .shotPrice(currentPort.getShotPrice())
+                .shipFood(ship.getFoodRations())
+                .shipRum(ship.getRumRations())
+                .shipTools(ship.getRepairParts())
+                .shipShot(ship.getShot())
+                .shipGold(game.getGold())
+                .build();
+    }
+
+    @Transactional
+    public GameActionResponseDTO buyMarketItem(Long gameId, MarketTransactionRequest request) {
+        Game game = findGameById(gameId);
+        Port currentPort = game.getCurrentPort();
+        if (currentPort == null) {
+            throw new IllegalStateException("O navio deve estar em um porto para comprar itens.");
+        }
+
+        Ship ship = game.getShip();
+        List<String> eventLog = new ArrayList<>();
+        int pricePerUnit = 0;
+
+        switch (request.getItem()) {
+            case FOOD -> pricePerUnit = currentPort.getFoodPrice();
+            case RUM -> pricePerUnit = currentPort.getRumPrice();
+            case TOOLS -> pricePerUnit = currentPort.getToolsPrice();
+            case SHOT -> pricePerUnit = currentPort.getShotPrice();
+        }
+
+        int totalCost = pricePerUnit * request.getQuantity();
+        if (game.getGold() < totalCost) {
+            throw new IllegalStateException(String.format("Ouro insuficiente. Você precisa de %d, mas tem apenas %d.", totalCost, game.getGold()));
+        }
+
+        game.setGold(game.getGold() - totalCost);
+
+        switch (request.getItem()) {
+            case FOOD -> ship.setFoodRations(ship.getFoodRations() + request.getQuantity());
+            case RUM -> ship.setRumRations(ship.getRumRations() + request.getQuantity());
+            case TOOLS -> ship.setRepairParts(ship.getRepairParts() + request.getQuantity());
+            case SHOT -> ship.setShot(ship.getShot() + request.getQuantity());
+        }
+
+        eventLog.add(String.format("Você comprou %d unidades de %s por %d de ouro.", request.getQuantity(), request.getItem(), totalCost));
+
+        Game savedGame = gameRepository.save(game);
+        return GameActionResponseDTO.builder()
+                .gameStatus(gameMapper.toGameStatusResponseDTO(savedGame))
+                .eventLog(eventLog)
+                .build();
+    }
+
+    @Transactional
+    public GameActionResponseDTO sellMarketItem(Long gameId, MarketTransactionRequest request) {
+        Game game = findGameById(gameId);
+        Port currentPort = game.getCurrentPort();
+        if (currentPort == null) {
+            throw new IllegalStateException("O navio deve estar em um porto para vender itens.");
+        }
+
+        Ship ship = game.getShip();
+        List<String> eventLog = new ArrayList<>();
+        int pricePerUnit = 0;
+
+        // Para simplificar, o preço de venda é o mesmo de compra. Poderíamos adicionar um spread depois.
+        switch (request.getItem()) {
+            case FOOD -> pricePerUnit = currentPort.getFoodPrice();
+            case RUM -> pricePerUnit = currentPort.getRumPrice();
+            case TOOLS -> pricePerUnit = currentPort.getToolsPrice();
+            case SHOT -> pricePerUnit = currentPort.getShotPrice();
+        }
+
+        int currentQuantity = 0;
+        switch (request.getItem()) {
+            case FOOD -> currentQuantity = ship.getFoodRations();
+            case RUM -> currentQuantity = ship.getRumRations();
+            case TOOLS -> currentQuantity = ship.getRepairParts();
+            case SHOT -> currentQuantity = ship.getShot();
+        }
+
+        if (currentQuantity < request.getQuantity()) {
+            throw new IllegalStateException(String.format("Recursos insuficientes. Você tentou vender %d de %s, mas tem apenas %d.", request.getQuantity(), request.getItem(), currentQuantity));
+        }
+
+        int totalGain = pricePerUnit * request.getQuantity();
+        game.setGold(game.getGold() + totalGain);
+
+        switch (request.getItem()) {
+            case FOOD -> ship.setFoodRations(ship.getFoodRations() - request.getQuantity());
+            case RUM -> ship.setRumRations(ship.getRumRations() - request.getQuantity());
+            case TOOLS -> ship.setRepairParts(ship.getRepairParts() - request.getQuantity());
+            case SHOT -> ship.setShot(ship.getShot() - request.getQuantity());
+        }
+
+        eventLog.add(String.format("Você vendeu %d unidades de %s por %d de ouro.", request.getQuantity(), request.getItem(), totalGain));
 
         Game savedGame = gameRepository.save(game);
         return GameActionResponseDTO.builder()

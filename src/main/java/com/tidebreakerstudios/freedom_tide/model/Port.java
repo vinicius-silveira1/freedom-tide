@@ -39,6 +39,26 @@ public class Port {
     private PortType type;
 
     /**
+     * O preço de uma unidade de comida neste porto.
+     */
+    private Integer foodPrice;
+
+    /**
+     * O preço de uma unidade de rum neste porto.
+     */
+    private Integer rumPrice;
+
+    /**
+     * O preço de uma unidade de ferramentas neste porto.
+     */
+    private Integer toolsPrice;
+
+    /**
+     * O preço de uma unidade de munição (shot) neste porto.
+     */
+    private Integer shotPrice;
+
+    /**
      * A lista de contratos que se originam ou estão disponíveis neste porto.
      */
     @OneToMany(mappedBy = "originPort", cascade = CascadeType.ALL, fetch = FetchType.LAZY)

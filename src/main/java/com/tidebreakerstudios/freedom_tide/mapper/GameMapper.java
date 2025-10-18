@@ -36,7 +36,7 @@ public class GameMapper {
                 .foodRations(ship.getFoodRations())
                 .rumRations(ship.getRumRations())
                 .repairParts(ship.getRepairParts())
-                .cannonballs(ship.getCannonballs())
+                .shot(ship.getShot())
                 .upgrades(toShipUpgradeDTOList(ship.getUpgrades())) // Use new mapping
                 .build();
 

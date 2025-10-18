@@ -70,9 +70,8 @@ public class Ship {
      * Munição para os canhões do navio.
      */
     @Builder.Default
-    private Integer cannonballs = 40;
+    private Integer shot = 40;
 
-    /**
     /**
      * O número de canhões no navio.
      */

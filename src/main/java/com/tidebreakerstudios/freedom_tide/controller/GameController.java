@@ -114,6 +114,30 @@ public class GameController {
         return ResponseEntity.ok(response);
     }
 
+    // --- Endpoints de Mercado ---
+
+    @GetMapping("/{gameId}/port/market")
+    public ResponseEntity<MarketDTO> getMarketInfo(@PathVariable Long gameId) {
+        MarketDTO marketDTO = gameService.getMarketInfo(gameId);
+        return ResponseEntity.ok(marketDTO);
+    }
+
+    @PostMapping("/{gameId}/port/market/buy")
+    public ResponseEntity<GameActionResponseDTO> buyMarketItem(
+            @PathVariable Long gameId,
+            @Valid @RequestBody MarketTransactionRequest request) {
+        GameActionResponseDTO response = gameService.buyMarketItem(gameId, request);
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/{gameId}/port/market/sell")
+    public ResponseEntity<GameActionResponseDTO> sellMarketItem(
+            @PathVariable Long gameId,
+            @Valid @RequestBody MarketTransactionRequest request) {
+        GameActionResponseDTO response = gameService.sellMarketItem(gameId, request);
+        return ResponseEntity.ok(response);
+    }
+
     @PostMapping("/{gameId}/ship/crew")
     public ResponseEntity<CrewMemberResponseDTO> recruitCrewMember(
             @PathVariable Long gameId,
