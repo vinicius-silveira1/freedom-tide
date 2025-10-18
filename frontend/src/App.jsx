@@ -3,6 +3,7 @@ import CaptainCompass from './components/CaptainCompass';
 import ShipStatus from './components/ShipStatus';
 import CrewStatus from './components/CrewStatus';
 import LocationStatus from './components/LocationStatus';
+import PortActions from './components/PortActions';
 import './App.css';
 
 function App() {
@@ -46,12 +47,17 @@ function App() {
           </div>
         )}
         {game ? (
-          <div className="status-dashboard">
-            <LocationStatus port={game.currentPort} encounter={game.currentEncounter} />
-            <CaptainCompass compass={game.captainCompass} />
-            <ShipStatus ship={game.ship} />
-            <CrewStatus crew={game.crew} />
-          </div>
+          <>
+            <div className="status-dashboard">
+              <LocationStatus port={game.currentPort} encounter={game.currentEncounter} />
+              <CaptainCompass compass={game.captainCompass} />
+              <ShipStatus ship={game.ship} />
+              <CrewStatus crew={game.crew} />
+            </div>
+            {game.currentPort && (
+              <PortActions gameId={game.id} currentPort={game.currentPort} />
+            )}
+          </>
         ) : (
           <p>Criando e carregando o jogo...</p>
         )}

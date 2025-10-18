@@ -84,3 +84,48 @@ body {
   color: #ff9999;
   border-color: #ff9999;
 }
+
+/* Painel de Ações */
+.actions-panel {
+  margin-top: 2rem;
+  max-width: 1200px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.actions-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1rem;
+}
+
+.action-button {
+  background-color: #4a505a;
+  border: 1px solid #6f737a;
+  border-radius: 6px;
+  padding: 1rem;
+  text-align: left;
+  color: white;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background-color 0.2s, border-color 0.2s;
+  display: flex;
+  flex-direction: column;
+}
+
+.action-button:hover {
+  background-color: #5a606a;
+  border-color: #61dafb;
+}
+
+.action-button .action-name {
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: #61dafb;
+  margin-bottom: 0.5rem;
+}
+
+.action-button .action-desc {
+  font-size: 0.9rem;
+  color: #cccccc;
+}

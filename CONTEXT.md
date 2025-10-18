@@ -76,12 +76,17 @@ Este documento serve como um "save state" do nosso processo de desenvolvimento. 
 - **Descrição**: A exibição de dados brutos (JSON) foi substituída por uma UI estruturada. Foram criados componentes React dedicados (`CaptainCompass`, `ShipStatus`, `CrewStatus`, `LocationStatus`) que recebem dados via props e os exibem em painéis distintos e estilizados.
 - **Status**: **Concluído e Verificado.**
 
-### Fase 3: Interatividade da UI - Ações do Porto
+### Fase 3: Interatividade da UI - Ações do Porto (Concluído)
+- **Descrição**: Criado o componente `PortActions.jsx`, que busca dinamicamente as ações disponíveis no porto a partir da API e as renderiza como botões estilizados na interface. O `App.jsx` agora exibe condicionalmente este painel de ações.
+- **Status**: **Concluído e Verificado.**
 
-- **[Próximo Passo Lógico]**: Adicionar interatividade à UI, começando por exibir as ações disponíveis no porto.
-- **[Justificativa (Lição de Arquitetura/Design)]**: Uma UI estática não é um jogo. Precisamos permitir que o jogador interaja com o mundo. O primeiro passo é buscar e exibir as ações contextuais (Ações do Porto) como elementos clicáveis (botões). Isso transforma a UI de um simples painel de status em um hub de interação, introduzindo o conceito de estado que pode ser modificado pelas ações do jogador.
+### Fase 4: Unificação do Estado e Handlers de Ação
+
+- **[Próximo Passo Lógico]**: Fazer os botões de ação funcionarem, o que exige uma refatoração na forma como gerenciamos o estado do jogo.
+- **[Justificativa (Lição de Arquitetura/Design)]**: Atualmente, `App.jsx` busca o estado do jogo, mas os componentes filhos (`PortActions`) não têm como alterá-lo. Para que um clique de botão em um componente filho possa atualizar a UI inteira, precisamos de um padrão chamado **"Lifting State Up" (Elevar o Estado)**. A lógica de *como* atualizar o jogo (fazer chamadas de API que mudam o estado) deve viver no mesmo lugar onde o estado (`game`) vive: em `App.jsx`. Criaremos uma função `updateGameState` em `App.jsx` e a passaremos como *prop* para os componentes filhos. Eles não saberão *como* o estado é atualizado, apenas que devem chamar essa função quando uma ação ocorrer. Isso centraliza nossa lógica de mutação de estado, tornando o aplicativo mais previsível e fácil de depurar.
 - **[Opções ou Considerações Criativas]**:
-    1.  **Componente de Ações**: Criar um novo componente, `PortActions.jsx`, responsável por buscar e exibir as ações da API (`/api/games/{gameId}/port/actions`).
-    2.  **Renderização Condicional**: O `App.jsx` só deve renderizar o componente `PortActions` se o jogador estiver de fato em um porto.
-    3.  **Exibição**: As ações devem ser renderizadas como botões. Nesta fase, os botões ainda não terão funcionalidade de clique, apenas serão exibidos dinamicamente com base na resposta da API.
+    1.  **Criar `updateGameState`**: Em `App.jsx`, criar uma função `async function updateGameState(url, options)`. Ela fará a chamada `fetch` e atualizará o estado `game` com a resposta.
+    2.  **Passar a Função como Prop**: `App.jsx` renderizará `<PortActions onActionClick={updateGameState} />`.
+    3.  **Modificar `PortActions.jsx`**: O componente receberá `onActionClick` como prop. O `onClick` de cada botão chamará essa função, passando a URL do endpoint da ação. Ex: `onClick={() => onActionClick(action.apiEndpoint)}`.
+    4.  **Foco Inicial**: Nosso primeiro alvo será fazer o botão "Viajar" funcionar, pois ele já tem um endpoint que muda o estado do jogo (de `currentPort` para `currentEncounter`).
 - **Status Atual**: **Aguardando aprovação.**
