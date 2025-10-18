@@ -1,42 +1,86 @@
-#root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
+/* Reset básico e fontes */
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: #282c34;
+  color: white;
+}
+
+.app-container {
   text-align: center;
 }
 
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
+.app-header {
+  background-color: #20232a;
+  padding: 20px;
+  color: white;
+  margin-bottom: 2rem;
 }
 
-@keyframes logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+.app-header h1 {
+  margin: 0;
+  font-size: 2.5rem;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
-  }
+.main-content {
+  padding: 0 2rem;
 }
 
-.card {
-  padding: 2em;
+/* Dashboard que segura os painéis */
+.status-dashboard {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.5rem;
+  max-width: 1200px;
+  margin: 0 auto;
 }
 
-.read-the-docs {
-  color: #888;
+/* Estilo individual de cada painel de status */
+.status-panel {
+  background-color: #3c4049;
+  border: 1px solid #5f6368;
+  border-radius: 8px;
+  padding: 1rem 1.5rem;
+  text-align: left;
+}
+
+.status-panel h2 {
+  margin-top: 0;
+  border-bottom: 2px solid #61dafb;
+  padding-bottom: 0.5rem;
+  color: #61dafb;
+}
+
+.status-panel h3 {
+  margin-top: 1.5rem;
+  margin-bottom: 0.5rem;
+  color: #e2e2e2;
+}
+
+.status-panel ul {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+}
+
+.status-panel li {
+  background-color: #282c34;
+  padding: 0.5rem;
+  border-radius: 4px;
+  margin-bottom: 0.5rem;
+}
+
+.error-panel {
+  grid-column: 1 / -1; /* Faz o painel de erro ocupar a largura toda */
+  background-color: #5c2c2c;
+  border-color: #ff5555;
+}
+
+.error-panel h2 {
+  color: #ff9999;
+  border-color: #ff9999;
 }
