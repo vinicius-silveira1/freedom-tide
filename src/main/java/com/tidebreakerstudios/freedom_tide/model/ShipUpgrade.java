@@ -23,6 +23,10 @@ public class ShipUpgrade {
     @Enumerated(EnumType.STRING)
     private UpgradeType type;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = true)
+    private PortType portType; // Facção que vende o upgrade, null para comum
+
     private int modifier; // O bônus que o upgrade concede
     private int cost;     // O custo em ouro
 }

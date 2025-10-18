@@ -42,10 +42,15 @@ public class DataSeeder implements CommandLineRunner {
 
     private void seedUpgrades() {
         List<ShipUpgrade> upgradeBlueprints = Arrays.asList(
-                ShipUpgrade.builder().name("Canhões de Bronze").description("Canhões de qualidade superior que causam mais dano.").type(UpgradeType.CANNONS).modifier(5).cost(1000).build(),
+                // Imperial
+                ShipUpgrade.builder().name("Canhões de Bronze").description("Canhões de qualidade superior que causam mais dano.").type(UpgradeType.CANNONS).modifier(5).cost(1000).portType(PortType.IMPERIAL).build(),
+                // Guild
+                ShipUpgrade.builder().name("Porão Expandido").description("Uma reorganização inteligente do porão permite carregar mais carga.").type(UpgradeType.CARGO).modifier(50).cost(400).portType(PortType.GUILD).build(),
+                // Pirate
+                ShipUpgrade.builder().name("Bandeira Falsa").description("Uma bandeira do Império ou da Guilda que pode ser usada para enganar navios à distância.").type(UpgradeType.SAILS).modifier(5).cost(1200).portType(PortType.PIRATE).build(),
+                // Common/Neutral (portType = null)
                 ShipUpgrade.builder().name("Casco Reforçado").description("Placas de ferro adicionais reforçam o casco, aumentando sua durabilidade.").type(UpgradeType.HULL).modifier(20).cost(800).build(),
-                ShipUpgrade.builder().name("Velas de Linho").description("Velas mais leves e resistentes que melhoram a manobrabilidade.").type(UpgradeType.SAILS).modifier(10).cost(600).build(),
-                ShipUpgrade.builder().name("Porão Expandido").description("Uma reorganização inteligente do porão permite carregar mais carga.").type(UpgradeType.CARGO).modifier(50).cost(400).build()
+                ShipUpgrade.builder().name("Velas de Linho").description("Velas mais leves e resistentes que melhoram a manobrabilidade.").type(UpgradeType.SAILS).modifier(10).cost(600).build()
         );
 
         upgradeBlueprints.forEach(blueprint -> {
@@ -56,6 +61,7 @@ public class DataSeeder implements CommandLineRunner {
                         existingUpgrade.setType(blueprint.getType());
                         existingUpgrade.setModifier(blueprint.getModifier());
                         existingUpgrade.setCost(blueprint.getCost());
+                        existingUpgrade.setPortType(blueprint.getPortType()); // Update portType
                         shipUpgradeRepository.save(existingUpgrade);
                     },
                     () -> {

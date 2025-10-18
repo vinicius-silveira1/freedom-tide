@@ -698,7 +698,9 @@ public class GameService {
     public ShipyardDTO getShipyardInfo(Long gameId) {
         Game game = findGameById(gameId);
         Ship ship = game.getShip();
-        if (game.getCurrentPort() == null) {
+        Port currentPort = game.getCurrentPort();
+
+        if (currentPort == null) {
             throw new IllegalStateException("O navio deve estar em um porto para acessar o estaleiro.");
         }
 
@@ -707,9 +709,11 @@ public class GameService {
 
         List<ShipUpgrade> allUpgrades = shipUpgradeRepository.findAll();
         List<ShipUpgrade> currentUpgrades = ship.getUpgrades();
+        PortType portType = currentPort.getType();
 
         List<ShipUpgradeDTO> availableUpgrades = allUpgrades.stream()
-                .filter(upgrade -> !currentUpgrades.contains(upgrade))
+                .filter(upgrade -> !currentUpgrades.contains(upgrade)) // Filtra o que o jogador já tem
+                .filter(upgrade -> upgrade.getPortType() == null || upgrade.getPortType() == portType) // Filtra por facção do porto
                 .map(gameMapper::toShipUpgradeDTO)
                 .collect(Collectors.toList());
 
