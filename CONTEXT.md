@@ -68,12 +68,16 @@ Este documento serve como um "save state" do nosso processo de desenvolvimento. 
 
 ## Próxima Tarefa: v1.7 - A Interface do Capitão
 
-### Fase 1: Estrutura do Frontend com React + Vite
+### Fase 1: Estrutura do Frontend com React + Vite (Concluído)
+- **Descrição**: Estruturado um projeto de frontend na pasta `frontend/` utilizando React e Vite. O `vite.config.js` foi configurado com um proxy para a API backend, e o componente `App.jsx` foi modificado para criar um novo jogo e exibir o JSON do estado do jogo, confirmando a comunicação bem-sucedida entre as duas partes da aplicação.
+- **Status**: **Concluído e Verificado.**
 
-- **[Próximo Passo Lógico]**: Iniciar a construção da interface de usuário (UI).
-- **[Justificativa (Lição de Arquitetura/Design)]**: Até agora, construímos uma base sólida de backend e a validamos via `curl`. No entanto, para que o jogo ganhe vida, precisamos de uma forma de visualizar e interagir com esses sistemas de maneira intuitiva. Iniciar um projeto de frontend é o passo essencial para transformar nossa API em uma experiência de jogador. A escolha de **React com Vite** nos dá um ambiente de desenvolvimento extremamente rápido e moderno, ideal para prototipagem ágil. O objetivo não é a perfeição, mas criar uma "ponte" funcional entre o jogador e o backend.
+### Fase 2: Componentização da UI e Exibição de Status
+
+- **[Próximo Passo Lógico]**: Transformar a exibição de dados brutos (JSON) em uma interface de usuário estruturada e legível.
+- **[Justificativa (Lição de Arquitetura/Design)]**: Exibir o JSON foi ótimo para provar a conexão, mas não é uma UI. O próximo passo é aplicar o princípio fundamental do React: **dividir a interface em componentes reutilizáveis e de responsabilidade única**. Em vez de um bloco de texto, teremos painéis de informação distintos, como `StatusDoNavio`, `BussolaDoCapitao`, `InformacoesDoPorto`, etc. Isso não apenas organiza o código, tornando-o mais fácil de manter, mas também estabelece as fundações visuais do jogo.
 - **[Opções ou Considerações Criativas]**:
-    1.  **Estrutura de Pastas**: Podemos criar um novo diretório `frontend` na raiz do projeto para manter o código da UI separado e organizado.
-    2.  **Primeiro Componente**: O primeiro objetivo seria criar um componente principal (`App.jsx`) que busca e exibe o estado geral do jogo (o `GameStatusResponseDTO`), provando que a conexão entre frontend e backend está funcionando.
-    3.  **Proxy de API**: Para evitar problemas de CORS (`Cross-Origin Resource Sharing`) durante o desenvolvimento, configuraremos o Vite para usar um proxy, redirecionando as chamadas de API do frontend (ex: `/api/games`) para o nosso backend Spring Boot rodando em `localhost:8090`.
+    1.  **Estrutura de Componentes**: Criar uma nova pasta `src/components` e dentro dela, arquivos para cada novo componente (ex: `ShipStatus.jsx`, `CaptainCompass.jsx`).
+    2.  **Passando Propriedades (Props)**: O componente `App.jsx` continuará responsável por buscar o estado do jogo, mas em vez de exibir o JSON, ele passará as partes relevantes do objeto `game` como *props* para os componentes filhos. Por exemplo: `<ShipStatus ship={game.ship} />`.
+    3.  **Estilização Básica**: Podemos usar CSS simples para adicionar bordas e espaçamento aos componentes, criando uma distinção visual clara entre os diferentes painéis de informação na tela.
 - **Status Atual**: **Aguardando aprovação.**
