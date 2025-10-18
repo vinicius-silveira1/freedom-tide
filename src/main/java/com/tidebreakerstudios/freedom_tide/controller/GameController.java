@@ -138,6 +138,14 @@ public class GameController {
         return ResponseEntity.ok(response);
     }
 
+    // --- Endpoints de Taverna ---
+
+    @GetMapping("/{gameId}/port/tavern")
+    public ResponseEntity<List<TavernRecruitDTO>> getTavernRecruits(@PathVariable Long gameId) {
+        List<TavernRecruitDTO> recruits = gameService.getTavernRecruits(gameId);
+        return ResponseEntity.ok(recruits);
+    }
+
     @PostMapping("/{gameId}/ship/crew")
     public ResponseEntity<CrewMemberResponseDTO> recruitCrewMember(
             @PathVariable Long gameId,

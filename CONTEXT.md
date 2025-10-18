@@ -60,12 +60,20 @@ Este documento serve como um "save state" do nosso processo de desenvolvimento. 
 
 ## Próxima Tarefa: v1.6 - Tornando os Portos Vivos
 
-### Fase 5: Ação de Porto "Ir à Taverna"
+### Fase 5: Ação de Porto "Ir à Taverna" (Concluído)
+- **Descrição**: Implementada a mecânica da taverna, onde recrutas são gerados proceduralmente a cada visita. O tipo de recruta é influenciado pela facção do porto, e o jogador pode ver seus atributos e salário antes de contratar. Isso move o sistema de recrutamento para dentro do loop de gameplay do porto.
+- **Status**: **Concluído e Verificado.**
 
-- **[Próximo Passo Lógico]**: Implementar a ação de porto "Ir à Taverna".
-- **[Justificativa (Lição de Arquitetura/Design)]**: Atualmente, o recrutamento de tripulantes é feito por uma chamada de API direta, que não está integrada à experiência do jogo. A Taverna servirá como o hub narrativo e mecânico para o recrutamento. Isso conecta o sistema de tripulação ao loop de gameplay no porto, tornando a experiência mais imersiva e diegética. Em vez de apenas "adicionar um tripulante", o jogador "encontra e recruta alguém na taverna".
+---
+
+## Próxima Tarefa: v1.7 - A Interface do Capitão
+
+### Fase 1: Estrutura do Frontend com React + Vite
+
+- **[Próximo Passo Lógico]**: Iniciar a construção da interface de usuário (UI).
+- **[Justificativa (Lição de Arquitetura/Design)]**: Até agora, construímos uma base sólida de backend e a validamos via `curl`. No entanto, para que o jogo ganhe vida, precisamos de uma forma de visualizar e interagir com esses sistemas de maneira intuitiva. Iniciar um projeto de frontend é o passo essencial para transformar nossa API em uma experiência de jogador. A escolha de **React com Vite** nos dá um ambiente de desenvolvimento extremamente rápido e moderno, ideal para prototipagem ágil. O objetivo não é a perfeição, mas criar uma "ponte" funcional entre o jogador e o backend.
 - **[Opções ou Considerações Criativas]**:
-    1.  **Tripulantes Gerados Procedimentalmente**: Ao entrar na taverna, o sistema pode gerar uma lista de 2 a 3 tripulantes disponíveis para recrutamento, com atributos, personalidades e níveis de desespero variados. Isso torna cada visita ao porto única.
-    2.  **Influência da Facção**: O tipo de tripulante encontrado pode variar com o `PortType`. Tavernas em portos Piratas teriam mais personalidades "Sedentas por Sangue", enquanto portos do Império teriam mais tripulantes "Honestos".
-    3.  **API**: Criar um endpoint `GET /api/games/{gameId}/port/tavern` que retorna a lista de recrutas disponíveis. O endpoint de recrutamento (`POST /api/games/{gameId}/ship/crew`) pode ser reutilizado, mas agora o front-end o chamaria com os dados de um recruta específico da taverna.
+    1.  **Estrutura de Pastas**: Podemos criar um novo diretório `frontend` na raiz do projeto para manter o código da UI separado e organizado.
+    2.  **Primeiro Componente**: O primeiro objetivo seria criar um componente principal (`App.jsx`) que busca e exibe o estado geral do jogo (o `GameStatusResponseDTO`), provando que a conexão entre frontend e backend está funcionando.
+    3.  **Proxy de API**: Para evitar problemas de CORS (`Cross-Origin Resource Sharing`) durante o desenvolvimento, configuraremos o Vite para usar um proxy, redirecionando as chamadas de API do frontend (ex: `/api/games`) para o nosso backend Spring Boot rodando em `localhost:8090`.
 - **Status Atual**: **Aguardando aprovação.**

@@ -194,6 +194,13 @@ public class GameService {
                 "/api/games/" + gameId + "/port/market"
         ));
 
+        actions.add(new PortActionDTO(
+                PortActionType.GO_TO_TAVERN,
+                "Ir à Taverna",
+                "Procure por novos tripulantes para contratar.",
+                "/api/games/" + gameId + "/port/tavern"
+        ));
+
         return actions;
     }
 
@@ -934,5 +941,86 @@ public class GameService {
                 .gameStatus(gameMapper.toGameStatusResponseDTO(savedGame))
                 .eventLog(eventLog)
                 .build();
+    }
+
+    @Transactional(readOnly = true)
+    public List<TavernRecruitDTO> getTavernRecruits(Long gameId) {
+        Game game = findGameById(gameId);
+        Port currentPort = game.getCurrentPort();
+        if (currentPort == null) {
+            throw new IllegalStateException("O navio deve estar em um porto para visitar a taverna.");
+        }
+
+        List<TavernRecruitDTO> recruits = new ArrayList<>();
+        int numberOfRecruits = ThreadLocalRandom.current().nextInt(2, 4); // Gera de 2 a 3 recrutas
+
+        for (int i = 0; i < numberOfRecruits; i++) {
+            String name = generateRandomName();
+            CrewPersonality personality = generateRandomPersonality(currentPort.getType());
+            int despair = ThreadLocalRandom.current().nextInt(1, 11);
+
+            int nav = ThreadLocalRandom.current().nextInt(1, 6);
+            int art = ThreadLocalRandom.current().nextInt(1, 6);
+            int com = ThreadLocalRandom.current().nextInt(1, 6);
+            int med = ThreadLocalRandom.current().nextInt(1, 6);
+            int car = ThreadLocalRandom.current().nextInt(1, 6);
+            int intel = ThreadLocalRandom.current().nextInt(1, 6);
+
+            int attributeSum = nav + art + com + med + car + intel;
+            int salary = Math.max(1, 10 + (attributeSum / 10) - despair);
+            int initialMoral = Math.max(0, Math.min(100, 50 + (personality.getMoralModifier() * 5) - (despair * 2)));
+
+            RecruitCrewMemberRequest request = new RecruitCrewMemberRequest();
+            request.setName(name);
+            request.setPersonality(personality);
+            request.setDespairLevel(despair);
+            request.setNavigation(nav);
+            request.setArtillery(art);
+            request.setCombat(com);
+            request.setMedicine(med);
+            request.setCarpentry(car);
+            request.setIntelligence(intel);
+
+            TavernRecruitDTO dto = TavernRecruitDTO.builder()
+                    .name(name)
+                    .personality(personality)
+                    .despairLevel(despair)
+                    .salary(salary)
+                    .initialMoral(initialMoral)
+                    .navigation(nav)
+                    .artillery(art)
+                    .combat(com)
+                    .medicine(med)
+                    .carpentry(car)
+                    .intelligence(intel)
+                    .recruitRequest(request)
+                    .build();
+
+            recruits.add(dto);
+        }
+
+        return recruits;
+    }
+
+    private String generateRandomName() {
+        List<String> firstNames = List.of("Jack", "Anne", "William", "Mary", "Edward", "Eliza", "James", "Charlotte");
+        List<String> lastNames = List.of("Rackham", "Bonny", "Kidd", "Read", "Teach", "Swan", "Morgan", "Blade");
+        String firstName = firstNames.get(ThreadLocalRandom.current().nextInt(firstNames.size()));
+        String lastName = lastNames.get(ThreadLocalRandom.current().nextInt(lastNames.size()));
+        return firstName + " " + lastName;
+    }
+
+    private CrewPersonality generateRandomPersonality(PortType portType) {
+        List<CrewPersonality> possibilities = new ArrayList<>(List.of(CrewPersonality.values()));
+        // Adiciona peso baseado no tipo de porto
+        switch (portType) {
+            case IMPERIAL -> possibilities.add(CrewPersonality.HONEST); // Aumenta a chance de Honestos
+            case GUILD -> possibilities.add(CrewPersonality.GREEDY);    // Aumenta a chance de Gananciosos
+            case PIRATE -> {
+                possibilities.add(CrewPersonality.BLOODTHIRSTY);
+                possibilities.add(CrewPersonality.REBEL);
+            } // Aumenta a chance de Sedentos por Sangue e Rebeldes
+        }
+        return possibilities.get(ThreadLocalRandom.current().nextInt(possibilities.size()));
     }
 }
