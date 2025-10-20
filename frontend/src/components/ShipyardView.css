@@ -1,0 +1,77 @@
+.shipyard-view {
+    padding: 20px;
+    background-color: #1a252f;
+}
+
+.shipyard-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #34495e;
+    padding-bottom: 15px;
+    margin-bottom: 20px;
+}
+
+.shipyard-header h2 {
+    margin: 0;
+    color: #e0e0e0;
+}
+
+.shipyard-content {
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    gap: 30px;
+}
+
+.repair-section, .upgrades-section {
+    background-color: #2c3e50;
+    padding: 20px;
+    border-radius: 5px;
+    border: 1px solid #34495e;
+}
+
+.repair-action {
+    margin-top: 15px;
+}
+
+.repair-button {
+    background-color: #d35400;
+    width: 100%;
+    padding: 10px;
+}
+.repair-button:hover {
+    background-color: #e67e22;
+}
+
+.upgrades-list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.upgrade-card {
+    background-color: #34495e;
+    padding: 15px;
+    border-radius: 4px;
+}
+
+.upgrade-card h4 {
+    margin: 0 0 5px 0;
+}
+
+.upgrade-card p {
+    margin: 0 0 10px 0;
+    font-size: 0.9em;
+    color: #bdc3c7;
+}
+
+.upgrade-action {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 10px;
+}
+
+.upgrade-action span {
+    font-weight: bold;
+}
