@@ -8,7 +8,8 @@ import EncounterActions from './components/EncounterActions';
 import TravelPanel from './components/TravelPanel';
 import EventLog from './components/EventLog';
 import TavernView from './components/TavernView';
-import ShipyardView from './components/ShipyardView'; // 1. Importar
+import ShipyardView from './components/ShipyardView';
+import MarketView from './components/MarketView'; // 1. Importar
 import './App.css';
 
 function App() {
@@ -97,7 +98,6 @@ function App() {
     }
   };
 
-  // 3. Novas funções para o Estaleiro
   const handleRepair = async () => {
     try {
       const response = await fetch(`/api/games/${game.id}/port/shipyard/repair`, { method: 'POST' });
@@ -134,6 +134,51 @@ function App() {
     }
   };
 
+  // 3. Novas funções para o Mercado
+  const handleBuy = async (tradeRequest) => {
+    try {
+      const response = await fetch(`/api/games/${game.id}/port/market/buy`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(tradeRequest),
+      });
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => null);
+        if (errorData && errorData.message) { throw new Error(errorData.message); }
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const updatedGameResponse = await response.json();
+      setGame(updatedGameResponse.gameStatus);
+      setEventLog(prevLog => [...prevLog, `Comprou ${tradeRequest.quantity} de ${tradeRequest.item}.`]);
+      setError(null);
+    } catch (e) {
+      setError(e.message);
+      console.error("Erro ao comprar item:", e);
+    }
+  };
+
+  const handleSell = async (tradeRequest) => {
+    try {
+      const response = await fetch(`/api/games/${game.id}/port/market/sell`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(tradeRequest),
+      });
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => null);
+        if (errorData && errorData.message) { throw new Error(errorData.message); }
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const updatedGameResponse = await response.json();
+      setGame(updatedGameResponse.gameStatus);
+      setEventLog(updatedGameResponse.eventLog);
+      setError(null);
+    } catch (e) {
+      setError(e.message);
+      console.error("Erro ao vender item:", e);
+    }
+  };
+
   // Generic action handler
   const handleAction = (action) => {
     switch (action.actionType) {
@@ -143,8 +188,11 @@ function App() {
       case 'GO_TO_TAVERN':
         setCurrentView('TAVERN');
         break;
-      case 'GO_TO_SHIPYARD': // 2. Adicionar caso para o estaleiro
+      case 'GO_TO_SHIPYARD':
         setCurrentView('SHIPYARD');
+        break;
+      case 'GO_TO_MARKET': // 2. Adicionar caso para o mercado
+        setCurrentView('MARKET');
         break;
       default:
         const postAction = async (endpoint) => {
@@ -180,8 +228,10 @@ function App() {
         return <TravelPanel gameId={game.id} onTravel={executeTravel} onCancel={() => setCurrentView('DASHBOARD')} />;
       case 'TAVERN':
         return <TavernView gameId={game.id} onHire={handleHire} onBack={() => setCurrentView('DASHBOARD')} />;
-      case 'SHIPYARD': // 4. Adicionar caso de renderização
+      case 'SHIPYARD':
         return <ShipyardView gameId={game.id} onRepair={handleRepair} onPurchaseUpgrade={handlePurchaseUpgrade} onBack={() => setCurrentView('DASHBOARD')} />;
+      case 'MARKET': // 4. Adicionar caso de renderização
+        return <MarketView gameId={game.id} onBuy={handleBuy} onSell={handleSell} onBack={() => setCurrentView('DASHBOARD')} />;
       case 'DASHBOARD':
       default:
         return (
