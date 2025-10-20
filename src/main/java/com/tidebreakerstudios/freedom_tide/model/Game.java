@@ -63,7 +63,7 @@ public class Game {
     @JoinColumn(name = "active_contract_id")
     private Contract activeContract;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "current_port_id")
     private Port currentPort;
 

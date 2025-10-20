@@ -1,10 +1,10 @@
 import React from 'react';
 
-function PortActions({ actions, onActionClick }) {
+function EncounterActions({ actions, onActionClick }) {
   if (!actions || actions.length === 0) {
     return (
       <div className="status-panel actions-panel">
-        <h2>Ações no Porto</h2>
+        <h2>Ações de Encontro</h2>
         <p>Nenhuma ação disponível no momento.</p>
       </div>
     );
@@ -12,13 +12,13 @@ function PortActions({ actions, onActionClick }) {
 
   return (
     <div className="status-panel actions-panel">
-      <h2>Ações no Porto</h2>
+      <h2>Ações de Encontro</h2>
       <div className="actions-grid">
         {actions.map(action => (
           <button
             key={action.actionType}
             className="action-button"
-            onClick={() => onActionClick(action)}
+            onClick={() => onActionClick(action)} // Pass the whole action object
           >
             <span className="action-name">{action.name}</span>
             <span className="action-desc">{action.description}</span>
@@ -29,4 +29,4 @@ function PortActions({ actions, onActionClick }) {
   );
 }
 
-export default PortActions;
+export default EncounterActions;

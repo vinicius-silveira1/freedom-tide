@@ -1,26 +1,23 @@
-# Contexto de Desenvolvimento - Freedom Tide
+# Freedom Tide - CONTEXTO DE DESENVOLVIMENTO
 
 Este documento serve como um "save state" do nosso processo de desenvolvimento. Ele é atualizado a cada nova funcionalidade implementada para facilitar a continuidade e o onboarding.
 
----
-
-### **Stack Tecnológica:**
-- Java 17
-- Spring Boot 3
-- Spring Data JPA
-- PostgreSQL (via Supabase)
-- Maven
+### **Stack Tecnolígica:**
+Java 17
+Spring Boot 3
+Spring Data JPA
+PostgreSQL (via Supabase)
+Maven
 
 ### **Arquitetura:**
-- Camadas: `controller`, `service`, `repository`, `model`, `dto`, `config`, `mapper`.
-- Foco em APIs RESTful.
-- Uso de DTOs para desacoplar a API da camada de persistência.
-- **Nota:** A porta do servidor foi alterada para `8090` em `application.properties` para evitar conflitos no ambiente de desenvolvimento.
-
----
+ Camadas: `controller`, `service`, `repository`, `model`, `dto`, `config`, `mapper`.
+ Foco em APIs RESTful.
+ Uso de DTOs para desacoplar a API da camada de persistência.
+ **Nota:** A porta do servidor foi alterada para `8090` em `application.properties` para evitar conflitos no ambiente de desenvolvimento.
 
 ### **Funcionalidades Implementadas:**
 
+ 
 1.  **Estrutura Inicial do Projeto**
 2.  **Modelagem de Dados (Entidades JPA)**
 3.  **API de Gerenciamento do Jogo**
@@ -35,58 +32,47 @@ Este documento serve como um "save state" do nosso processo de desenvolvimento. 
 12. **Fundações do Mundo Interativo (Viagem, Portos, Encontros)**
 13. **Aprofundando Consequências (Fuga, Investigar)**
 14. **Combate Naval (Atacar, Abordar)**
+15. **Tornando os Portos Vivos (Estaleiro, Mercado, Taverna)**
+16. **Estrutura do Frontend e Interatividade Básica**
+17. **Correção de Bug Crítico na UI (Estado do Jogo)**
 
----
-
-## v1.6 - Tornando os Portos Vivos (Concluído)
-
-### Fase 1: Ação de Porto "Ir ao Estaleiro" (Concluído)
-- **Descrição**: Implementada a funcionalidade de reparo do casco do navio, criando um ciclo de jogabilidade onde o dano sofrido no mar tem um custo financeiro.
-- **Status**: **Concluído e Verificado.**
-
-### Fase 2: Melhorias de Navio no Estaleiro (Concluído)
-- **Descrição**: Implementado o sistema de compra de melhorias para o navio, permitindo ao jogador gastar ouro para adquirir melhorias que afetam os atributos do navio.
-- **Status**: **Concluído e Verificado.**
-
-### Fase 3: Inventário do Estaleiro por Facção (Concluído)
-- **Descrição**: O inventário de melhorias do estaleiro agora depende da facção do porto. Portos do Império, da Guilda e Piratas oferecem melhorias distintas, além das comuns, aprofundando a imersão e a necessidade de exploração.
-- **Status**: **Conclúido e Verificado.**
-
-### Fase 4: Ação de Porto "Ir ao Mercado" (Concluído)
-- **Descrição**: Implementada a mecânica de mercado nos portos, permitindo ao jogador comprar e vender recursos essenciais (comida, rum, ferramentas, munição). Os preços variam conforme a facção do porto, criando um loop econômico e incentivando a viagem e o comércio.
-- **Status**: **Concluído e Verificado.**
-
----
-
-## Próxima Tarefa: v1.6 - Tornando os Portos Vivos
-
-### Fase 5: Ação de Porto "Ir à Taverna" (Concluído)
-- **Descrição**: Implementada a mecânica da taverna, onde recrutas são gerados proceduralmente a cada visita. O tipo de recruta é influenciado pela facção do porto, e o jogador pode ver seus atributos e salário antes de contratar. Isso move o sistema de recrutamento para dentro do loop de gameplay do porto.
-- **Status**: **Concluído e Verificado.**
-
----
-
-## Próxima Tarefa: v1.7 - A Interface do Capitão
+## v1.8 - A Interface do Capitão (Concluído)
 
 ### Fase 1: Estrutura do Frontend com React + Vite (Concluído)
-- **Descrição**: Estruturado um projeto de frontend na pasta `frontend/` utilizando React e Vite. O `vite.config.js` foi configurado com um proxy para a API backend, e o componente `App.jsx` foi modificado para criar um novo jogo e exibir o JSON do estado do jogo, confirmando a comunicação bem-sucedida entre as duas partes da aplicação.
-- **Status**: **Concluído e Verificado.**
+ **Descrição**: Estruturado um projeto de frontend na pasta `frontend/` utilizando React e Vite.
+ **Status**: **Concluído e Verificado.**
 
 ### Fase 2: Componentização da UI e Exibição de Status (Concluído)
-- **Descrição**: A exibição de dados brutos (JSON) foi substituída por uma UI estruturada. Foram criados componentes React dedicados (`CaptainCompass`, `ShipStatus`, `CrewStatus`, `LocationStatus`) que recebem dados via props e os exibem em painéis distintos e estilizados.
-- **Status**: **Concluído e Verificado.**
+ **Descrição**: A exibição de dados brutos (JSON) foi substituída por uma UI estruturada com componentes React dedicados.
+ **Status**: **Concluído e Verificado.**
 
 ### Fase 3: Interatividade da UI - Ações do Porto (Concluído)
-- **Descrição**: Criado o componente `PortActions.jsx`, que busca dinamicamente as ações disponíveis no porto a partir da API e as renderiza como botões estilizados na interface. O `App.jsx` agora exibe condicionalmente este painel de ações.
-- **Status**: **Concluído e Verificado.**
+ **Descrição**: Criado o componente `PortActions.jsx` que renderiza dinamicamente as ações disponíveis no porto.
+ **Status**: **Concluído e Verificado.**
 
-### Fase 4: Unificação do Estado e Handlers de Ação
+### Fase 4: Unificação do Estado e Handlers de Ação (Concluído)
+ **Descrição**: Implementado o padrão "Lifting State Up" para permitir que componentes filhos atualizem o estado global do jogo no `App.jsx`.
+ **Status**: **Concluído e Verificado.**
 
-- **[Próximo Passo Lógico]**: Fazer os botões de ação funcionarem, o que exige uma refatoração na forma como gerenciamos o estado do jogo.
-- **[Justificativa (Lição de Arquitetura/Design)]**: Atualmente, `App.jsx` busca o estado do jogo, mas os componentes filhos (`PortActions`) não têm como alterá-lo. Para que um clique de botão em um componente filho possa atualizar a UI inteira, precisamos de um padrão chamado **"Lifting State Up" (Elevar o Estado)**. A lógica de *como* atualizar o jogo (fazer chamadas de API que mudam o estado) deve viver no mesmo lugar onde o estado (`game`) vive: em `App.jsx`. Criaremos uma função `updateGameState` em `App.jsx` e a passaremos como *prop* para os componentes filhos. Eles não saberão *como* o estado é atualizado, apenas que devem chamar essa função quando uma ação ocorrer. Isso centraliza nossa lógica de mutação de estado, tornando o aplicativo mais previsível e fácil de depurar.
-- **[Opções ou Considerações Criativas]**:
-    1.  **Criar `updateGameState`**: Em `App.jsx`, criar uma função `async function updateGameState(url, options)`. Ela fará a chamada `fetch` e atualizará o estado `game` com a resposta.
-    2.  **Passar a Função como Prop**: `App.jsx` renderizará `<PortActions onActionClick={updateGameState} />`.
-    3.  **Modificar `PortActions.jsx`**: O componente receberá `onActionClick` como prop. O `onClick` de cada botão chamará essa função, passando a URL do endpoint da ação. Ex: `onClick={() => onActionClick(action.apiEndpoint)}`.
-    4.  **Foco Inicial**: Nosso primeiro alvo será fazer o botão "Viajar" funcionar, pois ele já tem um endpoint que muda o estado do jogo (de `currentPort` para `currentEncounter`).
-- **Status Atual**: **Aguardando aprovação.**
+### Fase 5: [BUGFIX] Ações de Encontro Não Aparecem Após Viagem (Concluído)
+ **Descrição**: Identificado e corrigido um bug crítico onde o `handleAction` genérico em `App.jsx` não estava tratando corretamente a estrutura de resposta aninhada (`{ gameStatus: {...} }`) da API, fazendo com que o estado do jogo fosse corrompido e a UI falhasse após uma ação de encontro. Um erro de compilação no backend também foi corrigido.
+ **Status**: **Concluído e Verificado.**
+
+## Próxima Tarefa: v1.9 - Feedback Visual e Notificações
+
+**Versão do Jogo:** 1.9
+**Foco Atual:** Melhorar a Experiência do Usuário (UX) com Feedback Imediato
+
+## Resumo do Estado Atual
+A aplicação está funcional. O jogador pode iniciar um jogo, ver seu status, viajar, ter encontros e interagir com as ações disponíveis. No entanto, a experiência é "seca". Quando uma ação é executada (ex: "Atacar", "Viajar", "Comprar"), o estado do jogo muda, mas não há um feedback claro e imediato para o usuário sobre o que aconteceu. O `eventLog` existe na resposta da API, mas não está sendo exibido em lugar nenhum.
+
+## Próxima Tarefa: Implementar um Painel de Log de Eventos
+
+**Objetivo:** Criar um novo componente React, `EventLog.jsx`, que receberá e exibirá as mensagens do `eventLog` retornadas pela API após cada ação.
+
+**Estratégia de Implementação:**
+1.  **Criar `EventLog.jsx`**: Um componente simples que recebe uma lista de strings (`logs`) como prop e as renderiza em uma lista (`<ul>`, `<li>`).
+2.  **Gerenciar Estado do Log**: Em `App.jsx`, criar um novo estado `const [eventLog, setEventLog] = useState([]);`.
+3.  **Atualizar Handlers de Ação**: Modificar `executeTravel` e `handleAction` para, além de atualizar o estado `game`, também atualizar o `eventLog` com os dados da resposta da API (`updatedGameResponse.eventLog`).
+4.  **Renderizar o Componente**: Adicionar o componente `<EventLog logs={eventLog} />` no `renderMainPanel` de `App.jsx` para que ele seja sempre visível.
+5.  **Estilização**: Adicionar CSS para que o painel de log seja claramente legível e talvez tenha uma barra de rolagem se o conteúdo for grande.

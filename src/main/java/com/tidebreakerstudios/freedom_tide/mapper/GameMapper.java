@@ -11,6 +11,14 @@ import java.util.stream.Collectors;
 public class GameMapper {
 
     public GameStatusResponseDTO toGameStatusResponseDTO(Game game) {
+        return toGameStatusResponseDTO(game, List.of(), List.of());
+    }
+
+    public GameStatusResponseDTO toGameStatusResponseDTO(Game game, List<PortActionDTO> portActions) {
+        return toGameStatusResponseDTO(game, portActions, List.of());
+    }
+
+    public GameStatusResponseDTO toGameStatusResponseDTO(Game game, List<PortActionDTO> portActions, List<EncounterActionDTO> encounterActions) {
         if (game == null) {
             return null;
         }
@@ -46,8 +54,8 @@ public class GameMapper {
                 .ship(shipDTO)
                 .crew(crewDTO)
                 .activeContract(toContractDTO(game.getActiveContract()))
-                .currentPort(toPortDTO(game.getCurrentPort()))
-                .currentEncounter(toSeaEncounterDTO(game.getCurrentEncounter()))
+                .currentPort(toPortDTO(game.getCurrentPort(), portActions))
+                .currentEncounter(toSeaEncounterDTO(game.getCurrentEncounter(), encounterActions))
                 .build();
     }
 
@@ -116,7 +124,7 @@ public class GameMapper {
                 .build();
     }
 
-    public PortDTO toPortDTO(com.tidebreakerstudios.freedom_tide.model.Port port) {
+    public PortDTO toPortDTO(com.tidebreakerstudios.freedom_tide.model.Port port, List<PortActionDTO> availableActions) {
         if (port == null) {
             return null;
         }
@@ -124,11 +132,20 @@ public class GameMapper {
         return new PortDTO(
                 port.getId(),
                 port.getName(),
-                port.getType().name()
+                port.getType().name(),
+                availableActions
         );
     }
 
+    public PortDTO toPortDTO(com.tidebreakerstudios.freedom_tide.model.Port port) {
+        return toPortDTO(port, List.of());
+    }
+
     public SeaEncounterDTO toSeaEncounterDTO(com.tidebreakerstudios.freedom_tide.model.SeaEncounter encounter) {
+        return toSeaEncounterDTO(encounter, List.of());
+    }
+
+    public SeaEncounterDTO toSeaEncounterDTO(com.tidebreakerstudios.freedom_tide.model.SeaEncounter encounter, List<EncounterActionDTO> availableActions) {
         if (encounter == null) {
             return null;
         }
@@ -136,7 +153,8 @@ public class GameMapper {
         return new SeaEncounterDTO(
                 encounter.getId(),
                 encounter.getDescription(),
-                encounter.getType()
+                encounter.getType(),
+                availableActions
         );
     }
 }

@@ -46,6 +46,7 @@ public class GameService {
     private static final int REPAIR_COST_PER_POINT = 10;
 
     
+    @Transactional
     public Game createNewGame() {
         Port startingPort = portRepository.findByName("Porto Real")
                 .orElseThrow(() -> new IllegalStateException("Porto inicial 'Porto Real' não encontrado. O DataSeeder falhou?"));
@@ -76,6 +77,14 @@ public class GameService {
                 .orElseThrow(() -> new EntityNotFoundException("Jogo não encontrado com o ID: " + id));
     }
 
+    @Transactional(readOnly = true)
+    public GameStatusResponseDTO getGameStatusDTO(Long id) {
+        Game game = findGameById(id);
+        List<PortActionDTO> portActions = getAvailablePortActions(id);
+        List<EncounterActionDTO> encounterActions = getAvailableEncounterActions(id);
+        return gameMapper.toGameStatusResponseDTO(game, portActions, encounterActions);
+    }
+
     
     public PortDTO getCurrentPort(Long gameId) {
         Game game = findGameById(gameId);
@@ -86,8 +95,22 @@ public class GameService {
         return gameMapper.toPortDTO(currentPort);
     }
 
+    @Transactional(readOnly = true)
+    public List<PortSummaryDTO> getTravelDestinations(Long gameId) {
+        Game game = findGameById(gameId);
+        Port currentPort = game.getCurrentPort();
+        if (currentPort == null) {
+            throw new IllegalStateException("O jogador não está em um porto para ver os destinos de viagem.");
+        }
+
+        return portRepository.findAll().stream()
+                .filter(port -> !port.equals(currentPort))
+                .map(port -> new PortSummaryDTO(port.getId(), port.getName()))
+                .collect(Collectors.toList());
+    }
+
     
-    public SeaEncounter travelToPort(Long gameId, TravelRequestDTO request) {
+    public GameActionResponseDTO travelToPort(Long gameId, TravelRequestDTO request) {
         Game game = findGameById(gameId);
         Port currentPort = game.getCurrentPort();
 
@@ -111,10 +134,18 @@ public class GameService {
         SeaEncounter encounter = generateRandomEncounter();
         game.setCurrentEncounter(encounter);
 
-        seaEncounterRepository.save(encounter);
-        gameRepository.save(game);
+        // O SeaEncounter é salvo em cascata a partir do Game
+        Game savedGame = gameRepository.save(game);
 
-        return encounter;
+        String message = String.format("Você zarpa de %s em direção a %s.", currentPort.getName(), destinationPort.getName());
+
+        List<PortActionDTO> portActions = getAvailablePortActions(savedGame.getId());
+        List<EncounterActionDTO> encounterActions = getAvailableEncounterActions(savedGame.getId());
+
+        return GameActionResponseDTO.builder()
+                .gameStatus(gameMapper.toGameStatusResponseDTO(savedGame, portActions, encounterActions))
+                .eventLog(List.of(message))
+                .build();
     }
 
     private SeaEncounter generateRandomEncounter() {
@@ -304,12 +335,12 @@ public class GameService {
             eventLog.add(String.format("A moral da tripulação mudou em resposta às suas ações."));
         }
 
-        endTurnCycle(game, eventLog);
-
         Game savedGame = gameRepository.save(game);
+        List<PortActionDTO> portActions = getAvailablePortActions(savedGame.getId());
+        List<EncounterActionDTO> encounterActions = getAvailableEncounterActions(savedGame.getId());
 
         return GameActionResponseDTO.builder()
-                .gameStatus(gameMapper.toGameStatusResponseDTO(savedGame))
+                .gameStatus(gameMapper.toGameStatusResponseDTO(savedGame, portActions, encounterActions))
                 .eventLog(eventLog)
                 .build();
     }
@@ -358,11 +389,12 @@ public class GameService {
         activeContract.setStatus(ContractStatus.COMPLETED);
         game.setActiveContract(null);
 
-        contractRepository.save(activeContract);
         Game savedGame = gameRepository.save(game);
+        List<PortActionDTO> portActions = getAvailablePortActions(savedGame.getId());
+        List<EncounterActionDTO> encounterActions = getAvailableEncounterActions(savedGame.getId());
 
         return GameActionResponseDTO.builder()
-                .gameStatus(gameMapper.toGameStatusResponseDTO(savedGame))
+                .gameStatus(gameMapper.toGameStatusResponseDTO(savedGame, portActions, encounterActions))
                 .eventLog(eventLog)
                 .build();
     }
@@ -502,9 +534,11 @@ public class GameService {
         }
 
         Game savedGame = gameRepository.save(game);
+        List<PortActionDTO> portActions = getAvailablePortActions(savedGame.getId());
+        List<EncounterActionDTO> encounterActions = getAvailableEncounterActions(savedGame.getId());
 
         return GameActionResponseDTO.builder()
-                .gameStatus(gameMapper.toGameStatusResponseDTO(savedGame))
+                .gameStatus(gameMapper.toGameStatusResponseDTO(savedGame, portActions, encounterActions))
                 .eventLog(eventLog)
                 .build();
     }
@@ -564,9 +598,11 @@ public class GameService {
         endTurnCycle(game, eventLog);
 
         Game savedGame = gameRepository.save(game);
+        List<PortActionDTO> portActions = getAvailablePortActions(savedGame.getId());
+        List<EncounterActionDTO> encounterActions = getAvailableEncounterActions(savedGame.getId());
 
         return GameActionResponseDTO.builder()
-            .gameStatus(gameMapper.toGameStatusResponseDTO(savedGame))
+            .gameStatus(gameMapper.toGameStatusResponseDTO(savedGame, portActions, encounterActions))
             .eventLog(eventLog)
             .build();
     }
@@ -621,15 +657,13 @@ public class GameService {
             int enemyDamage = encounter.getCannons() + ThreadLocalRandom.current().nextInt(1, 7);
             ship.setHullIntegrity(ship.getHullIntegrity() - enemyDamage);
             eventLog.add(String.format("O inimigo revida! Os canhões deles causam %d de dano ao seu casco.", enemyDamage));
-
-            if (ship.getHullIntegrity() <= 0) {
-                eventLog.add("DERROTA! Seu navio foi destruído. As ondas consomem seus destroços e seus sonhos...");
-            }
         }
 
         Game savedGame = gameRepository.save(game);
+        List<PortActionDTO> portActions = getAvailablePortActions(savedGame.getId());
+        List<EncounterActionDTO> encounterActions = getAvailableEncounterActions(savedGame.getId());
         return GameActionResponseDTO.builder()
-                .gameStatus(gameMapper.toGameStatusResponseDTO(savedGame))
+                .gameStatus(gameMapper.toGameStatusResponseDTO(savedGame, portActions, encounterActions))
                 .eventLog(eventLog)
                 .build();
     }
@@ -701,8 +735,10 @@ public class GameService {
         }
 
         Game savedGame = gameRepository.save(game);
+        List<PortActionDTO> portActions = getAvailablePortActions(savedGame.getId());
+        List<EncounterActionDTO> encounterActions = getAvailableEncounterActions(savedGame.getId());
         return GameActionResponseDTO.builder()
-                .gameStatus(gameMapper.toGameStatusResponseDTO(savedGame))
+                .gameStatus(gameMapper.toGameStatusResponseDTO(savedGame, portActions, encounterActions))
                 .eventLog(eventLog)
                 .build();
     }
@@ -774,8 +810,10 @@ public class GameService {
         eventLog.add(String.format("Você pagou %d de ouro ao estaleiro. O casco do seu navio foi totalmente reparado!", repairCost));
 
         Game savedGame = gameRepository.save(game);
+        List<PortActionDTO> portActions = getAvailablePortActions(savedGame.getId());
+        List<EncounterActionDTO> encounterActions = getAvailableEncounterActions(savedGame.getId());
         return GameActionResponseDTO.builder()
-                .gameStatus(gameMapper.toGameStatusResponseDTO(savedGame))
+                .gameStatus(gameMapper.toGameStatusResponseDTO(savedGame, portActions, encounterActions))
                 .eventLog(eventLog)
                 .build();
     }
@@ -822,8 +860,10 @@ public class GameService {
                 upgradeToPurchase.getCost(), upgradeToPurchase.getName()));
 
         Game savedGame = gameRepository.save(game);
+        List<PortActionDTO> portActions = getAvailablePortActions(savedGame.getId());
+        List<EncounterActionDTO> encounterActions = getAvailableEncounterActions(savedGame.getId());
         return GameActionResponseDTO.builder()
-                .gameStatus(gameMapper.toGameStatusResponseDTO(savedGame))
+                .gameStatus(gameMapper.toGameStatusResponseDTO(savedGame, portActions, encounterActions))
                 .eventLog(eventLog)
                 .build();
     }
@@ -883,11 +923,11 @@ public class GameService {
             case SHOT -> ship.setShot(ship.getShot() + request.getQuantity());
         }
 
-        eventLog.add(String.format("Você comprou %d unidades de %s por %d de ouro.", request.getQuantity(), request.getItem(), totalCost));
-
         Game savedGame = gameRepository.save(game);
+        List<PortActionDTO> portActions = getAvailablePortActions(savedGame.getId());
+        List<EncounterActionDTO> encounterActions = getAvailableEncounterActions(savedGame.getId());
         return GameActionResponseDTO.builder()
-                .gameStatus(gameMapper.toGameStatusResponseDTO(savedGame))
+                .gameStatus(gameMapper.toGameStatusResponseDTO(savedGame, portActions, encounterActions))
                 .eventLog(eventLog)
                 .build();
     }
@@ -937,8 +977,10 @@ public class GameService {
         eventLog.add(String.format("Você vendeu %d unidades de %s por %d de ouro.", request.getQuantity(), request.getItem(), totalGain));
 
         Game savedGame = gameRepository.save(game);
+        List<PortActionDTO> portActions = getAvailablePortActions(savedGame.getId());
+        List<EncounterActionDTO> encounterActions = getAvailableEncounterActions(savedGame.getId());
         return GameActionResponseDTO.builder()
-                .gameStatus(gameMapper.toGameStatusResponseDTO(savedGame))
+                .gameStatus(gameMapper.toGameStatusResponseDTO(savedGame, portActions, encounterActions))
                 .eventLog(eventLog)
                 .build();
     }

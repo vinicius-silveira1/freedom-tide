@@ -31,13 +31,14 @@ public class GameController {
     @PostMapping
     public ResponseEntity<GameStatusResponseDTO> createNewGame() {
         Game newGame = gameService.createNewGame();
-        return ResponseEntity.status(HttpStatus.CREATED).body(gameMapper.toGameStatusResponseDTO(newGame));
+        List<PortActionDTO> actions = gameService.getAvailablePortActions(newGame.getId());
+        return ResponseEntity.status(HttpStatus.CREATED).body(gameMapper.toGameStatusResponseDTO(newGame, actions));
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<GameStatusResponseDTO> getGameById(@PathVariable Long id) {
-        Game game = gameService.findGameById(id);
-        return ResponseEntity.ok(gameMapper.toGameStatusResponseDTO(game));
+        GameStatusResponseDTO gameStatus = gameService.getGameStatusDTO(id);
+        return ResponseEntity.ok(gameStatus);
     }
 
     @GetMapping("/{gameId}/port")
@@ -53,11 +54,17 @@ public class GameController {
     }
 
     @PostMapping("/{gameId}/travel")
-    public ResponseEntity<SeaEncounterDTO> travelToPort(
+    public ResponseEntity<GameActionResponseDTO> travelToPort(
             @PathVariable Long gameId,
             @Valid @RequestBody TravelRequestDTO request) {
-        com.tidebreakerstudios.freedom_tide.model.SeaEncounter encounter = gameService.travelToPort(gameId, request);
-        return ResponseEntity.ok(gameMapper.toSeaEncounterDTO(encounter));
+        GameActionResponseDTO response = gameService.travelToPort(gameId, request);
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/{gameId}/travel/destinations")
+    public ResponseEntity<List<PortSummaryDTO>> getTravelDestinations(@PathVariable Long gameId) {
+        List<PortSummaryDTO> destinations = gameService.getTravelDestinations(gameId);
+        return ResponseEntity.ok(destinations);
     }
 
     // --- Endpoints de Encontro ---
