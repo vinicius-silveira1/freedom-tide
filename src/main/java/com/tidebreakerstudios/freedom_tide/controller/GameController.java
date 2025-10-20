@@ -153,12 +153,15 @@ public class GameController {
         return ResponseEntity.ok(recruits);
     }
 
-    @PostMapping("/{gameId}/ship/crew")
-    public ResponseEntity<CrewMemberResponseDTO> recruitCrewMember(
+    @PostMapping("/{gameId}/crew/recruit")
+    public ResponseEntity<GameStatusResponseDTO> recruitCrewMember(
             @PathVariable Long gameId,
             @Valid @RequestBody RecruitCrewMemberRequest request) {
-        CrewMember newCrewMember = gameService.recruitCrewMember(gameId, request);
-        return ResponseEntity.status(HttpStatus.CREATED).body(gameMapper.toCrewMemberResponseDTO(newCrewMember));
+        Game updatedGame = gameService.recruitCrewMember(gameId, request);
+        // Após a contratação, o jogo ainda está em um porto, então obtemos as ações do porto.
+        List<PortActionDTO> portActions = gameService.getAvailablePortActions(updatedGame.getId());
+        GameStatusResponseDTO responseDTO = gameMapper.toGameStatusResponseDTO(updatedGame, portActions, null); // Nenhuma ação de encontro no porto
+        return ResponseEntity.status(HttpStatus.CREATED).body(responseDTO);
     }
 
     /**

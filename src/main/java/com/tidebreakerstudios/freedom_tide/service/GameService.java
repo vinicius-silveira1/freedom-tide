@@ -265,7 +265,7 @@ public class GameService {
     }
 
     
-    public CrewMember recruitCrewMember(Long gameId, RecruitCrewMemberRequest request) {
+    public Game recruitCrewMember(Long gameId, RecruitCrewMemberRequest request) {
         Game game = findGameById(gameId);
         Ship ship = game.getShip();
 
@@ -288,8 +288,7 @@ public class GameService {
         newCrewMember.setSalary(Math.max(1, salary));
 
         ship.getCrew().add(newCrewMember);
-        gameRepository.save(game);
-        return ship.getCrew().get(ship.getCrew().size() - 1);
+        return gameRepository.save(game);
     }
 
     

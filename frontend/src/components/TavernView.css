@@ -1,0 +1,99 @@
+.tavern-view {
+    padding: 20px;
+    background-color: #1a252f;
+}
+
+.tavern-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #34495e;
+    padding-bottom: 15px;
+    margin-bottom: 20px;
+}
+
+.tavern-header h2 {
+    margin: 0;
+    color: #e0e0e0;
+}
+
+.back-button {
+    background-color: #c0392b;
+}
+
+.back-button:hover {
+    background-color: #e74c3c;
+}
+
+.recruits-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 20px;
+}
+
+.recruit-card {
+    background-color: #2c3e50;
+    border: 1px solid #34495e;
+    border-radius: 5px;
+    overflow: hidden;
+}
+
+.recruit-header {
+    padding: 10px 15px;
+    background-color: #34495e;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.recruit-header h3 {
+    margin: 0;
+    font-size: 1.1em;
+}
+
+.recruit-header .personality {
+    font-size: 0.8em;
+    font-weight: bold;
+    padding: 3px 8px;
+    border-radius: 10px;
+    color: #fff;
+}
+
+/* Cores para personalidades */
+.personality.honest { background-color: #2980b9; }
+.personality.greedy { background-color: #f1c40f; color: #333;}
+.personality.rebel { background-color: #c0392b; }
+.personality.bloodthirsty { background-color: #8e44ad; }
+
+.recruit-body {
+    padding: 15px;
+    display: flex;
+    justify-content: space-between;
+}
+
+.recruit-stats ul {
+    list-style: none;
+    padding: 0;
+    margin: 10px 0 0 0;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 5px;
+    font-size: 0.9em;
+}
+
+.recruit-stats p {
+    margin: 0 0 5px 0;
+}
+
+.recruit-actions {
+    display: flex;
+    align-items: center;
+}
+
+.hire-button {
+    background-color: #27ae60;
+}
+
+.hire-button:hover {
+    background-color: #2ecc71;
+}

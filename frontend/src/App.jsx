@@ -5,8 +5,9 @@ import CrewStatus from './components/CrewStatus';
 import LocationStatus from './components/LocationStatus';
 import PortActions from './components/PortActions';
 import EncounterActions from './components/EncounterActions';
-import TravelPanel from './components/TravelPanel'; // Import new component
+import TravelPanel from './components/TravelPanel';
 import EventLog from './components/EventLog';
+import TavernView from './components/TavernView'; // 1. Importar
 import './App.css';
 
 function App() {
@@ -59,9 +60,9 @@ function App() {
       }
 
       const updatedGameResponse = await response.json();
-      setGame(updatedGameResponse.gameStatus); // Correctly set the game state to the nested object
+      setGame(updatedGameResponse.gameStatus);
       setEventLog(updatedGameResponse.eventLog);
-      setCurrentView('DASHBOARD'); // Return to dashboard after traveling
+      setCurrentView('DASHBOARD');
       setError(null);
     } catch (e) {
       setError(e.message);
@@ -69,15 +70,45 @@ function App() {
     }
   };
 
+    // 3. Nova função para contratação
+    const handleHire = async (recruitRequest) => {
+      try {
+        const response = await fetch(`/api/games/${game.id}/crew/recruit`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(recruitRequest),
+        });
+  
+        if (!response.ok) {
+          const errorData = await response.json().catch(() => null);
+          if (errorData && errorData.message) {
+            throw new Error(`${errorData.message} (Status: ${response.status})`);
+          }
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+  
+        // A API de recrutamento retorna o Game completo, não um GameActionResponseDTO
+        const updatedGame = await response.json();
+        setGame(updatedGame);
+        setEventLog(prevLog => [...prevLog, `Novo tripulante contratado: ${recruitRequest.name}!`]);
+        // Não muda a view, continua na taverna para contratar mais
+        setError(null);
+      } catch (e) {
+        setError(e.message);
+        console.error("Erro ao contratar:", e);
+      }
+    };
+
   // Generic action handler
   const handleAction = (action) => {
     switch (action.actionType) {
       case 'TRAVEL':
         setCurrentView('TRAVEL');
         break;
-      // other cases for SHIPYARD, MARKET etc. will go here
+      case 'GO_TO_TAVERN': // 2. Adicionar caso para a taverna
+        setCurrentView('TAVERN');
+        break;
       default:
-        // For now, keep the old post logic for other buttons
         const postAction = async (endpoint) => {
             try {
                 const response = await fetch(endpoint, { 
@@ -109,6 +140,8 @@ function App() {
     switch (currentView) {
       case 'TRAVEL':
         return <TravelPanel gameId={game.id} onTravel={executeTravel} onCancel={() => setCurrentView('DASHBOARD')} />;
+      case 'TAVERN': // 4. Adicionar caso de renderização
+        return <TavernView gameId={game.id} onHire={handleHire} onBack={() => setCurrentView('DASHBOARD')} />;
       case 'DASHBOARD':
       default:
         return (
