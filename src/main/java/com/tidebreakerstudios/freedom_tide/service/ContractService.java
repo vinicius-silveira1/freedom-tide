@@ -42,4 +42,30 @@ public class ContractService {
                 game.getAlliance()
         );
     }
+
+    /**
+     * Valida se as condições para resolver o contrato ativo de um jogo foram atendidas.
+     * @param game O estado atual do jogo.
+     * @throws IllegalStateException se as condições não forem atendidas.
+     */
+    public void validateContractResolution(Game game) {
+        Contract activeContract = game.getActiveContract();
+        if (activeContract == null) {
+            throw new IllegalStateException("O jogo não possui um contrato ativo para resolver.");
+        }
+
+        Port currentPort = game.getCurrentPort();
+        if (currentPort == null) {
+            throw new IllegalStateException("Não é possível resolver um contrato fora de um porto.");
+        }
+
+        Port destinationPort = activeContract.getDestinationPort();
+        if (destinationPort == null) {
+            throw new IllegalStateException("O contrato ativo não possui um porto de destino definido.");
+        }
+
+        if (!currentPort.equals(destinationPort)) {
+            throw new IllegalStateException("Condições do contrato não cumpridas: Você está em '" + currentPort.getName() + "', mas o destino é '" + destinationPort.getName() + "'.");
+        }
+    }
 }

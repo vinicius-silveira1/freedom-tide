@@ -262,7 +262,6 @@ function App() {
           <>
             <div className="status-dashboard">
               <LocationStatus port={game.currentPort} encounter={game.currentEncounter} />
-              <CaptainCompass compass={game.captainCompass} />
               <ShipStatus ship={game.ship} />
               <CrewStatus crew={game.crew} />
             </div>
@@ -288,6 +287,9 @@ function App() {
 
   return (
     <div className="app-container">
+      {/* A Bússola agora vive fora do fluxo principal para posicionamento independente */}
+      <CaptainCompass compass={game?.captainCompass} />
+
       <header className="app-header">
         <h1>Freedom Tide</h1>
       </header>

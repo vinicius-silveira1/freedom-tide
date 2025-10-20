@@ -48,23 +48,41 @@ Maven
  **Descrição**: Criada a `ContractsView.jsx`, uma tela que permite ao jogador visualizar os contratos disponíveis em um porto e aceitá-los, tornando-os o contrato ativo do jogador.
  **Status**: **Concluído e Verificado.**
 
-## Próxima Tarefa: v1.12 - A Palavra do Capitão
+## v1.12 - A Palavra do Capitão (Concluído e Verificado)
 
 **Versão do Jogo:** 1.12
-**Foco Atual:** Implementar a lógica de finalização e resolução de contratos.
+**Foco:** Implementar a lógica de finalização e resolução de contratos.
+**Status:** **Concluído e Verificado.**
 
-## Resumo do Estado Atual
-O jogador agora pode visualizar e aceitar contratos, que se tornam seu "contrato ativo". Isso ativa um dos pilares do GDD, dando ao jogador um objetivo claro. No entanto, o ciclo não está completo. Não há, no momento, uma forma de o jogador cumprir as condições do contrato e clamar sua recompensa (ou sofrer as penalidades do fracasso).
+## v1.13 - Pilar de Estilo Visual (Vertical Slice) (Concluído e Verificado)
 
-## Próxima Tarefa: Implementar a Resolução de Contratos
+### Justificativa
 
-**Objetivo:** Implementar a lógica no backend para o endpoint `POST /api/games/{gameId}/contracts/resolve`. Este endpoint verificará se as condições do contrato ativo foram cumpridas e, em caso afirmativo, aplicará as recompensas (ouro, status) e limpará o contrato ativo.
+Conforme nossa discussão estratégica, após fechar um loop de gameplay fundamental (contratos), a prioridade agora é estabelecer a identidade visual do jogo. Em vez de deixar toda a arte para o final, criaremos um "pilar de estilo" (ou "fatia vertical") ao estilizar completamente um componente-chave. Isso servirá como um guia de qualidade, um "kit de peças" reutilizável (Design System) e um impulso de motivação, garantindo que a gameplay e a estética evoluam em harmonia.
+**Status:** **Concluído e Verificado.** O componente `ContractsView` agora serve como nosso pilar de estilo visual, com uma estética de painel de RPG pixel art, guiado por inspirações como Chrono Trigger e Sea of Stars.
 
-**Estratégia de Implementação:**
-1.  **Expandir o `ContractService`**: Criar um método `resolveContract(gameId)` que conterá a lógica principal.
-2.  **Lógica de Verificação**: O serviço precisará obter o `activeContract` do jogo e verificar suas condições de conclusão. Para começar, podemos implementar um tipo simples de condição (ex: "Chegar ao porto de destino X").
-3.  **Aplicar Recompensas**: Se as condições forem atendidas, o serviço aplicará as recompensas (`rewardGold`, `rewardReputation`, etc.) ao estado do jogo.
-4.  **Limpar Contrato**: Após a resolução (sucesso ou falha), o `activeContract` do jogo deve ser definido como `null`.
-5.  **Integrar ao `GameController`**: O `GameController` chamará o novo método do serviço e retornará o estado atualizado do jogo.
+## v1.14 - Estilização do Dashboard Principal (Concluído e Verificado)
 
-Isso fechará o loop de gameplay dos contratos, tornando-os uma mecânica completa: Aceitar -> Executar -> Resolver.
+**Descrição:** Com o pilar de estilo estabelecido, esta tarefa aplicou a identidade visual ao restante da interface para criar uma experiência coesa. Os componentes `ShipStatus`, `CrewStatus`, `CaptainCompass`, `LocationStatus` e `EventLog` foram todos estilizados para compartilhar a mesma aparência de painel, garantindo que a tela principal do jogo tenha uma qualidade visual unificada.
+**Status:** **Concluído e Verificado.**
+
+## v1.15 - O Painel Imersivo (Fase 1) (Concluído e Verificado)
+
+**Descrição:** Atendendo a uma nova diretriz de design para aumentar a imersão, esta tarefa transformou o componente `CaptainCompass` de um painel de texto em um widget temático. A bússola agora é um elemento visual autônomo, posicionado no canto da tela, com agulhas que se movem dinamicamente e um mostrador numérico para clareza de informação.
+**Status:** **Concluído e Verificado.**
+
+## Próxima Tarefa: v1.16 - O Painel Imersivo (Fase 2): Fundo Contextual
+
+### Justificativa
+
+Para aprofundar a imersão, a interface não deve ser estática. O fundo da tela deve refletir o ambiente atual do jogador. Se o jogador está em um porto movimentado, a cena de fundo deve mostrar isso. Se está em alto mar, a vastidão do oceano deve ser visível. Isso conecta visualmente o jogador ao estado do jogo de uma forma poderosa e imediata.
+
+### Plano de Implementação
+
+1.  **Lógica de Classe Dinâmica:** No `App.jsx`, vamos implementar uma lógica que adiciona uma classe CSS ao container principal do aplicativo (`app-container`) com base no estado do jogo. Por exemplo, a classe `in-port` será adicionada se `game.currentPort` existir, e `at-sea` caso contrário.
+2.  **Estilos de Fundo:** No `App.css`, criaremos as regras para essas novas classes. Cada classe definirá um `background-image` diferente.
+3.  **Busca de Assets:** Procurarei por imagens de pixel art (livres de direitos autorais ou com licenças permissivas) que possam servir como placeholders para um porto e para o oceano. O objetivo é encontrar artes que se alinhem com a estética de "low fantasy" e com nossa inspiração em Chrono Trigger/Sea of Stars.
+
+### Status
+
+A ser implementado.

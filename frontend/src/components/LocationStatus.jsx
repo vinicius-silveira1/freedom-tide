@@ -1,4 +1,5 @@
 import React from 'react';
+import './LocationStatus.css';
 
 function LocationStatus({ port, encounter }) {
   let location = "Em alto mar";

@@ -1,13 +1,8 @@
 /* Reset básico e fontes */
 body {
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background-color: #282c34;
-  color: white;
 }
 
 .app-container {
@@ -39,40 +34,7 @@ body {
   margin: 0 auto;
 }
 
-/* Estilo individual de cada painel de status */
-.status-panel {
-  background-color: #3c4049;
-  border: 1px solid #5f6368;
-  border-radius: 8px;
-  padding: 1rem 1.5rem;
-  text-align: left;
-}
-
-.status-panel h2 {
-  margin-top: 0;
-  border-bottom: 2px solid #61dafb;
-  padding-bottom: 0.5rem;
-  color: #61dafb;
-}
-
-.status-panel h3 {
-  margin-top: 1.5rem;
-  margin-bottom: 0.5rem;
-  color: #e2e2e2;
-}
-
-.status-panel ul {
-  list-style-type: none;
-  padding: 0;
-  margin: 0;
-}
-
-.status-panel li {
-  background-color: #282c34;
-  padding: 0.5rem;
-  border-radius: 4px;
-  margin-bottom: 0.5rem;
-}
+/* Estilo individual de cada painel de status foi movido para o CSS do componente específico */
 
 .error-panel {
   grid-column: 1 / -1; /* Faz o painel de erro ocupar a largura toda */

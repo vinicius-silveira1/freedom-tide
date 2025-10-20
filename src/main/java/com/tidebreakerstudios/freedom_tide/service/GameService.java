@@ -24,8 +24,10 @@ public class GameService {
     private final ContractRepository contractRepository;
     private final PortRepository portRepository;
     private final SeaEncounterRepository seaEncounterRepository;
+    private final ShipRepository shipRepository;
     private final ShipUpgradeRepository shipUpgradeRepository;
     private final GameMapper gameMapper;
+    private final ContractService contractService;
 
     // Constantes de Moral
     private static final int INSUBORDINATION_THRESHOLD = 30;
@@ -359,6 +361,7 @@ public class GameService {
         }
 
         game.setActiveContract(contract);
+        contract.setGame(game); // Set the other side of the relationship
         contract.setStatus(ContractStatus.IN_PROGRESS);
 
         contractRepository.save(contract);
@@ -366,15 +369,16 @@ public class GameService {
     }
 
     
+    @Transactional
     public GameActionResponseDTO resolveContract(Long gameId) {
         Game game = findGameById(gameId);
-        Contract activeContract = game.getActiveContract();
         List<String> eventLog = new ArrayList<>();
 
-        if (activeContract == null) {
-            throw new IllegalStateException("O jogo não possui um contrato ativo para resolver.");
-        }
+        // 1. Valida se as condições do contrato foram atendidas
+        contractService.validateContractResolution(game);
 
+        // 2. Procede com a resolução se a validação passar
+        Contract activeContract = game.getActiveContract(); // Sabemos que não é nulo por causa da validação
         eventLog.add("Contrato concluído: " + activeContract.getTitle());
 
         handleMoraleConsequences(game, activeContract.getRewardGold(), eventLog);

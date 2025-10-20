@@ -1,4 +1,5 @@
 import React from 'react';
+import './ShipStatus.css';
 
 function ShipStatus({ ship }) {
   if (!ship) return <div>Carregando Status do Navio...</div>;

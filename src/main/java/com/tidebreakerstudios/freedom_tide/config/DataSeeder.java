@@ -89,9 +89,9 @@ public class DataSeeder implements CommandLineRunner {
 
     private void seedContracts(Map<String, Port> ports) {
         List<Contract> contractBlueprints = Arrays.asList(
-                createGuildContract(ports.get("Baía da Guilda")),
-                createRevolutionaryContract(ports.get("Porto Real")),
-                createBrotherhoodContract(ports.get("Ninho do Corvo"))
+                createGuildContract(ports.get("Baía da Guilda"), ports.get("Porto Real")),
+                createRevolutionaryContract(ports.get("Porto Real"), ports.get("Ninho do Corvo")),
+                createBrotherhoodContract(ports.get("Ninho do Corvo"), ports.get("Baía da Guilda"))
         );
 
         contractBlueprints.forEach(blueprint -> {
@@ -107,6 +107,7 @@ public class DataSeeder implements CommandLineRunner {
                     existingContract.setRequiredInfamy(blueprint.getRequiredInfamy());
                     existingContract.setRequiredAlliance(blueprint.getRequiredAlliance());
                     existingContract.setOriginPort(blueprint.getOriginPort());
+                    existingContract.setDestinationPort(blueprint.getDestinationPort()); // Add destination
                     existingContract.setStatus(ContractStatus.AVAILABLE);
                     contractRepository.save(existingContract);
                 },
@@ -118,13 +119,14 @@ public class DataSeeder implements CommandLineRunner {
         System.out.println("--- Contratos Iniciais sincronizados (Upsert). ---");
     }
 
-    private Contract createGuildContract(Port originPort) {
+    private Contract createGuildContract(Port originPort, Port destinationPort) {
         return Contract.builder()
                 .title("Transporte de Manufaturados")
                 .description("A Guilda Mercante Unida precisa de um capitão discreto para transportar uma carga de 'bens manufaturados' para uma de suas colônias. O pagamento é generoso e a viagem, espera-se, tranquila.")
                 .faction(Faction.GUILD)
                 .status(ContractStatus.AVAILABLE)
                 .originPort(originPort)
+                .destinationPort(destinationPort)
                 .rewardGold(500)
                 .rewardReputation(25)
                 .rewardInfamy(0)
@@ -135,13 +137,14 @@ public class DataSeeder implements CommandLineRunner {
                 .build();
     }
 
-    private Contract createRevolutionaryContract(Port originPort) {
+    private Contract createRevolutionaryContract(Port originPort, Port destinationPort) {
         return Contract.builder()
                 .title("Interceptar e Libertar")
                 .description("Um informante anônimo alega que um navio do Império, com pouca escolta, transporta suprimentos médicos essenciais para uma elite colonial, enquanto a população local sofre. Intercepte a carga e redirecione-a para um porto necessitado.")
                 .faction(Faction.REVOLUTIONARY)
                 .status(ContractStatus.AVAILABLE)
                 .originPort(originPort)
+                .destinationPort(destinationPort)
                 .rewardGold(50)
                 .rewardReputation(-15)
                 .rewardInfamy(10)
@@ -152,13 +155,14 @@ public class DataSeeder implements CommandLineRunner {
                 .build();
     }
 
-    private Contract createBrotherhoodContract(Port originPort) {
+    private Contract createBrotherhoodContract(Port originPort, Port destinationPort) {
         return Contract.builder()
                 .title("O Tributo do Aço")
                 .description("A Irmandade de Grani declarou uma rota comercial da Guilda como 'zona de tributo'. Ataque qualquer navio mercante na área e colete o 'tributo' para a Irmandade. A violência é esperada e encorajada.")
                 .faction(Faction.BROTHERHOOD)
                 .status(ContractStatus.AVAILABLE)
                 .originPort(originPort)
+                .destinationPort(destinationPort)
                 .rewardGold(300)
                 .rewardReputation(-20)
                 .rewardInfamy(40)

@@ -1,4 +1,5 @@
 import React from 'react';
+import './CrewStatus.css';
 
 function CrewStatus({ crew }) {
   if (!crew) return <div>Carregando Status da Tripulação...</div>;

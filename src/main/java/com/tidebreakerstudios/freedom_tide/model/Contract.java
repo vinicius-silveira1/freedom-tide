@@ -48,4 +48,12 @@ public class Contract {
     @JoinColumn(name = "origin_port_id")
     @JsonBackReference("port-contracts")
     private Port originPort;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "destination_port_id")
+    private Port destinationPort;
+
+    @OneToOne(mappedBy = "activeContract")
+    @JsonBackReference("game-contract")
+    private Game game;
 }
