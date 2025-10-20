@@ -6,10 +6,12 @@ import LocationStatus from './components/LocationStatus';
 import PortActions from './components/PortActions';
 import EncounterActions from './components/EncounterActions';
 import TravelPanel from './components/TravelPanel'; // Import new component
+import EventLog from './components/EventLog';
 import './App.css';
 
 function App() {
   const [game, setGame] = useState(null);
+  const [eventLog, setEventLog] = useState([]);
   const [error, setError] = useState(null);
   const [currentView, setCurrentView] = useState('DASHBOARD');
 
@@ -28,6 +30,7 @@ function App() {
 
         const newGame = await createResponse.json();
         setGame(newGame);
+        setEventLog(["Bem-vindo a Freedom Tide! O seu navio aguarda no porto."]);
 
       } catch (e) {
         setError(e.message);
@@ -57,6 +60,7 @@ function App() {
 
       const updatedGameResponse = await response.json();
       setGame(updatedGameResponse.gameStatus); // Correctly set the game state to the nested object
+      setEventLog(updatedGameResponse.eventLog);
       setCurrentView('DASHBOARD'); // Return to dashboard after traveling
       setError(null);
     } catch (e) {
@@ -89,6 +93,7 @@ function App() {
                 }
                 const updatedGameResponse = await response.json();
                 setGame(updatedGameResponse.gameStatus);
+                setEventLog(updatedGameResponse.eventLog);
                 setError(null);
             } catch (e) {
                 setError(e.message);
@@ -114,6 +119,9 @@ function App() {
               <ShipStatus ship={game.ship} />
               <CrewStatus crew={game.crew} />
             </div>
+
+            <EventLog logs={eventLog} />
+
             {game.currentPort && (
               <PortActions 
                 actions={game.currentPort.availableActions}

@@ -17,62 +17,35 @@ Maven
 
 ### **Funcionalidades Implementadas:**
 
- 
-1.  **Estrutura Inicial do Projeto**
-2.  **Modelagem de Dados (Entidades JPA)**
-3.  **API de Gerenciamento do Jogo**
-4.  **API de Recrutamento**
-5.  **Sistema de Eventos Narrativos**
-6.  **Mecânica de Moral da Tripulação**
-7.  **DTOs de Resposta para a API**
-8.  **Sistema de Contratos (Completo)**
-9.  **Refatoração do DataSeeder (Upsert)**
-10. **Disponibilidade de Contratos Condicional**
-11. **Ciclo de Fim de Turno (Consumo e Salários)**
-12. **Fundações do Mundo Interativo (Viagem, Portos, Encontros)**
-13. **Aprofundando Consequências (Fuga, Investigar)**
-14. **Combate Naval (Atacar, Abordar)**
-15. **Tornando os Portos Vivos (Estaleiro, Mercado, Taverna)**
-16. **Estrutura do Frontend e Interatividade Básica**
-17. **Correção de Bug Crítico na UI (Estado do Jogo)**
+1.  **Estrutura Inicial e APIs Core**
+2.  **Sistemas de Jogo (Eventos, Contratos, Moral)**
+3.  **Mundo Interativo (Viagem, Portos, Encontros, Combate)**
+4.  **Economia de Porto (Estaleiro, Mercado, Taverna)**
+5.  **Estrutura do Frontend com React e Interatividade Básica**
+6.  **Painel de Feedback (Diário de Bordo)**
 
-## v1.8 - A Interface do Capitão (Concluído)
+## v1.9 - Feedback Visual e Notificações (Concluído)
 
-### Fase 1: Estrutura do Frontend com React + Vite (Concluído)
- **Descrição**: Estruturado um projeto de frontend na pasta `frontend/` utilizando React e Vite.
+### Fase 1: Implementar um Painel de Log de Eventos (Concluído)
+ **Descrição**: Criado o componente `EventLog.jsx` e integrado ao `App.jsx`. O estado `eventLog` agora captura as mensagens narrativas da API e as exibe em um painel "Diário de Bordo", fornecendo ao jogador feedback imediato e claro sobre as consequências de suas ações.
  **Status**: **Concluído e Verificado.**
 
-### Fase 2: Componentização da UI e Exibição de Status (Concluído)
- **Descrição**: A exibição de dados brutos (JSON) foi substituída por uma UI estruturada com componentes React dedicados.
- **Status**: **Concluído e Verificado.**
+## Próxima Tarefa: v1.10 - Interfaces de Ação de Porto
 
-### Fase 3: Interatividade da UI - Ações do Porto (Concluído)
- **Descrição**: Criado o componente `PortActions.jsx` que renderiza dinamicamente as ações disponíveis no porto.
- **Status**: **Concluído e Verificado.**
-
-### Fase 4: Unificação do Estado e Handlers de Ação (Concluído)
- **Descrição**: Implementado o padrão "Lifting State Up" para permitir que componentes filhos atualizem o estado global do jogo no `App.jsx`.
- **Status**: **Concluído e Verificado.**
-
-### Fase 5: [BUGFIX] Ações de Encontro Não Aparecem Após Viagem (Concluído)
- **Descrição**: Identificado e corrigido um bug crítico onde o `handleAction` genérico em `App.jsx` não estava tratando corretamente a estrutura de resposta aninhada (`{ gameStatus: {...} }`) da API, fazendo com que o estado do jogo fosse corrompido e a UI falhasse após uma ação de encontro. Um erro de compilação no backend também foi corrigido.
- **Status**: **Concluído e Verificado.**
-
-## Próxima Tarefa: v1.9 - Feedback Visual e Notificações
-
-**Versão do Jogo:** 1.9
-**Foco Atual:** Melhorar a Experiência do Usuário (UX) com Feedback Imediato
+**Versão do Jogo:** 1.10
+**Foco Atual:** Dar vida às ações de porto, criando interfaces dedicadas para cada uma.
 
 ## Resumo do Estado Atual
-A aplicação está funcional. O jogador pode iniciar um jogo, ver seu status, viajar, ter encontros e interagir com as ações disponíveis. No entanto, a experiência é "seca". Quando uma ação é executada (ex: "Atacar", "Viajar", "Comprar"), o estado do jogo muda, mas não há um feedback claro e imediato para o usuário sobre o que aconteceu. O `eventLog` existe na resposta da API, mas não está sendo exibido em lugar nenhum.
+O loop de gameplay principal está funcional, mas superficial. O jogador pode clicar em "Ir à Taverna", "Ir ao Mercado", etc., mas a única resposta é uma mensagem no log. Não há uma interface para interagir com esses locais. Precisamos construir as "telas" para cada uma dessas ações.
 
-## Próxima Tarefa: Implementar um Painel de Log de Eventos
+## Próxima Tarefa: Implementar a Interface da Taverna
 
-**Objetivo:** Criar um novo componente React, `EventLog.jsx`, que receberá e exibirá as mensagens do `eventLog` retornadas pela API após cada ação.
+**Objetivo:** Criar uma nova "visão" na UI que é exibida quando o jogador clica em "Ir à Taverna". Essa visão buscará os recrutas disponíveis na API e permitirá que o jogador os contrate.
 
 **Estratégia de Implementação:**
-1.  **Criar `EventLog.jsx`**: Um componente simples que recebe uma lista de strings (`logs`) como prop e as renderiza em uma lista (`<ul>`, `<li>`).
-2.  **Gerenciar Estado do Log**: Em `App.jsx`, criar um novo estado `const [eventLog, setEventLog] = useState([]);`.
-3.  **Atualizar Handlers de Ação**: Modificar `executeTravel` e `handleAction` para, além de atualizar o estado `game`, também atualizar o `eventLog` com os dados da resposta da API (`updatedGameResponse.eventLog`).
-4.  **Renderizar o Componente**: Adicionar o componente `<EventLog logs={eventLog} />` no `renderMainPanel` de `App.jsx` para que ele seja sempre visível.
-5.  **Estilização**: Adicionar CSS para que o painel de log seja claramente legível e talvez tenha uma barra de rolagem se o conteúdo for grande.
+1.  **Gerenciamento de Visão**: Atualizar o `handleAction` em `App.jsx` para que, ao clicar em `GO_TO_TAVERN`, ele mude o estado `currentView` para `'TAVERN'`.
+2.  **Criar `TavernView.jsx`**: Um novo componente que será renderizado condicionalmente em `App.jsx` quando `currentView` for `'TAVERN'`.
+3.  **Buscar Recrutas**: Dentro de `TavernView.jsx`, usar `useEffect` para chamar a API `GET /api/games/{id}/port/tavern` e buscar a lista de recrutas disponíveis.
+4.  **Exibir Recrutas**: Mapear a lista de recrutas, exibindo seus atributos, personalidade e salário em um layout claro.
+5.  **Ação de Contratar**: Adicionar um botão "Contratar" para cada recruta. O clique nesse botão chamará a API `POST /api/games/{id}/crew/recruit`, usando o objeto `recruitRequest` que já está convenientemente incluído no DTO de cada recruta.
+6.  **Navegação**: O componente `TavernView` terá um botão "Voltar" para mudar o `currentView` de volta para `'DASHBOARD'`.
