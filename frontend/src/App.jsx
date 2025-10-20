@@ -9,7 +9,8 @@ import TravelPanel from './components/TravelPanel';
 import EventLog from './components/EventLog';
 import TavernView from './components/TavernView';
 import ShipyardView from './components/ShipyardView';
-import MarketView from './components/MarketView'; // 1. Importar
+import MarketView from './components/MarketView';
+import ContractsView from './components/ContractsView'; // Importar ContractsView
 import './App.css';
 
 function App() {
@@ -179,6 +180,24 @@ function App() {
     }
   };
 
+  const handleAcceptContract = async (contractId) => {
+    try {
+      const response = await fetch(`/api/games/${game.id}/contracts/${contractId}/accept`, { method: 'POST' });
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => null);
+        if (errorData && errorData.message) { throw new Error(errorData.message); }
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const updatedGame = await response.json(); // A resposta é o próprio objeto de estado do jogo
+      setGame(updatedGame);
+      setEventLog(prevLog => [...prevLog, `Contrato aceito: ${updatedGame.activeContract.title}`]);
+      setError(null);
+    } catch (e) {
+      setError(e.message);
+      console.error("Erro ao aceitar o contrato:", e);
+    }
+  };
+
   // Generic action handler
   const handleAction = (action) => {
     switch (action.actionType) {
@@ -191,8 +210,11 @@ function App() {
       case 'GO_TO_SHIPYARD':
         setCurrentView('SHIPYARD');
         break;
-      case 'GO_TO_MARKET': // 2. Adicionar caso para o mercado
+      case 'GO_TO_MARKET':
         setCurrentView('MARKET');
+        break;
+      case 'VIEW_CONTRACTS': // Adicionar caso para contratos
+        setCurrentView('CONTRACTS');
         break;
       default:
         const postAction = async (endpoint) => {
@@ -230,8 +252,10 @@ function App() {
         return <TavernView gameId={game.id} onHire={handleHire} onBack={() => setCurrentView('DASHBOARD')} />;
       case 'SHIPYARD':
         return <ShipyardView gameId={game.id} onRepair={handleRepair} onPurchaseUpgrade={handlePurchaseUpgrade} onBack={() => setCurrentView('DASHBOARD')} />;
-      case 'MARKET': // 4. Adicionar caso de renderização
+      case 'MARKET':
         return <MarketView gameId={game.id} onBuy={handleBuy} onSell={handleSell} onBack={() => setCurrentView('DASHBOARD')} />;
+      case 'CONTRACTS': // Adicionar caso de renderização para contratos
+        return <ContractsView game={game} onAccept={handleAcceptContract} onBack={() => setCurrentView('DASHBOARD')} />;
       case 'DASHBOARD':
       default:
         return (

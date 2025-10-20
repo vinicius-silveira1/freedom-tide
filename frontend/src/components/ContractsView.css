@@ -1,0 +1,101 @@
+/* frontend/src/components/ContractsView.css */
+.contracts-view {
+    padding: 20px;
+    background-color: #1a202c; /* Um fundo escuro, consistente com o tema */
+    border: 1px solid #4a5568;
+    border-radius: 8px;
+    color: #e2e8f0;
+}
+
+.contracts-view h2, .contracts-view h3 {
+    color: #a0aec0;
+    border-bottom: 1px solid #4a5568;
+    padding-bottom: 10px;
+    margin-bottom: 15px;
+}
+
+.active-contract-section, .available-contracts-section {
+    margin-bottom: 30px;
+}
+
+.contract-card {
+    background-color: #2d3748;
+    border: 1px solid #4a5568;
+    border-radius: 6px;
+    padding: 15px;
+    margin-bottom: 15px;
+    transition: box-shadow 0.3s ease;
+}
+
+.contract-card:hover {
+    box-shadow: 0 0 10px rgba(128, 179, 255, 0.2);
+}
+
+.contract-card.active {
+    border-left: 5px solid #63b3ed; /* Destaque para contrato ativo */
+}
+
+.contract-card h4 {
+    margin-top: 0;
+    color: #63b3ed;
+    font-size: 1.2em;
+}
+
+.contract-card p {
+    font-style: italic;
+    color: #a0aec0;
+    margin-bottom: 15px;
+}
+
+.contract-rewards {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    font-size: 0.9em;
+    margin-bottom: 15px;
+}
+
+.contract-rewards span {
+    background-color: #4a5568;
+    padding: 5px 10px;
+    border-radius: 15px;
+}
+
+.contract-card button {
+    background-color: #3182ce;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.contract-card button:hover:not(:disabled) {
+    background-color: #2b6cb0;
+}
+
+.contract-card button:disabled {
+    background-color: #4a5568;
+    cursor: not-allowed;
+}
+
+.back-button {
+    background-color: #c53030;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    display: block;
+    margin-top: 20px;
+}
+
+.back-button:hover {
+    background-color: #9b2c2c;
+}
+
+.contracts-view.error {
+    color: #e53e3e;
+}

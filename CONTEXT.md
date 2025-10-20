@@ -39,24 +39,32 @@ Maven
  **Descrição**: Criada a `MarketView.jsx`. A tela permite ao jogador comprar e vender recursos usando campos de input e botões, completando o ciclo de interações no porto.
  **Status**: **Concluído e Verificado.**
 
-## Próxima Tarefa: v1.11 - O Contrato Social do Capitão
+## v1.11 - O Contrato Social do Capitão (Concluído)
 
 **Versão do Jogo:** 1.11
-**Foco Atual:** Aprofundar a mecânica de contratos, tornando-os uma escolha ativa com consequências claras.
+**Foco:** Aprofundar a mecânica de contratos, tornando-os uma escolha ativa com consequências claras.
+
+### Fase 1: Implementar a Interface de Contratos (Concluído)
+ **Descrição**: Criada a `ContractsView.jsx`, uma tela que permite ao jogador visualizar os contratos disponíveis em um porto e aceitá-los, tornando-os o contrato ativo do jogador.
+ **Status**: **Concluído e Verificado.**
+
+## Próxima Tarefa: v1.12 - A Palavra do Capitão
+
+**Versão do Jogo:** 1.12
+**Foco Atual:** Implementar a lógica de finalização e resolução de contratos.
 
 ## Resumo do Estado Atual
-O loop de gameplay está robusto. O jogador pode navegar, encontrar eventos, lutar e interagir completamente com os portos (recrutar, reparar, melhorar, comerciar). No entanto, o sistema de contratos, que deveria ser um pilar do jogo, ainda é passivo. O jogador pode ver uma lista de contratos, mas não pode interagir com eles pela UI.
+O jogador agora pode visualizar e aceitar contratos, que se tornam seu "contrato ativo". Isso ativa um dos pilares do GDD, dando ao jogador um objetivo claro. No entanto, o ciclo não está completo. Não há, no momento, uma forma de o jogador cumprir as condições do contrato e clamar sua recompensa (ou sofrer as penalidades do fracasso).
 
-## Próxima Tarefa: Implementar a Interface de Contratos
+## Próxima Tarefa: Implementar a Resolução de Contratos
 
-**Objetivo:** Criar uma `ContractsView.jsx` que permita ao jogador visualizar os contratos disponíveis em um porto e aceitá-los, tornando-os o contrato ativo do jogador.
+**Objetivo:** Implementar a lógica no backend para o endpoint `POST /api/games/{gameId}/contracts/resolve`. Este endpoint verificará se as condições do contrato ativo foram cumpridas e, em caso afirmativo, aplicará as recompensas (ouro, status) e limpará o contrato ativo.
 
 **Estratégia de Implementação:**
-1.  **Gerenciamento de Visão**: Adicionar um caso `VIEW_CONTRACTS` no `handleAction` em `App.jsx` para mudar a `currentView` para `'CONTRACTS'`.
-2.  **Criar `ContractsView.jsx`**: Este componente irá:
-    *   Buscar os contratos disponíveis via `GET /api/games/{id}/contracts`.
-    *   Exibir os detalhes de cada contrato (título, descrição, recompensas).
-    *   Exibir o contrato ativo do jogador (se houver).
-3.  **Ação de Aceitar**: Cada contrato disponível terá um botão "Aceitar". O clique chamará a API `POST /api/games/{id}/contracts/{contractId}/accept`.
-4.  **Feedback Imediato**: Após aceitar um contrato, a `ContractsView` deve se atualizar para mover o contrato da lista de "disponíveis" para a seção "ativo".
-5.  **Navegação**: Incluir um botão "Voltar" para retornar ao dashboard do porto.
+1.  **Expandir o `ContractService`**: Criar um método `resolveContract(gameId)` que conterá a lógica principal.
+2.  **Lógica de Verificação**: O serviço precisará obter o `activeContract` do jogo e verificar suas condições de conclusão. Para começar, podemos implementar um tipo simples de condição (ex: "Chegar ao porto de destino X").
+3.  **Aplicar Recompensas**: Se as condições forem atendidas, o serviço aplicará as recompensas (`rewardGold`, `rewardReputation`, etc.) ao estado do jogo.
+4.  **Limpar Contrato**: Após a resolução (sucesso ou falha), o `activeContract` do jogo deve ser definido como `null`.
+5.  **Integrar ao `GameController`**: O `GameController` chamará o novo método do serviço e retornará o estado atualizado do jogo.
+
+Isso fechará o loop de gameplay dos contratos, tornando-os uma mecânica completa: Aceitar -> Executar -> Resolver.

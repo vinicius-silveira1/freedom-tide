@@ -16,17 +16,13 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-/**
- * Esta classe é executada na inicialização da aplicação e serve para popular o banco de dados
- * com dados iniciais essenciais (seeding), como portos, eventos e contratos.
- */
 @Component
 @RequiredArgsConstructor
 public class DataSeeder implements CommandLineRunner {
 
     private final NarrativeEventRepository narrativeEventRepository;
     private final ContractRepository contractRepository;
-    private final PortRepository portRepository; // Repositório de Portos injetado
+    private final PortRepository portRepository;
     private final ShipUpgradeRepository shipUpgradeRepository;
 
     @Override
@@ -42,13 +38,9 @@ public class DataSeeder implements CommandLineRunner {
 
     private void seedUpgrades() {
         List<ShipUpgrade> upgradeBlueprints = Arrays.asList(
-                // Imperial
                 ShipUpgrade.builder().name("Canhões de Bronze").description("Canhões de qualidade superior que causam mais dano.").type(UpgradeType.CANNONS).modifier(5).cost(1000).portType(PortType.IMPERIAL).build(),
-                // Guild
                 ShipUpgrade.builder().name("Porão Expandido").description("Uma reorganização inteligente do porão permite carregar mais carga.").type(UpgradeType.CARGO).modifier(50).cost(400).portType(PortType.GUILD).build(),
-                // Pirate
                 ShipUpgrade.builder().name("Bandeira Falsa").description("Uma bandeira do Império ou da Guilda que pode ser usada para enganar navios à distância.").type(UpgradeType.SAILS).modifier(5).cost(1200).portType(PortType.PIRATE).build(),
-                // Common/Neutral (portType = null)
                 ShipUpgrade.builder().name("Casco Reforçado").description("Placas de ferro adicionais reforçam o casco, aumentando sua durabilidade.").type(UpgradeType.HULL).modifier(20).cost(800).build(),
                 ShipUpgrade.builder().name("Velas de Linho").description("Velas mais leves e resistentes que melhoram a manobrabilidade.").type(UpgradeType.SAILS).modifier(10).cost(600).build()
         );
@@ -56,16 +48,14 @@ public class DataSeeder implements CommandLineRunner {
         upgradeBlueprints.forEach(blueprint -> {
             shipUpgradeRepository.findByName(blueprint.getName()).ifPresentOrElse(
                     existingUpgrade -> {
-                        // Upgrade found, update fields
                         existingUpgrade.setDescription(blueprint.getDescription());
                         existingUpgrade.setType(blueprint.getType());
                         existingUpgrade.setModifier(blueprint.getModifier());
                         existingUpgrade.setCost(blueprint.getCost());
-                        existingUpgrade.setPortType(blueprint.getPortType()); // Update portType
+                        existingUpgrade.setPortType(blueprint.getPortType());
                         shipUpgradeRepository.save(existingUpgrade);
                     },
                     () -> {
-                        // Upgrade not found, create new one
                         shipUpgradeRepository.save(blueprint);
                     }
             );
@@ -107,7 +97,6 @@ public class DataSeeder implements CommandLineRunner {
         contractBlueprints.forEach(blueprint -> {
             contractRepository.findByTitle(blueprint.getTitle()).ifPresentOrElse(
                 existingContract -> {
-                    // Contrato encontrado, atualiza todos os campos a partir do blueprint
                     existingContract.setDescription(blueprint.getDescription());
                     existingContract.setFaction(blueprint.getFaction());
                     existingContract.setRewardGold(blueprint.getRewardGold());
@@ -117,12 +106,11 @@ public class DataSeeder implements CommandLineRunner {
                     existingContract.setRequiredReputation(blueprint.getRequiredReputation());
                     existingContract.setRequiredInfamy(blueprint.getRequiredInfamy());
                     existingContract.setRequiredAlliance(blueprint.getRequiredAlliance());
-                    existingContract.setOriginPort(blueprint.getOriginPort()); // Atualiza o porto de origem
-                    existingContract.setStatus(ContractStatus.AVAILABLE); // Garante que está disponível
+                    existingContract.setOriginPort(blueprint.getOriginPort());
+                    existingContract.setStatus(ContractStatus.AVAILABLE);
                     contractRepository.save(existingContract);
                 },
                 () -> {
-                    // Contrato não encontrado, cria um novo
                     contractRepository.save(blueprint);
                 }
             );
@@ -140,8 +128,10 @@ public class DataSeeder implements CommandLineRunner {
                 .rewardGold(500)
                 .rewardReputation(25)
                 .rewardInfamy(0)
-                .rewardAlliance(-5) // Trabalhar para a Guilda desagrada os oprimidos
-                .requiredReputation(10)
+                .rewardAlliance(-5)
+                .requiredReputation(0)
+                .requiredInfamy(0)
+                .requiredAlliance(0)
                 .build();
     }
 
@@ -156,7 +146,9 @@ public class DataSeeder implements CommandLineRunner {
                 .rewardReputation(-15)
                 .rewardInfamy(10)
                 .rewardAlliance(30)
-                .requiredAlliance(15)
+                .requiredReputation(0)
+                .requiredInfamy(0)
+                .requiredAlliance(0)
                 .build();
     }
 
@@ -171,42 +163,40 @@ public class DataSeeder implements CommandLineRunner {
                 .rewardReputation(-20)
                 .rewardInfamy(40)
                 .rewardAlliance(0)
-                .requiredInfamy(20)
+                .requiredReputation(0)
+                .requiredInfamy(0)
+                .requiredAlliance(0)
                 .build();
     }
 
     private void createSeedsOfDiscontentEvent() {
-        // Opção 1: A escolha capitalista/leal à Guilda
         EventOption option1 = EventOption.builder()
                 .description("Completar a entrega conforme o contrato. Negócios são negócios.")
                 .consequence(EventConsequence.builder()
                         .goldChange(200)
                         .reputationChange(15)
-                        .crewMoralChange(-5) // Tripulantes com consciência social não gostarão disso
+                        .crewMoralChange(-5)
                         .build())
                 .build();
 
-        // Opção 2: A escolha puramente rebelde
         EventOption option2 = EventOption.builder()
                 .description("Jogar a carga de sementes estéreis ao mar. Ninguém será enganado hoje.")
                 .consequence(EventConsequence.builder()
-                        .goldChange(-50) // Perda de tempo e combustível
+                        .goldChange(-50)
                         .allianceChange(20)
                         .crewMoralChange(10)
                         .build())
                 .build();
 
-        // Opção 3: A escolha estratégica e rebelde
         EventOption option3 = EventOption.builder()
                 .description("Levar as sementes para um Porto Livre para que seus botânicos possam estudá-las.")
                 .consequence(EventConsequence.builder()
                         .allianceChange(30)
-                        .infamyChange(5) // A Guilda ouvirá sobre isso
+                        .infamyChange(5)
                         .crewMoralChange(15)
                         .build())
                 .build();
 
-        // O Evento Narrativo principal
         NarrativeEvent seedsEvent = NarrativeEvent.builder()
                 .eventCode("SEEDS_OF_DISCONTENT")
                 .title("As Sementes da Dívida")
@@ -214,7 +204,6 @@ public class DataSeeder implements CommandLineRunner {
                 .options(Arrays.asList(option1, option2, option3))
                 .build();
 
-        // Associa as opções ao evento pai
         option1.setNarrativeEvent(seedsEvent);
         option2.setNarrativeEvent(seedsEvent);
         option3.setNarrativeEvent(seedsEvent);
