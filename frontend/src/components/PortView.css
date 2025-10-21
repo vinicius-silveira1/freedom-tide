@@ -1,0 +1,74 @@
+@keyframes pulse-glow {
+  0% {
+    text-shadow: 0 0 4px var(--color-accent), 0 0 8px var(--color-accent), 2px 2px 2px var(--color-text-darker);
+  }
+  50% {
+    text-shadow: 0 0 8px #fff, 0 0 16px var(--color-accent), 2px 2px 2px var(--color-text-darker);
+  }
+  100% {
+    text-shadow: 0 0 4px var(--color-accent), 0 0 8px var(--color-accent), 2px 2px 2px var(--color-text-darker);
+  }
+}
+
+.port-view-container {
+    position: relative;
+    width: 100%;
+    height: 300px;
+    margin-top: 20px;
+    border-radius: 0; /* Pixel art style */
+    overflow: hidden;
+    /* A borda e o fundo são da imagem, não precisamos de um painel aqui */
+    border: none;
+    background-color: transparent;
+}
+
+.port-action-link {
+    position: absolute;
+    padding: 0;
+    background-color: transparent;
+    border: none;
+    color: var(--color-accent);
+    font-family: var(--font-pixel);
+    font-size: 2em; /* Larger font for visibility */
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+    
+    /* Strong outline for readability */
+    text-shadow: 0 0 4px var(--color-accent), 0 0 8px var(--color-accent), 2px 2px 2px var(--color-text-darker);
+
+    /* Remove button-like appearance */
+    box-shadow: none;
+    animation: pulse-glow 3s infinite ease-in-out;
+}
+
+.port-action-link:hover {
+    transform: scale(1.1);
+    color: #fff; /* Brighter on hover */
+    animation-play-state: paused; /* Stop pulsing on hover to feel more responsive */
+}
+
+/* Positions remain the same, but can be fine-tuned */
+.tavern-link {
+    top: 40%;
+    left: 15%;
+}
+
+.market-link {
+    top: 65%;
+    left: 45%;
+}
+
+.shipyard-link {
+    top: 30%;
+    right: 10%;
+}
+
+.contracts-link {
+    bottom: 10%;
+    left: 10%;
+}
+
+.travel-link {
+    bottom: 10%;
+    right: 10%;
+}

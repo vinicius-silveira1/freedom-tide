@@ -3,15 +3,19 @@ import CaptainCompass from './components/CaptainCompass';
 import ShipStatus from './components/ShipStatus';
 import CrewStatus from './components/CrewStatus';
 import LocationStatus from './components/LocationStatus';
-import PortActions from './components/PortActions';
+import PortView from './components/PortView';
 import EncounterActions from './components/EncounterActions';
 import TravelPanel from './components/TravelPanel';
 import EventLog from './components/EventLog';
 import TavernView from './components/TavernView';
 import ShipyardView from './components/ShipyardView';
 import MarketView from './components/MarketView';
-import ContractsView from './components/ContractsView'; // Importar ContractsView
+import ContractsView from './components/ContractsView';
 import './App.css';
+
+// Importar as imagens de fundo
+import portBackground from './assets/backgrounds/port.jpg';
+import seaBackground from './assets/backgrounds/sea-day.png';
 
 function App() {
   const [game, setGame] = useState(null);
@@ -33,6 +37,8 @@ function App() {
         }
 
         const newGame = await createResponse.json();
+        // O log de diagnóstico pode ser removido agora que o bug foi encontrado
+        // console.log("Objeto de jogo recebido do backend:", newGame); 
         setGame(newGame);
         setEventLog(["Bem-vindo a Freedom Tide! O seu navio aguarda no porto."]);
 
@@ -244,6 +250,13 @@ function App() {
     }
   };
 
+  // Função para determinar o estilo de fundo
+  const getBackgroundStyle = () => {
+    if (!game) return { backgroundImage: `url(${seaBackground})` }; // Padrão enquanto carrega
+    const backgroundImage = game.currentPort ? portBackground : seaBackground;
+    return { backgroundImage: `url(${backgroundImage})` };
+  };
+
   const renderMainPanel = () => {
     switch (currentView) {
       case 'TRAVEL':
@@ -269,7 +282,7 @@ function App() {
             <EventLog logs={eventLog} />
 
             {game.currentPort && (
-              <PortActions 
+              <PortView 
                 actions={game.currentPort.availableActions}
                 onActionClick={handleAction} 
               />
@@ -286,7 +299,7 @@ function App() {
   };
 
   return (
-    <div className="app-container">
+    <div className="app-container" style={getBackgroundStyle()}>
       {/* A Bússola agora vive fora do fluxo principal para posicionamento independente */}
       <CaptainCompass compass={game?.captainCompass} />
 

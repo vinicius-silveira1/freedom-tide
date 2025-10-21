@@ -85,4 +85,24 @@ Para aprofundar a imersão, a interface não deve ser estática. O fundo da tela
 
 ### Status
 
-A ser implementado.
+Concluido.
+
+## v1.17 - O Porto Interativo (Concluído e Verificado)
+
+**Versão do Jogo:** 1.17
+**Foco:** Aumentar a imersão no porto, transformando a navegação de um menu de botões para uma experiência visual interativa.
+**Descrição:** O antigo componente `PortActions.jsx`, que exibia uma lista de texto para ações no porto, foi substituído por um novo componente `PortView.jsx`. Este novo componente renderiza a imagem de fundo do porto e, sobre ela, exibe "marcadores de local" estilizados e clicáveis (Taverna, Mercado, etc.). Isso transforma a tela do porto de um painel de controle em uma "janela para o mundo", alinhando a mecânica com a apresentação visual. A estilização foi refinada para que os marcadores pareçam textos brilhantes e pulsantes, integrados à cena.
+**Status:** **Concluído e Verificado.**
+
+## Próxima Tarefa: v1.18 - A Tela de Início
+
+### Justificativa
+Sua observação está corretíssima e é um excelente exemplo de pensamento de design de jogo. Largar o jogador diretamente no painel de controle é funcional, mas quebra a imersão e a "magia" inicial. Uma tela de início serve como um portal para o mundo do jogo. Ela estabelece o tom, apresenta a identidade visual e dá ao jogador um momento para se preparar para a jornada antes de mergulhar nas mecânicas. Priorizar isso agora é a decisão certa para a experiência do jogador.
+
+### Plano de Implementação
+1.  **Gerenciamento de Estado de Jogo:** Em `App.jsx`, introduzirei um novo estado para gerenciar o fluxo geral (ex: `MENU`, `LOADING`, `PLAYING`). O jogo não será mais criado automaticamente ao carregar a página.
+2.  **Criação do Componente `MenuView.jsx`:** Criarei um novo componente para a tela de início. Ele exibirá o título do jogo e um botão "Novo Jogo".
+3.  **Refatoração do `App.jsx`:** A lógica de renderização principal será alterada. Se o estado for `MENU`, mostraremos o `MenuView`. O `useEffect` que cria o jogo será movido para uma função `handleNewGame` que é chamada quando o jogador clica no botão "Novo Jogo".
+4.  **Estilização e Imagem de Fundo:** O `MenuView` receberá um estilo próprio, incluindo uma imagem de fundo impactante que sirva como a "capa" do nosso jogo.
+
+

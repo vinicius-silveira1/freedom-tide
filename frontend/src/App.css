@@ -91,3 +91,13 @@ body {
   font-size: 0.9rem;
   color: #cccccc;
 }
+
+/* Fundos Contextuais */
+.app-container {
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-color: var(--color-background); /* Cor de fallback */
+  transition: background-image 0.5s ease-in-out;
+  min-height: 100vh;
+}
