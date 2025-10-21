@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import MenuView from './components/MenuView'; // Import new component
 import CaptainCompass from './components/CaptainCompass';
 import ShipStatus from './components/ShipStatus';
 import CrewStatus from './components/CrewStatus';
@@ -18,38 +19,37 @@ import portBackground from './assets/backgrounds/port.jpg';
 import seaBackground from './assets/backgrounds/sea-day.png';
 
 function App() {
+  const [gameState, setGameState] = useState('MENU'); // MENU, LOADING, PLAYING, ERROR
   const [game, setGame] = useState(null);
   const [eventLog, setEventLog] = useState([]);
   const [error, setError] = useState(null);
   const [currentView, setCurrentView] = useState('DASHBOARD');
 
-  // Fetch initial game state
-  useEffect(() => {
-    const createAndFetchGame = async () => {
-      try {
-        const createResponse = await fetch('/api/games', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-        });
+  // Handler to start a new game
+  const handleNewGame = async () => {
+    setGameState('LOADING');
+    try {
+      const createResponse = await fetch('/api/games', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+      });
 
-        if (!createResponse.ok) {
-          throw new Error(`HTTP error! status: ${createResponse.status}`);
-        }
-
-        const newGame = await createResponse.json();
-        // O log de diagnóstico pode ser removido agora que o bug foi encontrado
-        // console.log("Objeto de jogo recebido do backend:", newGame); 
-        setGame(newGame);
-        setEventLog(["Bem-vindo a Freedom Tide! O seu navio aguarda no porto."]);
-
-      } catch (e) {
-        setError(e.message);
-        console.error("Erro ao criar o jogo:", e);
+      if (!createResponse.ok) {
+        throw new Error(`HTTP error! status: ${createResponse.status}`);
       }
-    };
 
-    createAndFetchGame();
-  }, []);
+      const newGame = await createResponse.json();
+      setGame(newGame);
+      setEventLog(["Bem-vindo a Freedom Tide! O seu navio aguarda no porto."]);
+      setGameState('PLAYING'); // Move to playing state
+    } catch (e) {
+      setError(e.message);
+      setGameState('ERROR'); // Move to error state
+      console.error("Erro ao criar o jogo:", e);
+    }
+  };
+
+  // The old useEffect is removed. Game creation is now manual.
 
   // Function to execute the actual travel POST request
   const executeTravel = async (destinationId) => {
@@ -141,7 +141,6 @@ function App() {
     }
   };
 
-  // 3. Novas funções para o Mercado
   const handleBuy = async (tradeRequest) => {
     try {
       const response = await fetch(`/api/games/${game.id}/port/market/buy`, {
@@ -194,7 +193,7 @@ function App() {
         if (errorData && errorData.message) { throw new Error(errorData.message); }
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-      const updatedGame = await response.json(); // A resposta é o próprio objeto de estado do jogo
+      const updatedGame = await response.json();
       setGame(updatedGame);
       setEventLog(prevLog => [...prevLog, `Contrato aceito: ${updatedGame.activeContract.title}`]);
       setError(null);
@@ -204,7 +203,6 @@ function App() {
     }
   };
 
-  // Generic action handler
   const handleAction = (action) => {
     switch (action.actionType) {
       case 'TRAVEL':
@@ -219,7 +217,7 @@ function App() {
       case 'GO_TO_MARKET':
         setCurrentView('MARKET');
         break;
-      case 'VIEW_CONTRACTS': // Adicionar caso para contratos
+      case 'VIEW_CONTRACTS':
         setCurrentView('CONTRACTS');
         break;
       default:
@@ -250,9 +248,9 @@ function App() {
     }
   };
 
-  // Função para determinar o estilo de fundo
   const getBackgroundStyle = () => {
-    if (!game) return { backgroundImage: `url(${seaBackground})` }; // Padrão enquanto carrega
+    // In menu or loading, no specific background is needed as the components have their own
+    if (gameState !== 'PLAYING' || !game) return {}; 
     const backgroundImage = game.currentPort ? portBackground : seaBackground;
     return { backgroundImage: `url(${backgroundImage})` };
   };
@@ -267,7 +265,7 @@ function App() {
         return <ShipyardView gameId={game.id} onRepair={handleRepair} onPurchaseUpgrade={handlePurchaseUpgrade} onBack={() => setCurrentView('DASHBOARD')} />;
       case 'MARKET':
         return <MarketView gameId={game.id} onBuy={handleBuy} onSell={handleSell} onBack={() => setCurrentView('DASHBOARD')} />;
-      case 'CONTRACTS': // Adicionar caso de renderização para contratos
+      case 'CONTRACTS':
         return <ContractsView game={game} onAccept={handleAcceptContract} onBack={() => setCurrentView('DASHBOARD')} />;
       case 'DASHBOARD':
       default:
@@ -298,23 +296,41 @@ function App() {
     }
   };
 
-  return (
-    <div className="app-container" style={getBackgroundStyle()}>
-      {/* A Bússola agora vive fora do fluxo principal para posicionamento independente */}
-      <CaptainCompass compass={game?.captainCompass} />
-
-      <header className="app-header">
-        <h1>Freedom Tide</h1>
-      </header>
-      <main className="main-content">
-        {error && (
+  // Main render logic based on gameState
+  const renderContent = () => {
+    switch (gameState) {
+      case 'MENU':
+        return <MenuView onNewGame={handleNewGame} />;
+      case 'LOADING':
+        return <div className="loading-screen"><p>Criando e carregando o jogo...</p></div>;
+      case 'PLAYING':
+        return (
+          <>
+            <CaptainCompass compass={game?.captainCompass} />
+            <header className="app-header">
+              <h1>Freedom Tide</h1>
+            </header>
+            <main className="main-content">
+              {renderMainPanel()}
+            </main>
+          </>
+        );
+      case 'ERROR':
+        return (
           <div className="status-panel error-panel">
             <h2>Ocorreu um erro:</h2>
             <pre>{error}</pre>
+            <button onClick={() => setGameState('MENU')}>Voltar ao Menu</button>
           </div>
-        )}
-        {game ? renderMainPanel() : <p>Criando e carregando o jogo...</p>}
-      </main>
+        );
+      default:
+        return <MenuView onNewGame={handleNewGame} />;
+    }
+  }
+
+  return (
+    <div className="app-container" style={getBackgroundStyle()}>
+      {renderContent()}
     </div>
   );
 }

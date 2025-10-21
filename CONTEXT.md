@@ -94,15 +94,22 @@ Concluido.
 **Descrição:** O antigo componente `PortActions.jsx`, que exibia uma lista de texto para ações no porto, foi substituído por um novo componente `PortView.jsx`. Este novo componente renderiza a imagem de fundo do porto e, sobre ela, exibe "marcadores de local" estilizados e clicáveis (Taverna, Mercado, etc.). Isso transforma a tela do porto de um painel de controle em uma "janela para o mundo", alinhando a mecânica com a apresentação visual. A estilização foi refinada para que os marcadores pareçam textos brilhantes e pulsantes, integrados à cena.
 **Status:** **Concluído e Verificado.**
 
-## Próxima Tarefa: v1.18 - A Tela de Início
+## v1.18 - A Tela de Início (Concluído e Verificado)
 
-### Justificativa
-Sua observação está corretíssima e é um excelente exemplo de pensamento de design de jogo. Largar o jogador diretamente no painel de controle é funcional, mas quebra a imersão e a "magia" inicial. Uma tela de início serve como um portal para o mundo do jogo. Ela estabelece o tom, apresenta a identidade visual e dá ao jogador um momento para se preparar para a jornada antes de mergulhar nas mecânicas. Priorizar isso agora é a decisão certa para a experiência do jogador.
+**Versão do Jogo:** 1.18
+**Foco:** Estruturar a experiência inicial do jogador, introduzindo um fluxo de menu principal antes do início do jogo.
+**Descrição:** Atendendo a uma diretriz de design do usuário, o jogo não começa mais diretamente no painel. Foi implementada uma máquina de estados (`MENU`, `LOADING`, `PLAYING`) no `App.jsx`. Um novo componente `MenuView.jsx` agora serve como tela de título, apresentando o nome do jogo e um botão "Novo Jogo". Clicar neste botão inicia o processo de criação do jogo e exibe uma tela de carregamento, conduzindo o jogador de forma coesa para a experiência principal.
+**Status:** **Concluído e Verificado.**
+
+## Próxima Tarefa: v1.19 - O Som do Mundo
+
+### Justificativa (Lição de Arquitetura/Design)
+Com a estrutura visual e o fluxo inicial do jogo estabelecidos, podemos retornar ao pilar da imersão auditiva. Um mundo silencioso parece morto. Introduzir áudio contextual (música de fundo para o mar vs. porto, e efeitos sonoros para interações) é o próximo passo lógico para dar vida ao "Freedom Tide". Assim como a "fatia vertical" de estilo visual, uma "fatia vertical" de áudio nos dará um sistema reutilizável e definirá a paleta sonora do jogo.
 
 ### Plano de Implementação
-1.  **Gerenciamento de Estado de Jogo:** Em `App.jsx`, introduzirei um novo estado para gerenciar o fluxo geral (ex: `MENU`, `LOADING`, `PLAYING`). O jogo não será mais criado automaticamente ao carregar a página.
-2.  **Criação do Componente `MenuView.jsx`:** Criarei um novo componente para a tela de início. Ele exibirá o título do jogo e um botão "Novo Jogo".
-3.  **Refatoração do `App.jsx`:** A lógica de renderização principal será alterada. Se o estado for `MENU`, mostraremos o `MenuView`. O `useEffect` que cria o jogo será movido para uma função `handleNewGame` que é chamada quando o jogador clica no botão "Novo Jogo".
-4.  **Estilização e Imagem de Fundo:** O `MenuView` receberá um estilo próprio, incluindo uma imagem de fundo impactante que sirva como a "capa" do nosso jogo.
+1.  **Gerenciador de Áudio (AudioService.js):** Criaremos um serviço singleton em `src/utils/` para gerenciar a reprodução de áudio. Ele controlará a música de fundo (com transições suaves - crossfade) e a reprodução de efeitos sonoros (SFX) para evitar que múltiplos sons se sobreponham de forma caótica.
+2.  **Integração no App.jsx:** Usaremos o `useEffect` para observar mudanças no estado do jogo (`game.currentPort`). Quando o jogador entrar ou sair de um porto, o `App.jsx` chamará o `AudioService` para trocar a música de fundo.
+3.  **Efeitos Sonoros (SFX):** Começaremos com um SFX simples. Ao clicar nos botões do menu principal (`MenuView.jsx`) e nos marcadores de local no porto (`PortView.jsx`), tocaremos um som de "clique" ou "confirmação" através do `AudioService`.
+4.  **Busca de Assets de Áudio:** Procurarei por uma música ambiente para o mar, uma para o porto e um som de clique (todos com licenças permissivas) para servirem como nossos placeholders iniciais.
 
 
