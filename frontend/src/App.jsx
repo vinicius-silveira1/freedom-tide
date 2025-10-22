@@ -7,6 +7,7 @@ import CrewStatus from './components/CrewStatus';
 import LocationStatus from './components/LocationStatus';
 import PortView from './components/PortView';
 import EncounterActions from './components/EncounterActions';
+import BattleScene from './components/BattleScene'; // New combat component
 import TravelPanel from './components/TravelPanel';
 import EventLog from './components/EventLog';
 import TavernView from './components/TavernView';
@@ -30,6 +31,8 @@ function App() {
   const [currentView, setCurrentView] = useState('DASHBOARD');
   const [tutorialRefresh, setTutorialRefresh] = useState(0); // Força refresh do tutorial
   const [wasInEncounter, setWasInEncounter] = useState(false); // Rastrear se estava em encontro
+  const [inCombat, setInCombat] = useState(false); // Estado de combate ativo
+  const [combatState, setCombatState] = useState(null); // Estado específico do combate
 
   // Handler para completar a sequência introdutória
   const handleIntroComplete = async (selectedChoice) => {
@@ -185,7 +188,45 @@ function App() {
         notifyTutorialProgress('ENCOUNTER_RESOLVED');
       }
     }
-  }, [game?.currentEncounter, game?.currentPort, wasInEncounter]);
+  }, [game?.currentEncounter, game?.currentPort, wasInEncounter, gameState]);
+
+  // EFFECT: Detect combat start and manage battle scene
+  useEffect(() => {
+    if (game?.currentEncounter && game.currentEncounter.type) {
+      const combatTypes = ['MERCHANT_SHIP', 'PIRATE_VESSEL', 'NAVY_PATROL', 'MYSTERIOUS_WRECK'];
+      
+      // Só ativar combate se:
+      // 1. É um tipo de encontro de combate
+      // 2. Não está em combate já
+      // 3. O encontro tem ações disponíveis (indicando que é interativo)
+      // 4. Não está em processo de viagem (currentPort é null significa em viagem)
+      const shouldActivateCombat = combatTypes.includes(game.currentEncounter.type) && 
+                                  !inCombat && 
+                                  game.currentEncounter.availableActions && 
+                                  game.currentEncounter.availableActions.length > 0 &&
+                                  !game.currentPort; // Não no porto
+      
+      if (shouldActivateCombat) {
+        console.log('Ativando BattleScene para encontro:', game.currentEncounter.type);
+        setInCombat(true);
+        setCombatState({
+          encounter: game.currentEncounter,
+          playerShip: {
+            ...game.ship,
+            crew: game.crew || []
+          },
+          turn: 'PLAYER',
+          combatLog: [],
+          isPlayerTurn: true
+        });
+      }
+    } else if (inCombat && !game?.currentEncounter) {
+      // Saiu do combate
+      console.log('Desativando BattleScene - sem encontro');
+      setInCombat(false);
+      setCombatState(null);
+    }
+  }, [game?.currentEncounter, game?.currentPort, inCombat]);
 
   // Function to execute the actual travel POST request
   const executeTravel = async (destinationId) => {
@@ -353,6 +394,86 @@ function App() {
     }
   };
 
+  // Combat action handlers for BattleScene
+  const handleCombatAction = async (actionType, target = null) => {
+    try {
+      let endpoint = '';
+      let requestBody = {};
+      
+      switch (actionType) {
+        case 'ATTACK':
+          endpoint = `/api/games/${game.id}/encounter/attack`;
+          // Mapear targets do BattleScene para o backend
+          const backendTarget = target === 'HULL' ? 'hull' : 
+                               target === 'CANNONS' ? 'cannons' : 
+                               target === 'SAILS' ? 'sails' : 'hull';
+          requestBody = { target: backendTarget };
+          break;
+        case 'BOARD':
+        case 'SPECIAL_ATTACK':
+          endpoint = `/api/games/${game.id}/encounter/board`;
+          break;
+        case 'FLEE':
+          endpoint = `/api/games/${game.id}/encounter/flee`;
+          break;
+        case 'REPAIR':
+        case 'DEFENSE':
+          // Para ações que não têm endpoint específico, usar attack como fallback
+          endpoint = `/api/games/${game.id}/encounter/attack`;
+          requestBody = { target: 'hull' };
+          break;
+        default:
+          throw new Error(`Ação de combate desconhecida: ${actionType}`);
+      }
+
+      const response = await fetch(endpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(requestBody),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => null);
+        if (errorData && errorData.message) {
+          throw new Error(errorData.message);
+        }
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const updatedGameResponse = await response.json();
+      setGame(updatedGameResponse.gameStatus);
+      setEventLog(updatedGameResponse.eventLog);
+      
+      // Atualizar o combatState com nova informação
+      if (combatState && updatedGameResponse.gameStatus.currentEncounter) {
+        setCombatState(prev => ({
+          ...prev,
+          encounter: updatedGameResponse.gameStatus.currentEncounter,
+          playerShip: {
+            ...updatedGameResponse.gameStatus.ship,
+            crew: updatedGameResponse.gameStatus.crew || []
+          },
+          combatLog: [...(prev.combatLog || []), ...updatedGameResponse.eventLog.slice(-1)],
+          turn: prev.turn === 'PLAYER' ? 'ENEMY' : 'PLAYER',
+          isPlayerTurn: prev.turn !== 'PLAYER'
+        }));
+      }
+      
+      setError(null);
+      
+      // Notificar progresso do tutorial para ações de encontro
+      await notifyTutorialProgress('ENCOUNTER_ACTION');
+    } catch (e) {
+      setError(e.message);
+      console.error("Erro na ação de combate:", e);
+    }
+  };
+
+  const handleExitCombat = () => {
+    setInCombat(false);
+    setCombatState(null);
+  };
+
   const handleAction = (action) => {
     // Notificar progresso do tutorial para navegação
     const notifyNavigation = async (actionType) => {
@@ -498,17 +619,28 @@ function App() {
               className="sea-encounter-container" 
               style={{ backgroundImage: `url(${seaBackground})` }}
             >
-              <div className="status-dashboard">
-                <LocationStatus encounter={game.currentEncounter} />
-                <ShipStatus ship={game.ship} />
-                <CrewStatus crew={game.crew} />
-              </div>
-              <EventLog logs={eventLog} />
-              {game.currentEncounter && (
-                <EncounterActions 
-                  actions={game.currentEncounter.availableActions}
-                  onActionClick={handleAction} 
+              {inCombat && combatState ? (
+                <BattleScene 
+                  combatState={combatState}
+                  onCombatAction={handleCombatAction}
+                  onExitCombat={handleExitCombat}
+                  seaBackground={seaBackground}
                 />
+              ) : (
+                <>
+                  <div className="status-dashboard">
+                    <LocationStatus encounter={game.currentEncounter} />
+                    <ShipStatus ship={game.ship} />
+                    <CrewStatus crew={game.crew} />
+                  </div>
+                  <EventLog logs={eventLog} />
+                  {game.currentEncounter && (
+                    <EncounterActions 
+                      actions={game.currentEncounter.availableActions}
+                      onActionClick={handleAction} 
+                    />
+                  )}
+                </>
               )}
             </div>
           );

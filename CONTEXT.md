@@ -127,27 +127,42 @@ O `PortView` foi especialmente refinado com linhas de caderno antigo (sem as ver
 
 **Status:** **Concluído e Verificado.**
 
-## v1.21 - O Peso das Correntes (Em Progresso)
+## v1.22 - Sistema Tutorial Interativo (Concluído e Verificado)
 
-**Versão do Jogo:** 1.21
-**Foco:** Criar uma sequência introdutória narrativa que contextualiza o jogador no mundo e expõe imediatamente os temas de crítica social do jogo.
+**Versão do Jogo:** 1.22
+**Foco:** Implementar sistema tutorial completo com personalização baseada na escolha moral inicial e identidade visual aprimorada.
 
-### Justificativa
+**Descrição:** Foi implementado um sistema tutorial abrangente que guia novos jogadores através de todas as mecânicas core do jogo de forma diegética e personalizada. O tutorial inclui três caminhos distintos baseados na escolha moral inicial (Cooperar, Resistir, Neutro), cada um oferecendo experiências narrativas diferentes mas equivalentes em aprendizado. Adicionalmente, foi implementada uma identidade visual coesa com nova logomark, paleta de cores aprimorada, e componentes consistentes. O sistema tutorial personalizado ensina economia, tripulação, navegação e contratos através de cenários contextualizados, garantindo que todos os jogadores compreendam as mecânicas antes de entrar no jogo completo.
 
-A transição abrupta do menu "Novo Jogo" diretamente para a mesa do capitão quebra a imersão e perde uma oportunidade crucial de estabelecer contexto narrativo. O jogador precisa entender não apenas as mecânicas, mas **por que está ali** e **como o sistema o colocou nessa posição**. Esta sequência introdutória servirá tanto como tutorial diegético quanto como apresentação dos temas centrais do jogo sobre exploração capitalista e desigualdade.
+**Status:** **Concluído e Verificado.**
 
-### Plano de Implementação
+## v1.23.1 - Rebalanceamento Econômico (Concluído e Verificado)
 
-**Narrativa: "Do Trabalhador ao Capitão - A Armadilha da Oportunidade"**
-O jogador não é um aventureiro privilegiado, mas um trabalhador endividado que o sistema "promoveu" numa cruel armadilha econômica.
+**Versão do Jogo:** 1.23.1
+**Foco:** Rebalancear completamente a economia do jogo para criar progressão mais equilibrada e pressão financeira significativa.
 
-**Sequência de 4 Documentos:**
-1. **Notificação de Cobrança** - Revela dívidas trabalhistas impossíveis de pagar
-2. **Contrato de Oportunidade** - A "generosa" oferta da Guilda que triplica a dívida
-3. **Inventário do Navio** - O "presente" envenenado: navio sucateado e tripulação desesperada
-4. **A Primeira Escolha** - Decisão moral que define valores iniciais da Bússola do Capitão
+**Descrição:** Foi realizada uma auditoria econômica completa identificando desequilíbrios críticos nos sistemas de contratos, salários e preços. As principais mudanças implementadas incluem:
 
-**Implementação Técnica:**
+**Contratos Rebalanceados:**
+- Guild: 500 → 200 ouro (redução para equilibrar)
+- Revolutionary: 50 → 150 ouro (aumento para viabilizar)
+- Brotherhood: 300 → 250 ouro (redução moderada)
+
+**Sistema de Salários Reformulado:**
+- Salário base: 10 → 20 ouro (dobrado para pressão econômica)
+- Cálculo de atributos: divisor 10 → 8 (salários mais altos)
+- Salário mínimo: 1 → 5 ouro (piso mais realista)
+
+**Preços de Mercado Dinâmicos:**
+- Sistema de variação ±20% nos preços base
+- Seed baseado em gameId + portId para consistência
+- Preços diferentes a cada jogo mantendo estratégia
+
+O resultado é uma economia mais equilibrada onde contratos Revolutionary são viáveis, salários criam pressão financeira real, preços dinâmicos incentivam estratégia de trading, e a progressão é mais gradual e envolvente.
+
+**Status:** **Concluído e Verificado.**
+
+## v1.23 - Próximas Funcionalidades (Planejamento)
 - Novo componente `IntroSequence.jsx` com estado interno para navegação entre documentos
 - Cada documento como subcomponente com estética de papel antigo (reutilizando padrões da Mesa do Capitão)
 - Integração no fluxo de estados do App.jsx: `MENU` → `LOADING` → `INTRO` → `PLAYING`
@@ -186,75 +201,13 @@ O jogador não é um aventureiro privilegiado, mas um trabalhador endividado que
 
 ## v1.22 - A Primeira Jornada (Concluído)
 
-**Versão do Jogo:** 1.22
-**Foco:** Implementar um tutorial orgânico integrado que ensine as mecânicas fundamentais através de uma primeira jornada épica e obrigatória.
+**Foco:** Sistema de tutorial integrado e padronização da identidade visual.
 
-### Status
-
-✅ **Concluído** - Sistema de tutorial completo e identidade visual padronizada.
-
-**Implementações Realizadas:**
-
-**Backend Completo:**
-- **Entidade `Game` Atualizada:** Campos `introChoice`, `tutorialPhase` e `tutorialCompleted` implementados
-- **Enums para Tipagem Forte:** `IntroChoice` e `TutorialPhase` criados e integrados
-- **DTOs Dedicados:** `TutorialStateDTO` e `TutorialChecklistDTO` funcionais
-- **`TutorialService` Completo:** Lógica de progressão e personalização baseada na escolha moral implementada
-- **Endpoint da API:** `GET /api/games/{id}/tutorial` funcionando perfeitamente
-
-**Frontend Completo:**
-- **`TutorialOverlay.jsx`:** Sistema de tutorial overlay totalmente funcional com progressão dinâmica
-- **Integração Perfeita:** Tutorial conectado ao backend, progredindo automaticamente baseado nas ações do jogador
-- **Checklist Visual:** Sistema de objetivos com checkmarks funcionando na mesa do capitão
-- **Highlights Contextuais:** Destaque de elementos ativos durante diferentes fases do tutorial
-
-**Melhorias de Design:**
-- **Identidade Visual Unificada:** Todos os componentes (PortView, LocationStatus, Tutorial) agora seguem o mesmo sistema de cores e estilo
-- **Tutorial Integrado:** Design náutico consistente com pergaminho envelhecido
-- **Responsividade:** LocationStatus compacto durante encontros no mar
-- **Consistência:** Sombras, bordas, cores e fontes padronizadas em toda a aplicação
-
-### Análise do Problema
-
-**Gap Educacional Crítico:**
-Após a sequência introdutória, o jogador possui contexto narrativo mas nenhum conhecimento prático. A Mesa do Capitão apresenta 5 opções simultâneas (Taverna, Estaleiro, Mercado, Contratos, Viajar) sem orientação sobre prioridades ou consequências.
-
-**Consequências do Gap:**
-- Alta taxa de abandono por confusão
-- Frustração ao tentar navegar sem tripulação
-- Experiência inicial negativa que contradiz a narrativa cuidadosa da intro
-- Perda do momentum emocional criado pela sequência introdutória
-
-### Solução: Tutorial Narrativo Integrado
-
-**Conceito Central: "Primeira Missão Épica"**
-Em vez de tutorial tradicional com popups, criar uma jornada obrigatória que ensina naturalmente através da progressão narrativa. O jogador não percebe que está em tutorial - apenas vive sua primeira aventura como capitão.
-
-### Plano de Implementação Detalhado
-
-#### **Fase 1: Preparação Obrigatória (No Porto)**
-
-**1.1 - Bloqueio Inteligente da Mesa do Capitão:**
-- Após a intro, apenas a Taverna está "destacada" visualmente
-- Outras opções ficam "esmaecidas" com tooltip: "Primeiro você precisa de uma tripulação"
-- Implementar componente `TutorialHighlight` que destaca elementos ativos
-
-**1.2 - Sequência de Contratação Guiada:**
-- Na Taverna: automaticamente mostrar apenas 3 candidatos pré-selecionados
-- Cada candidato representa uma função essencial: Navegador, Carpinteiro, Artilheiro
-- Preços reduzidos (50% do normal) para garantir que o jogador possa contratar
-- Após contratar, desbloquear próxima etapa
-
-**1.3 - Preparação do Navio:**
-- Estaleiro: highlight no botão de reparo + tooltip educativo
-- Mercado: destaque em suprimentos básicos (comida, rum)
-- Sistema de "checklist visual" na Mesa do Capitão mostrando progresso:
-  ```
-  ✓ Tripulação: 3/3 contratados
-  ✓ Casco: Reparado (100/100)  
-  ⏳ Suprimentos: 80/100 comida, 50/100 rum
-  ⏳ Destino: Não selecionado
-  ```
+### Implementações
+✅ **Backend:** TutorialService, DTOs (TutorialStateDTO, TutorialChecklistDTO), endpoint `/api/games/{id}/tutorial`  
+✅ **Frontend:** TutorialOverlay.jsx com progressão dinâmica e checklist visual  
+✅ **Design System:** Identidade visual unificada, cores e sombras padronizadas  
+✅ **UX:** Tutorial náutico integrado, LocationStatus compacto, layout consistente
 
 #### **Personalização Baseada na Escolha Moral Inicial**
 
@@ -541,31 +494,115 @@ public void progressTutorial(Long gameId, String action);
 **Prioridades para as próximas versões:**
 
 ### **P1 - Críticas (Alta Prioridade)**
-1. **Balanceamento de Economia**: Revisar preços de mercado, custos de reparo e recompensas de contratos
+1. **Otimização de Performance**: Melhorar tempo de carregamento e responsividade da aplicação
 2. **Polimento de Combat**: Melhorar feedback visual e balanceamento do sistema de combate naval
-3. **Performance**: Otimizar carregamento e transições entre telas
+3. **Validação de Balance**: Testes extensivos do novo sistema econômico implementado na v1.23.1
 
 ### **P2 - Funcionalidades (Média Prioridade)**  
 1. **Sistema de Save/Load**: Permitir múltiplos saves e carregamento de jogos
 2. **Eventos Dinâmicos**: Expandir variedade de encontros no mar e eventos de porto
 3. **Progressão de Tripulação**: Sistema de XP e evolução dos tripulantes
+4. **Melhorias na Taverna**: Mais variedade de tripulantes e personalidades
 
 ### **P3 - Expansão (Baixa Prioridade)**
 1. **Novos Portos**: Adicionar mais localizações com características únicas
 2. **Facções Avançadas**: Sistema de diplomacia mais profundo
 3. **Campanhas**: Múltiplas histórias além da jornada tutorial
+4. **Sistema de Reputação Expandido**: Consequências de longo prazo para ações do jogador
 
 ### **Próximos Passos Imediatos:**
-- Testes de gameplay completos
-- Feedback de usuários sobre tutorial
-- Identificação de bugs e pontos de fricção
-- Documentação técnica para futuras expansões
-1. **MVP**: Implementar Fase 1 com tutorial genérico funcional
-2. **Personalização**: Adicionar sistema de caminhos diferenciados
-3. **Refinamento**: Balancear narrativas e recompensas entre caminhos  
-4. **Polimento**: Testes extensivos e ajustes finos
+- **v1.24 - Otimização de Performance**: Foco em melhorar responsividade e tempo de carregamento
+- **v1.25 - Polimento de UX**: Refinamentos na interface baseados em feedback de gameplay
+- **v1.26 - Expansão de Conteúdo**: Novos eventos, tripulantes e contratos
 
-**Prioridade**: Alta - Essencial para retenção e engajamento pós-introdução.
+## v1.24 - Teatro da Batalha Naval (Concluído)
+
+**Versão do Jogo:** 1.24
+**Foco:** Melhorar drasticamente a experiência de combate com interface cinemática e mecânicas aprimoradas.
+
+### Fase 1: Auditoria e Design do Sistema de Combate (Concluído)
+✅ **Descrição**: Análise completa do sistema de combate existente, identificação de pontos fracos (previsibilidade, falta de feedback visual, repetitividade) e criação do conceito "Teatro da Batalha Naval"
+✅ **Status**: **Concluído e Verificado.**
+
+### Fase 2: Implementação do BattleScene Component (Concluído)
+✅ **Descrição**: Criado novo componente `BattleScene.jsx` com interface cinemática inspirada em pergaminho antigo, incluindo animações de navios, barras de vida, log de combate e ações táticas
+✅ **Status**: **Concluído e Verificado.**
+
+### Fase 3: Resolução de Issues Técnicos (Concluído)
+✅ **Descrição**: Correção de erros de TypeError, integração com dados da tripulação, ajustes de layout, animações de navios e problemas de compilação
+✅ **Status**: **Concluído e Verificado.**
+
+**Issues Conhecidos:**
+⚠️ **Barra de vida do inimigo**: A barra visual não atualiza durante o combate (funcionalidade básica operacional, issue cosmético para correção futura)
+
+---
+
+## v1.25 - Expansão do Mundo de Alvor (Em Planejamento)
+
+**Versão do Jogo:** 1.25  
+**Foco:** Expandir significativamente o mundo do jogo com novos portos, encontros e eventos narrativos.
+
+### Objetivos Principais:
+1. **Novos Portos e Regiões**: Expandir de 3 para 8-10 portos com características únicas
+2. **Eventos Narrativos**: Criar sistema robusto de eventos aleatórios e específicos por região
+3. **Encontros Marítimos**: Diversificar tipos de encontros no mar além do combate básico
+4. **Profundidade Temática**: Cada região com identidade cultural, econômica e política própria
+
+### Expansões Planejadas:
+
+#### **Novos Portos:**
+- **Região Norte (Imperial)**:
+  - *Fortaleza de Ferro*: Base militar imperial, upgrades militares premium
+  - *Porto da Coroa*: Capital administrativa, contratos governamentais
+  
+- **Região Leste (Guild)**:
+  - *Entreposto Dourado*: Centro de comércio internacional, preços variáveis
+  - *Ilha dos Mercadores*: Especializada em itens raros e exóticos
+  
+- **Região Sul (Neutral/Wild)**:
+  - *Vila dos Pescadores*: Porto humilde, reparos baratos, tripulação simples
+  - *Ruínas de Atlântida*: Local misterioso com tesouros e perigos
+  
+- **Região Oeste (Pirate + Wilderness)**:
+  - *Refúgio do Kraken*: Porto pirata secreto, contrabando e mercado negro
+  - *Ilhas Selvagens*: Território inexplorado, recursos naturais
+
+#### **Sistema de Eventos Narrativos:**
+- **Eventos por Região**: Cada área com eventos temáticos únicos
+- **Eventos Sazonais**: Mudanças baseadas em "estações" do jogo
+- **Eventos de Reputação**: Consequências das ações passadas do jogador
+- **Eventos de Tripulação**: Histórias pessoais dos membros da crew
+
+#### **Novos Tipos de Encontro:**
+- **Mercadores Navegantes**: Comércio em alto mar
+- **Navios Fantasmas**: Encontros sobrenaturais com loot único
+- **Tempestades**: Eventos ambientais com escolhas de navegação
+- **Piratas Diplomáticos**: Encontros que podem ser resolvidos sem combate
+- **Patrulhas Navais**: Encontros com autoridades baseados em reputação
+
+### **Próximos Candidatos Imediatos:**
+1. **Lazy Loading**: Implementar carregamento sob demanda de componentes
+2. **Otimização de API**: Reduzir chamadas desnecessárias e implementar caching
+3. **Feedback Visual**: Melhorar indicadores de loading e transições
+4. **Debugging Tools**: Implementar ferramentas de debug para desenvolvimento futuro
+
+---
+
+## v1.26 - Mapa Artístico Interativo (Futuro)
+
+**Versão do Jogo:** 1.26
+**Foco:** Transformar a tela de seleção de destinos em um grande mapa artístico interativo.
+
+### Conceito "Carta Náutica do Arquipélago":
+- **Estilo Visual**: Pergaminho antigo com decorações náuticas (rosa dos ventos, monstros marinhos, anotações manuscritas)
+- **Interatividade**: Portos clicáveis com preview de informações, rotas animadas, seleção visual
+- **Elementos Artísticos**: Cada porto com ícone temático por facção, decorações regionais, efeitos hover
+- **Funcionalidade**: Integração completa com dados existentes, cálculo de distâncias, confirmação de viagem
+
+### Pré-requisitos:
+✅ **Sistema de Portos Expandido** (v1.25)  
+⚠️ **Assets Visuais**: Criação de elementos gráficos para o mapa  
+⚠️ **MapView Component**: Desenvolvimento do componente React (já iniciado)
 
 
 

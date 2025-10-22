@@ -291,9 +291,9 @@ public class GameService {
 
         int attributeSum = request.getNavigation() + request.getArtillery() + request.getCombat() +
                            request.getMedicine() + request.getCarpentry() + request.getIntelligence();
-        int baseSalary = 10;
-        int salary = baseSalary + (attributeSum / 10) - request.getDespairLevel();
-        newCrewMember.setSalary(Math.max(1, salary));
+        int baseSalary = 20; // Aumentado de 10 para 20 para maior pressão econômica
+        int salary = baseSalary + (attributeSum / 8) - request.getDespairLevel(); // Divisor reduzido de 10 para 8
+        newCrewMember.setSalary(Math.max(5, salary)); // Salário mínimo aumentado de 1 para 5
 
         ship.getCrew().add(newCrewMember);
         return gameRepository.save(game);
@@ -886,17 +886,33 @@ public class GameService {
         }
 
         Ship ship = game.getShip();
+        Random random = new Random(gameId + currentPort.getId()); // Seed para preços consistentes por jogo/porto
+        
+        // Aplicar variação de ±20% nos preços base
+        int foodPrice = applyPriceVariation(currentPort.getFoodPrice(), random);
+        int rumPrice = applyPriceVariation(currentPort.getRumPrice(), random);
+        int toolsPrice = applyPriceVariation(currentPort.getToolsPrice(), random);
+        int shotPrice = applyPriceVariation(currentPort.getShotPrice(), random);
+        
         return MarketDTO.builder()
-                .foodPrice(currentPort.getFoodPrice())
-                .rumPrice(currentPort.getRumPrice())
-                .toolsPrice(currentPort.getToolsPrice())
-                .shotPrice(currentPort.getShotPrice())
+                .foodPrice(foodPrice)
+                .rumPrice(rumPrice)
+                .toolsPrice(toolsPrice)
+                .shotPrice(shotPrice)
                 .shipFood(ship.getFoodRations())
                 .shipRum(ship.getRumRations())
                 .shipTools(ship.getRepairParts())
                 .shipShot(ship.getShot())
                 .shipGold(game.getGold())
                 .build();
+    }
+    
+    /**
+     * Aplica variação de ±20% ao preço base
+     */
+    private int applyPriceVariation(int basePrice, Random random) {
+        double variation = 0.8 + (random.nextDouble() * 0.4); // Entre 0.8 e 1.2 (±20%)
+        return Math.max(1, (int) Math.round(basePrice * variation));
     }
 
     @Transactional
@@ -909,13 +925,14 @@ public class GameService {
 
         Ship ship = game.getShip();
         List<String> eventLog = new ArrayList<>();
+        Random random = new Random(gameId + currentPort.getId()); // Mesmo seed para consistência
         int pricePerUnit = 0;
 
         switch (request.getItem()) {
-            case FOOD -> pricePerUnit = currentPort.getFoodPrice();
-            case RUM -> pricePerUnit = currentPort.getRumPrice();
-            case TOOLS -> pricePerUnit = currentPort.getToolsPrice();
-            case SHOT -> pricePerUnit = currentPort.getShotPrice();
+            case FOOD -> pricePerUnit = applyPriceVariation(currentPort.getFoodPrice(), random);
+            case RUM -> pricePerUnit = applyPriceVariation(currentPort.getRumPrice(), random);
+            case TOOLS -> pricePerUnit = applyPriceVariation(currentPort.getToolsPrice(), random);
+            case SHOT -> pricePerUnit = applyPriceVariation(currentPort.getShotPrice(), random);
         }
 
         int totalCost = pricePerUnit * request.getQuantity();
@@ -1018,7 +1035,7 @@ public class GameService {
             int intel = ThreadLocalRandom.current().nextInt(1, 6);
 
             int attributeSum = nav + art + com + med + car + intel;
-            int salary = Math.max(1, 10 + (attributeSum / 10) - despair);
+            int salary = Math.max(5, 20 + (attributeSum / 8) - despair); // Atualizado para consistência com recrutamento
             int initialMoral = Math.max(0, Math.min(100, 50 + (personality.getMoralModifier() * 5) - (despair * 2)));
 
             RecruitCrewMemberRequest request = new RecruitCrewMemberRequest();
