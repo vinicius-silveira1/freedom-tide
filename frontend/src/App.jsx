@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import MenuView from './components/MenuView'; // Import new component
+import IntroSequence from './components/IntroSequence'; // Import intro sequence
 import CaptainCompass from './components/CaptainCompass';
 import ShipStatus from './components/ShipStatus';
 import CrewStatus from './components/CrewStatus';
@@ -12,18 +13,60 @@ import TavernView from './components/TavernView';
 import ShipyardView from './components/ShipyardView';
 import MarketView from './components/MarketView';
 import ContractsView from './components/ContractsView';
+import audioService from './utils/AudioService';
 import './App.css';
+import './components/Dashboard/Dashboard.css';
 
 // Importar as imagens de fundo
 import portBackground from './assets/backgrounds/port.jpg';
 import seaBackground from './assets/backgrounds/sea-day.png';
 
 function App() {
-  const [gameState, setGameState] = useState('MENU'); // MENU, LOADING, PLAYING, ERROR
+  const [gameState, setGameState] = useState('MENU'); // MENU, LOADING, INTRO, PLAYING, ERROR
   const [game, setGame] = useState(null);
   const [eventLog, setEventLog] = useState([]);
   const [error, setError] = useState(null);
   const [currentView, setCurrentView] = useState('DASHBOARD');
+
+  // Handler para completar a sequência introdutória
+  const handleIntroComplete = async (selectedChoice) => {
+    try {
+      // Aplicar a escolha inicial na Bússola do Capitão
+      const updateResponse = await fetch(`/api/games/${game.id}/compass`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          choice: selectedChoice
+        })
+      });
+
+      if (!updateResponse.ok) {
+        const errorData = await updateResponse.json().catch(() => null);
+        if (errorData && errorData.message) {
+          throw new Error(errorData.message);
+        }
+        throw new Error(`HTTP error! status: ${updateResponse.status}`);
+      }
+
+      const response = await updateResponse.json();
+      setGame(response.gameStatus);
+      setEventLog(response.eventLog || []);
+      
+      // Fazer uma segunda requisição para garantir que temos o estado completo do jogo
+      const gameResponse = await fetch(`/api/games/${game.id}`);
+      if (gameResponse.ok) {
+        const fullGameStatus = await gameResponse.json();
+        setGame(fullGameStatus);
+      }
+      
+      setGameState('PLAYING');
+    } catch (e) {
+      console.error("Erro ao processar escolha inicial:", e);
+      setError(e.message);
+      // Em caso de erro, continuar mesmo assim
+      setGameState('PLAYING');
+    }
+  };
 
   // Handler to start a new game
   const handleNewGame = async () => {
@@ -40,8 +83,8 @@ function App() {
 
       const newGame = await createResponse.json();
       setGame(newGame);
-      setEventLog(["Bem-vindo a Freedom Tide! O seu navio aguarda no porto."]);
-      setGameState('PLAYING'); // Move to playing state
+      setEventLog(["Bem-vindo a Freedom Tide!"]);
+      setGameState('INTRO'); // Move to intro sequence first
     } catch (e) {
       setError(e.message);
       setGameState('ERROR'); // Move to error state
@@ -50,6 +93,16 @@ function App() {
   };
 
   // The old useEffect is removed. Game creation is now manual.
+
+  // EFFECT: Manage background music based on location
+  useEffect(() => {
+    if (gameState === 'PLAYING' && game) {
+      const newTrack = game.currentPort 
+        ? '/audio/music/port_music.mp3' 
+        : '/audio/music/sea_music.mp3';
+      audioService.playMusic(newTrack);
+    }
+  }, [game?.currentPort, gameState]);
 
   // Function to execute the actual travel POST request
   const executeTravel = async (destinationId) => {
@@ -249,10 +302,16 @@ function App() {
   };
 
   const getBackgroundStyle = () => {
-    // In menu or loading, no specific background is needed as the components have their own
-    if (gameState !== 'PLAYING' || !game) return {}; 
-    const backgroundImage = game.currentPort ? portBackground : seaBackground;
-    return { backgroundImage: `url(${backgroundImage})` };
+    // In menu, loading, or when the desk is visible, the background is handled by child components.
+    if (gameState !== 'PLAYING' || !game || (currentView === 'DASHBOARD' && game.currentPort)) {
+      return {};
+    }
+    // Only apply sea background when at sea.
+    const backgroundImage = !game.currentPort ? seaBackground : '';
+    if (backgroundImage) {
+        return { backgroundImage: `url(${backgroundImage})` };
+    }
+    return {};
   };
 
   const renderMainPanel = () => {
@@ -269,30 +328,62 @@ function App() {
         return <ContractsView game={game} onAccept={handleAcceptContract} onBack={() => setCurrentView('DASHBOARD')} />;
       case 'DASHBOARD':
       default:
-        return (
-          <>
-            <div className="status-dashboard">
-              <LocationStatus port={game.currentPort} encounter={game.currentEncounter} />
-              <ShipStatus ship={game.ship} />
-              <CrewStatus crew={game.crew} />
+        // The Captain's Desk metaphor is only for when in a port.
+        // If at sea, we might want a different layout or just the event log.
+        if (game.currentPort) {
+          return (
+            <div 
+              className="captain-desk-container" 
+              style={{ backgroundImage: `url(/assets/backgrounds/wood_texture.png)` }}
+            >
+              {/* Desk Items (Panels) */}
+              <div className="desk-item ship-status-on-desk">
+                <ShipStatus ship={game.ship} />
+              </div>
+              <div className="desk-item crew-status-on-desk">
+                <CrewStatus crew={game.crew} />
+              </div>
+              <div className="desk-item location-status-on-desk">
+                <LocationStatus port={game.currentPort} />
+              </div>
+              <div className="desk-item event-log-on-desk">
+                <EventLog logs={eventLog} />
+              </div>
+
+              {/* Actions are now part of the PortView, which is also on the desk */}
+              <div className="desk-item port-view-on-desk">
+                 <PortView 
+                    actions={game.currentPort?.availableActions || []}
+                    onActionClick={handleAction} 
+                  />
+              </div>
+
+              {/* Decorative Props */}
+              <img src="/assets/props/map.png" alt="Map Prop" className="desk-prop prop-map" />
+              <img src="/assets/props/sword.png" alt="Sword Prop" className="desk-prop prop-sword" />
+              <img src="/assets/props/coins.png" alt="Coins Prop" className="desk-prop prop-coins" />
+
             </div>
-
-            <EventLog logs={eventLog} />
-
-            {game.currentPort && (
-              <PortView 
-                actions={game.currentPort.availableActions}
-                onActionClick={handleAction} 
-              />
-            )}
-            {game.currentEncounter && (
-              <EncounterActions 
-                actions={game.currentEncounter.availableActions}
-                onActionClick={handleAction} 
-              />
-            )}
-          </>
-        );
+          );
+        } else {
+          // Default view when at sea (no desk)
+          return (
+            <>
+              <div className="status-dashboard">
+                <LocationStatus encounter={game.currentEncounter} />
+                <ShipStatus ship={game.ship} />
+                <CrewStatus crew={game.crew} />
+              </div>
+              <EventLog logs={eventLog} />
+              {game.currentEncounter && (
+                <EncounterActions 
+                  actions={game.currentEncounter.availableActions}
+                  onActionClick={handleAction} 
+                />
+              )}
+            </>
+          );
+        }
     }
   };
 
@@ -303,6 +394,8 @@ function App() {
         return <MenuView onNewGame={handleNewGame} />;
       case 'LOADING':
         return <div className="loading-screen"><p>Criando e carregando o jogo...</p></div>;
+      case 'INTRO':
+        return <IntroSequence onComplete={handleIntroComplete} />;
       case 'PLAYING':
         return (
           <>

@@ -1,7 +1,13 @@
 import React from 'react';
 import './MenuView.css';
+import audioService from '../utils/AudioService';
 
 const MenuView = ({ onNewGame }) => {
+  const handleNewGameClick = () => {
+    audioService.playSfx('/audio/sfx/ui_click.wav');
+    onNewGame();
+  };
+
   return (
     <div className="menu-view-container">
       <div className="title-container">
@@ -9,7 +15,7 @@ const MenuView = ({ onNewGame }) => {
         <p className="game-subtitle">Seu Legado Aguarda</p>
       </div>
       <div className="menu-options">
-        <button className="menu-button" onClick={onNewGame}>
+        <button className="menu-button" onClick={handleNewGameClick}>
           Novo Jogo
         </button>
         {/* Placeholder for future buttons */}

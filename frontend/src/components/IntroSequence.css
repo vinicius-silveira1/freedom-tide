@@ -1,0 +1,367 @@
+/* IntroSequence.css - Documentos Narrativos Antigos */
+
+.intro-sequence-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  padding: 20px;
+  background: var(--color-background);
+  overflow-y: auto;
+}
+
+.intro-document {
+  /* Documento grande e imersivo */
+  width: 90%;
+  max-width: 800px;
+  min-height: 600px;
+  
+  /* Papel envelhecido e manchado */
+  background: 
+    /* Manchas grandes de tinta e umidade */
+    radial-gradient(ellipse at 15% 20%, rgba(90, 60, 35, 0.3) 0%, transparent 40%),
+    radial-gradient(ellipse at 80% 75%, rgba(110, 70, 45, 0.25) 0%, transparent 45%),
+    radial-gradient(circle at 25% 80%, rgba(85, 55, 30, 0.2) 0%, transparent 30%),
+    
+    /* Pequenos respingos e manchas */
+    radial-gradient(circle at 90% 15%, rgba(100, 65, 40, 0.4) 0%, transparent 8%),
+    radial-gradient(circle at 10% 90%, rgba(95, 60, 35, 0.3) 0%, transparent 12%),
+    radial-gradient(circle at 70% 30%, rgba(80, 50, 25, 0.25) 0%, transparent 15%),
+    
+    /* Base de papel muito envelhecido */
+    #f8f4e6;
+  
+  /* Bordas muito irregulares de documento oficial antigo */
+  border: 4px solid;
+  border-color: #8b5a2b #965f2c #7d5228 #a0612d;
+  border-radius: 30px 15px 40px 12px / 25px 35px 10px 30px;
+  
+  /* Sombras dramáticas para documento importante */
+  box-shadow: 
+    /* Sombra principal pesada */
+    8px 10px 25px rgba(61, 35, 15, 0.7),
+    4px 5px 12px rgba(80, 50, 30, 0.5),
+    
+    /* Efeito de papel grosso e oficial */
+    inset -3px -4px 8px rgba(75, 45, 25, 0.2),
+    inset 4px 5px 8px rgba(250, 245, 230, 0.8),
+    inset -2px 6px 5px rgba(75, 45, 25, 0.15),
+    inset 6px -2px 5px rgba(235, 225, 205, 0.6);
+  
+  padding: 40px 35px 30px 40px;
+  position: relative;
+  transform: rotate(-0.3deg);
+  
+  /* Efeitos pixelados dramáticos */
+  filter: 
+    contrast(1.3) 
+    saturate(1.2) 
+    brightness(0.92)
+    sepia(0.22);
+  
+  /* Padrão pixelado de documento oficial */
+  background-image: 
+    /* Textura de papel oficial grosso */
+    repeating-radial-gradient(circle at 3px 3px, 
+      rgba(0,0,0,0.04) 0px, 
+      transparent 1px, 
+      rgba(255,255,255,0.02) 2px, 
+      transparent 4px),
+    /* Mantém os gradientes de manchas */
+    radial-gradient(ellipse at 15% 20%, rgba(90, 60, 35, 0.3) 0%, transparent 40%),
+    radial-gradient(ellipse at 80% 75%, rgba(110, 70, 45, 0.25) 0%, transparent 45%),
+    radial-gradient(circle at 25% 80%, rgba(85, 55, 30, 0.2) 0%, transparent 30%),
+    radial-gradient(circle at 90% 15%, rgba(100, 65, 40, 0.4) 0%, transparent 8%),
+    radial-gradient(circle at 10% 90%, rgba(95, 60, 35, 0.3) 0%, transparent 12%),
+    radial-gradient(circle at 70% 30%, rgba(80, 50, 25, 0.25) 0%, transparent 15%);
+  
+  background-size: 6px 6px, auto, auto, auto, auto, auto, auto;
+  
+  /* Garantir renderização pixelada */
+  image-rendering: -moz-crisp-edges;
+  image-rendering: -webkit-crisp-edges;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+}
+
+/* Pseudo-elementos para vincos de documento oficial importante */
+.intro-document::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+  
+  /* Vincos de documento muito manuseado */
+  background: 
+    linear-gradient(-20deg, 
+      transparent 0%, 
+      transparent 30%, 
+      rgba(70, 40, 20, 0.2) 31%, 
+      rgba(70, 40, 20, 0.2) 33%, 
+      transparent 34%, 
+      transparent 100%
+    ),
+    linear-gradient(70deg, 
+      transparent 0%, 
+      transparent 75%, 
+      rgba(65, 35, 15, 0.15) 76%, 
+      rgba(65, 35, 15, 0.15) 77%, 
+      transparent 78%, 
+      transparent 100%
+    );
+  
+  border-radius: inherit;
+}
+
+.intro-document::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+  
+  /* Dobra central como documento dobrado para transporte */
+  background: 
+    linear-gradient(90deg, 
+      transparent 0%, 
+      transparent 48%, 
+      rgba(80, 50, 25, 0.18) 49%, 
+      rgba(80, 50, 25, 0.18) 51%, 
+      transparent 52%, 
+      transparent 100%
+    );
+  
+  border-radius: inherit;
+}
+
+/* Cabeçalho do documento */
+.document-header {
+  text-align: center;
+  margin-bottom: 30px;
+  padding-bottom: 20px;
+  border-bottom: 3px double var(--color-border);
+}
+
+.document-title {
+  font-family: var(--font-pixel);
+  font-size: 28px;
+  color: #1a0f08;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  margin: 0 0 10px 0;
+  text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+}
+
+.document-type {
+  font-family: var(--font-serif);
+  font-size: 14px;
+  color: #4a3426;
+  font-style: italic;
+  margin: 0;
+}
+
+/* Conteúdo do documento */
+.document-content {
+  line-height: 1.6;
+}
+
+.content-header {
+  font-family: var(--font-pixel);
+  font-size: 24px;
+  color: #2a1810;
+  text-align: center;
+  margin: 0 0 25px 0;
+  text-decoration: underline;
+}
+
+.content-body {
+  margin-bottom: 25px;
+}
+
+.text-line {
+  font-family: var(--font-pixel);
+  font-size: 20px;
+  color: var(--color-text-darker);
+  margin: 10px 0;
+  line-height: 1.6;
+}
+
+.bullet-point {
+  font-family: var(--font-pixel);
+  font-size: 18px;
+  color: var(--color-text-darker);
+  margin: 8px 0;
+  margin-left: 20px;
+}
+
+/* Seção de escolhas */
+.choices-section {
+  margin: 30px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.choice-option {
+  background: rgba(240, 235, 220, 0.8);
+  border: 2px solid var(--color-border);
+  border-radius: 12px 8px 15px 10px;
+  padding: 20px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+  transform: rotate(0.2deg);
+}
+
+.choice-option:nth-child(2) { transform: rotate(-0.3deg); }
+.choice-option:nth-child(3) { transform: rotate(0.4deg); }
+
+.choice-option:hover {
+  background: rgba(235, 225, 200, 0.9);
+  border-color: var(--color-accent);
+  transform: scale(1.02) rotate(0deg);
+  box-shadow: 
+    4px 4px 12px rgba(61, 35, 15, 0.4),
+    inset 1px 1px 3px rgba(255, 250, 240, 0.8);
+}
+
+.choice-option.selected {
+  background: rgba(220, 200, 170, 1.0);
+  border-color: var(--color-accent);
+  border-width: 3px;
+  transform: scale(1.05) rotate(0deg);
+  box-shadow: 
+    6px 6px 15px rgba(61, 35, 15, 0.6),
+    inset 2px 2px 5px rgba(255, 245, 225, 0.9);
+}
+
+.choice-title {
+  font-family: var(--font-pixel);
+  font-size: 22px;
+  color: var(--color-text-darker);
+  margin: 0 0 10px 0;
+  font-weight: bold;
+}
+
+.choice-description {
+  font-family: var(--font-pixel);
+  font-size: 18px;
+  color: var(--color-text-darker);
+  margin: 0 0 12px 0;
+  font-style: italic;
+}
+
+.choice-details {
+  margin: 12px 0;
+}
+
+.detail-line {
+  font-family: var(--font-pixel);
+  font-size: 16px;
+  color: var(--color-text-darker);
+  margin: 6px 0;
+  line-height: 1.5;
+}
+
+.choice-impact {
+  font-family: var(--font-pixel);
+  font-size: 16px;
+  color: #8B4513;
+  margin-top: 12px;
+  padding: 10px;
+  background: rgba(255, 245, 220, 0.6);
+  border-radius: 6px;
+  border-left: 3px solid var(--color-accent);
+}
+
+/* Rodapé do documento */
+.document-footer {
+  margin-top: 30px;
+  padding-top: 20px;
+  border-top: 2px solid var(--color-border);
+  text-align: right;
+}
+
+.document-footer p {
+  font-family: var(--font-pixel);
+  font-size: 14px;
+  color: var(--color-text-darker);
+  margin: 4px 0;
+  font-style: italic;
+}
+
+/* Controles do documento */
+.document-controls {
+  text-align: center;
+  margin-top: 40px;
+  padding-top: 20px;
+  border-top: 2px dashed var(--color-border);
+}
+
+.next-button, .confirm-button {
+  font-family: var(--font-pixel);
+  font-size: 18px;
+  background: var(--color-accent);
+  color: var(--color-text-darker);
+  border: 3px solid var(--color-border);
+  border-radius: 8px;
+  padding: 12px 24px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  
+  /* Efeito pixelado nos botões */
+  image-rendering: -moz-crisp-edges;
+  image-rendering: -webkit-crisp-edges;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+}
+
+.next-button:hover, .confirm-button:hover {
+  background: #d4ac47;
+  transform: scale(1.05);
+  box-shadow: 
+    3px 3px 8px rgba(61, 35, 15, 0.5),
+    inset 1px 1px 3px rgba(255, 255, 255, 0.3);
+}
+
+.instruction-text {
+  font-family: var(--font-pixel);
+  font-size: 16px;
+  color: var(--color-text-darker);
+  margin: 20px 0;
+  font-style: italic;
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+  .intro-document {
+    width: 95%;
+    padding: 25px 20px;
+    min-height: auto;
+  }
+  
+  .document-title {
+    font-size: 24px;
+  }
+  
+  .content-header {
+    font-size: 18px;
+  }
+  
+  .text-line, .choice-description {
+    font-size: 14px;
+  }
+  
+  .choices-section {
+    gap: 15px;
+  }
+  
+  .choice-option {
+    padding: 15px;
+  }
+}

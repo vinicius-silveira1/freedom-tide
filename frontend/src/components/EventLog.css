@@ -1,31 +1,178 @@
-/* EventLog.css */
-
-/* O .status-panel é herdado de outros arquivos CSS importados, como ShipStatus.css.
-   As regras abaixo apenas adicionam ou sobrescrevem o que for necessário para o log. */
+/* EventLog.css - Diário de Bordo Antigo */
 
 .log-panel {
-  /* A altura é específica para o painel de log, para permitir o scroll. */
-  height: 250px; /* Aumentando um pouco a altura para mais visibilidade */
-  overflow-y: scroll;
-
-  /* Estilo da barra de rolagem para um visual mais integrado */
-  scrollbar-width: thin;
-  scrollbar-color: var(--color-border) var(--color-panel-bg);
+    /* Diário de bordo com papel envelhecido e manchado */
+    background: 
+        /* Linhas de diário mais espaçadas */
+        repeating-linear-gradient(
+            0deg,
+            transparent 0px,
+            transparent 34px,
+            rgba(110, 90, 60, 0.35) 35px,
+            rgba(110, 90, 60, 0.35) 36px,
+            transparent 37px,
+            transparent 71px
+        ),
+        
+        /* Manchas de água salgada e umidade */
+        radial-gradient(ellipse at 10% 30%, rgba(90, 60, 35, 0.3) 0%, transparent 45%),
+        radial-gradient(ellipse at 80% 60%, rgba(100, 65, 40, 0.25) 0%, transparent 50%),
+        radial-gradient(circle at 30% 10%, rgba(85, 55, 30, 0.2) 0%, transparent 35%),
+        
+        /* Pingos de tinta e respingos */
+        radial-gradient(circle at 70% 85%, rgba(75, 45, 25, 0.4) 0%, transparent 8%),
+        radial-gradient(circle at 20% 70%, rgba(80, 50, 30, 0.3) 0%, transparent 12%),
+        radial-gradient(circle at 85% 20%, rgba(70, 45, 25, 0.25) 0%, transparent 15%),
+        radial-gradient(circle at 50% 90%, rgba(90, 60, 35, 0.2) 0%, transparent 18%),
+        
+        /* Base envelhecida de diário */
+        #f4f1ea;
+    
+    /* Bordas muito irregulares (livro muito usado) */
+    border: 3px solid;
+    border-color: #7d5228 #8b5a2b #a0612d #965f2c;
+    border-radius: 22px 12px 35px 8px / 16px 30px 6px 24px;
+    
+    /* Sombras de livro grosso e antigo */
+    box-shadow: 
+        /* Sombra principal pesada */
+        6px 5px 18px rgba(61, 35, 15, 0.6),
+        3px 2px 8px rgba(80, 50, 30, 0.5),
+        
+        /* Efeito de páginas dobradas e amassadas */
+        inset -3px -2px 6px rgba(75, 45, 25, 0.2),
+        inset 2px 4px 6px rgba(250, 245, 235, 0.7),
+        inset -1px 3px 4px rgba(75, 45, 25, 0.15),
+        inset 4px -2px 4px rgba(240, 230, 210, 0.5);
+    
+    padding: 20px 16px 18px 20px;
+    color: var(--color-text-darker);
+    height: 250px;
+    overflow-y: scroll;
+    position: relative;
+    transform: rotate(0.2deg);
+    
+    box-sizing: border-box;
+    
+    /* Efeito pixelado dramático para combinar com os ícones */
+    image-rendering: -moz-crisp-edges;
+    image-rendering: -webkit-crisp-edges;
+    image-rendering: pixelated;
+    image-rendering: crisp-edges;
+    
+    /* Filtros para efeito pixelado visível de diário antigo */
+    filter: 
+      contrast(1.25) 
+      saturate(1.15) 
+      brightness(0.93)
+      sepia(0.18);
+    
+    /* Padrão pixelado de páginas de livro */
+    background-image: 
+      /* Textura de papel grosso pixelado */
+      repeating-radial-gradient(circle at 2px 2px, 
+        rgba(0,0,0,0.03) 0px, 
+        transparent 1px, 
+        rgba(255,255,255,0.015) 2px, 
+        transparent 3px),
+      /* Mantém os gradientes existentes */
+      repeating-linear-gradient(
+        0deg,
+        transparent 0px,
+        transparent 34px,
+        rgba(110, 90, 60, 0.35) 35px,
+        rgba(110, 90, 60, 0.35) 36px,
+        transparent 37px,
+        transparent 71px
+      ),
+      radial-gradient(ellipse at 10% 30%, rgba(90, 60, 35, 0.3) 0%, transparent 45%),
+      radial-gradient(ellipse at 80% 60%, rgba(100, 65, 40, 0.25) 0%, transparent 50%),
+      radial-gradient(circle at 30% 10%, rgba(85, 55, 30, 0.2) 0%, transparent 35%),
+      radial-gradient(circle at 70% 85%, rgba(75, 45, 25, 0.4) 0%, transparent 8%),
+      radial-gradient(circle at 20% 70%, rgba(80, 50, 30, 0.3) 0%, transparent 12%),
+      radial-gradient(circle at 85% 20%, rgba(70, 45, 25, 0.25) 0%, transparent 15%),
+      radial-gradient(circle at 50% 90%, rgba(90, 60, 35, 0.2) 0%, transparent 18%);
+    
+    background-size: 5px 5px, auto, auto, auto, auto, auto, auto, auto, auto;
+    
+    /* Estilo da barra de rolagem para um visual mais integrado */
+    scrollbar-width: thin;
+    scrollbar-color: rgba(125, 82, 40, 0.6) transparent;
 }
 
-/* Webkit (Chrome, Safari) scrollbar styles */
+/* Webkit (Chrome, Safari) scrollbar styles - tema antigo */
 .log-panel::-webkit-scrollbar {
-  width: 12px;
+  width: 14px;
 }
 
 .log-panel::-webkit-scrollbar-track {
-  background: var(--color-panel-bg);
+  background: rgba(240, 230, 210, 0.8);
+  border-radius: 8px;
 }
 
 .log-panel::-webkit-scrollbar-thumb {
-  background-color: var(--color-border);
-  border-radius: 6px;
-  border: 3px solid var(--color-panel-bg);
+  background: linear-gradient(180deg, rgba(125, 82, 40, 0.7), rgba(100, 65, 35, 0.8));
+  border-radius: 8px;
+  border: 2px solid rgba(240, 230, 210, 0.5);
+}
+
+.log-panel::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, rgba(125, 82, 40, 0.9), rgba(100, 65, 35, 1.0));
+}
+
+/* Pseudo-elementos para efeito de diário antigo */
+.log-panel::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    pointer-events: none;
+    
+    /* Vincos de páginas de diário */
+    background: 
+        linear-gradient(-25deg, 
+            transparent 0%, 
+            transparent 15%, 
+            rgba(70, 40, 20, 0.18) 16%, 
+            rgba(70, 40, 20, 0.18) 18%, 
+            transparent 19%, 
+            transparent 100%
+        ),
+        linear-gradient(50deg, 
+            transparent 0%, 
+            transparent 80%, 
+            rgba(65, 35, 15, 0.12) 81%, 
+            rgba(65, 35, 15, 0.12) 82%, 
+            transparent 83%, 
+            transparent 100%
+        );
+    
+    border-radius: inherit;
+}
+
+.log-panel::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    pointer-events: none;
+    
+    /* Vinco da lombada do diário */
+    background: 
+        linear-gradient(90deg, 
+            transparent 0%, 
+            transparent 8%, 
+            rgba(80, 50, 25, 0.15) 9%, 
+            rgba(80, 50, 25, 0.15) 11%, 
+            transparent 12%, 
+            transparent 100%
+        );
+    
+    border-radius: inherit;
 }
 
 /* O h2 já é estilizado pela regra .status-panel h2. Nenhuma regra extra necessária. */

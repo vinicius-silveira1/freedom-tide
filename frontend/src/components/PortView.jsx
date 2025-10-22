@@ -1,5 +1,6 @@
 import React from 'react';
 import './PortView.css';
+import audioService from '../utils/AudioService';
 
 const PortView = ({ actions, onActionClick }) => {
   // A mapping from actionType to a display name and maybe a position/style
@@ -11,9 +12,14 @@ const PortView = ({ actions, onActionClick }) => {
     TRAVEL: { name: 'Viajar', className: 'travel-link' },
   };
 
+  const handleActionClick = (action) => {
+    audioService.playSfx('/audio/sfx/ui_click.wav');
+    onActionClick(action);
+  };
+
   return (
     <div className="port-view-container">
-      {actions.map(action => {
+      {actions && actions.map(action => {
         const details = actionDetails[action.actionType];
         if (!details) {
           // Don't render actions we don't have visual representation for yet
@@ -23,7 +29,7 @@ const PortView = ({ actions, onActionClick }) => {
           <button
             key={action.actionType}
             className={`port-action-link ${details.className}`}
-            onClick={() => onActionClick(action)}
+            onClick={() => handleActionClick(action)}
           >
             {details.name}
           </button>

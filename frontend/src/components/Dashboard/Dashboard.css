@@ -1,0 +1,98 @@
+/*
+ * Captain's Desk Layout
+ * Replaces the old grid-based .status-dashboard
+ */
+
+.captain-desk-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-size: cover;
+  background-repeat: repeat;
+  /* The z-index ensures it sits under floating UI like the compass, but over the main app background */
+  z-index: 0; 
+}
+
+/* Default style for any panel placed on the desk */
+.desk-item {
+  position: absolute;
+  /* The parchment panel style is already defined in each component's CSS,
+     so we just need to handle positioning here. */
+}
+
+/*
+  We will define specific positions for each panel.
+  These are placeholders and will need artistic adjustment.
+*/
+
+.ship-status-on-desk {
+  top: 10px; /* Moved up */
+  left: 40px;
+  width: 350px;
+  transform: rotate(-2deg);
+}
+
+.crew-status-on-desk {
+  top: 20px;
+  right: 400px; /* Moved further left */
+  width: 380px;
+  transform: rotate(1.5deg);
+}
+
+.location-status-on-desk {
+  top: 400px;
+  left: 150px;
+  width: 300px;
+  transform: rotate(1deg);
+}
+
+.event-log-on-desk {
+  top: 425px;
+  right: 50px;
+  width: 500px;
+  height: 300px;
+  transform: rotate(-1deg);
+  z-index: 2; /* Bring to front */
+}
+
+.port-view-on-desk {
+    bottom: 40px;
+    left: 25%;
+    right: 25%;
+    width: 50%;
+    height: auto; /* Permite altura automática baseada no conteúdo */
+    min-height: 300px; /* Altura mínima para garantir espaço */
+    transform: rotate(0.5deg);
+    z-index: 1; /* Sit behind event log */
+    overflow: visible; /* Garante que o conteúdo não seja cortado */
+}
+
+/* Styles for the decorative props */
+.desk-prop {
+  position: absolute;
+  pointer-events: none; /* So they don't interfere with clicks */
+}
+
+.prop-map {
+  top: 1px; /* Moved up */
+  left: 250px;
+  width: 400px;
+  transform: rotate(15deg);
+  
+}
+
+.prop-sword {
+  bottom: 20px; /* Moved to bottom-left */
+  left: 40px;
+  width: 150px; /* Made smaller */
+  transform: rotate(5deg);
+}
+
+.prop-coins {
+  top: 350px; /* Moved up */
+  right: 100px;
+  width: 150px;
+  z-index: 2;
+}

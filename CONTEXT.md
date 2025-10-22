@@ -101,15 +101,122 @@ Concluido.
 **Descrição:** Atendendo a uma diretriz de design do usuário, o jogo não começa mais diretamente no painel. Foi implementada uma máquina de estados (`MENU`, `LOADING`, `PLAYING`) no `App.jsx`. Um novo componente `MenuView.jsx` agora serve como tela de título, apresentando o nome do jogo e um botão "Novo Jogo". Clicar neste botão inicia o processo de criação do jogo e exibe uma tela de carregamento, conduzindo o jogador de forma coesa para a experiência principal.
 **Status:** **Concluído e Verificado.**
 
-## Próxima Tarefa: v1.19 - O Som do Mundo
+## v1.19 - O Som do Mundo (Concluído e Verificado)
 
-### Justificativa (Lição de Arquitetura/Design)
-Com a estrutura visual e o fluxo inicial do jogo estabelecidos, podemos retornar ao pilar da imersão auditiva. Um mundo silencioso parece morto. Introduzir áudio contextual (música de fundo para o mar vs. porto, e efeitos sonoros para interações) é o próximo passo lógico para dar vida ao "Freedom Tide". Assim como a "fatia vertical" de estilo visual, uma "fatia vertical" de áudio nos dará um sistema reutilizável e definirá a paleta sonora do jogo.
+**Versão do Jogo:** 1.19
+**Foco:** Implementar um sistema de áudio para aumentar a imersão através de música de fundo e efeitos sonoros.
+**Descrição:** Foi criado um serviço singleton, `AudioService.js`, para gerenciar todo o áudio do jogo. Este serviço controla a reprodução de música de fundo, com transições suaves (fade) entre as faixas de porto e de alto mar, baseando-se na localização atual do jogador. Adicionalmente, efeitos sonoros de clique foram integrados aos botões da UI no menu principal e na vista do porto, fornecendo feedback auditivo para as ações do jogador.
+**Status:** **Concluído e Verificado.**
+
+## v1.20 - A Mesa do Capitão (Concluído e Verificado)
+
+**Versão do Jogo:** 1.20
+**Foco:** Transformar o dashboard em uma experiência diegética, onde os painéis se tornam documentos antigos espalhados sobre a mesa do capitão.
+
+**Descrição:** Esta foi uma revolução visual completa do dashboard principal. Todos os componentes de status (`PortView`, `LocationStatus`, `CrewStatus`, `ShipStatus`, `EventLog`, `CaptainCompass`) foram totalmente redesenhados para parecerem documentos náuticos autênticos e envelhecidos. Cada painel agora possui:
+
+- **Texturas de papel antigo** com linhas de caderno desbotadas, manchas de envelhecimento, e efeitos de papel amassado
+- **Bordas irregulares** simulando documentos rasgados à mão e muito manuseados
+- **Rotações individuais** para criar o efeito de papéis naturalmente espalhados sobre uma mesa
+- **Manchas temáticas específicas** (sal marinho, óleo de navio, tinta derramada, umidade)
+- **Sombras complexas** criando profundidade e a ilusão de documentos físicos
+- **Efeitos pixelados dramáticos** usando filtros CSS avançados para harmonizar com os ícones do jogo
+- **Vincos e dobras** simulados através de pseudo-elementos e gradientes
+
+O `PortView` foi especialmente refinado com linhas de caderno antigo (sem as vermelhas modernas) e textura de papel heavily amassado. O resultado final é uma interface que não parece uma UI digital, mas sim uma mesa de trabalho real de um capitão do século XVIII, mantendo perfeita funcionalidade enquanto oferece imersão sem precedentes.
+
+**Status:** **Concluído e Verificado.**
+
+## v1.21 - O Peso das Correntes (Em Progresso)
+
+**Versão do Jogo:** 1.21
+**Foco:** Criar uma sequência introdutória narrativa que contextualiza o jogador no mundo e expõe imediatamente os temas de crítica social do jogo.
+
+### Justificativa
+
+A transição abrupta do menu "Novo Jogo" diretamente para a mesa do capitão quebra a imersão e perde uma oportunidade crucial de estabelecer contexto narrativo. O jogador precisa entender não apenas as mecânicas, mas **por que está ali** e **como o sistema o colocou nessa posição**. Esta sequência introdutória servirá tanto como tutorial diegético quanto como apresentação dos temas centrais do jogo sobre exploração capitalista e desigualdade.
 
 ### Plano de Implementação
-1.  **Gerenciador de Áudio (AudioService.js):** Criaremos um serviço singleton em `src/utils/` para gerenciar a reprodução de áudio. Ele controlará a música de fundo (com transições suaves - crossfade) e a reprodução de efeitos sonoros (SFX) para evitar que múltiplos sons se sobreponham de forma caótica.
-2.  **Integração no App.jsx:** Usaremos o `useEffect` para observar mudanças no estado do jogo (`game.currentPort`). Quando o jogador entrar ou sair de um porto, o `App.jsx` chamará o `AudioService` para trocar a música de fundo.
-3.  **Efeitos Sonoros (SFX):** Começaremos com um SFX simples. Ao clicar nos botões do menu principal (`MenuView.jsx`) e nos marcadores de local no porto (`PortView.jsx`), tocaremos um som de "clique" ou "confirmação" através do `AudioService`.
-4.  **Busca de Assets de Áudio:** Procurarei por uma música ambiente para o mar, uma para o porto e um som de clique (todos com licenças permissivas) para servirem como nossos placeholders iniciais.
+
+**Narrativa: "Do Trabalhador ao Capitão - A Armadilha da Oportunidade"**
+O jogador não é um aventureiro privilegiado, mas um trabalhador endividado que o sistema "promoveu" numa cruel armadilha econômica.
+
+**Sequência de 4 Documentos:**
+1. **Notificação de Cobrança** - Revela dívidas trabalhistas impossíveis de pagar
+2. **Contrato de Oportunidade** - A "generosa" oferta da Guilda que triplica a dívida
+3. **Inventário do Navio** - O "presente" envenenado: navio sucateado e tripulação desesperada
+4. **A Primeira Escolha** - Decisão moral que define valores iniciais da Bússola do Capitão
+
+**Implementação Técnica:**
+- Novo componente `IntroSequence.jsx` com estado interno para navegação entre documentos
+- Cada documento como subcomponente com estética de papel antigo (reutilizando padrões da Mesa do Capitão)
+- Integração no fluxo de estados do App.jsx: `MENU` → `LOADING` → `INTRO` → `PLAYING`
+- Conectar escolha final com sistema da Bússola do Capitão para valores iniciais
+
+### Status
+**Concluído** - Implementação completa da sequência introdutória:
+
+**Frontend (Concluído):**
+- Componente `IntroSequence.jsx` criado com navegação entre 4 documentos narrativos
+- Styling `IntroSequence.css` com efeito de documentos oficiais antigos e pixelização
+- Integração no `App.jsx` com estado INTRO e transição para PLAYING
+- Sequência narrativa completa: dívida → oportunidade → inventário → primeira escolha
+
+**Backend (Concluído):**
+- DTO `IntroChoiceRequestDTO` para processar escolhas do jogador
+- Método `processIntroChoice()` no `GameService` para aplicar valores iniciais na Bússola
+- Endpoint `POST /api/games/{id}/compass` no `GameController`
+- Três caminhos de escolha: cooperate (Guilda), resist (violência), neutral (humanitário)
+- Valores balanceados para reputação, infâmia e aliança baseados na escolha
+
+**Integração (Concluída):**
+- Frontend conectado ao backend via requisição POST
+- Tratamento de erros e atualização do estado do jogo
+- Mensagens contextuais baseadas na escolha do jogador
+- Transição suave para o gameplay principal
+
+**Refinamentos Finais (Concluído):**
+- Correção de legibilidade: fontes aumentadas (16px→20px texto, 18px→22px títulos)
+- Crítica social mais sutil: remoção de linguagem "mastigada", mantendo subentendidos
+- Correção narrativa: nome do navio "O Andarilho" consistente, tripulação inicial zerada
+- Correção técnica: double-fetch para garantir carregamento das ações do porto
+
+### Status
+✅ **Concluído** - A sequência introdutória está completamente funcional e narrativamente consistente.
+
+## v1.22 - A Primeira Jornada (Próxima Tarefa Sugerida)
+
+**Versão do Jogo:** 1.22
+**Foco:** Criar um tutorial interativo integrado que ensine as mecânicas básicas do jogo através de uma primeira jornada guiada.
+
+### Justificativa
+
+Com a introdução narrativa funcionando, o jogador agora entende *por que* está ali, mas ainda não sabe *como* jogar. A transição abrupta da escolha moral para a mesa do capitão deixa o jogador perdido em meio a várias opções sem contexto. Um tutorial integrado que simule uma primeira viagem curta ensinaria as mecânicas naturalmente.
+
+### Proposta de Implementação
+
+**Tutorial como Primeira Missão Obrigatória:**
+O jogo força uma primeira viagem tutorial de Porto Real → Ilha da Tartaruga (distância curta) que ensina:
+
+1. **Contratar Tripulação** - Obrigatório contratar 2-3 tripulantes na taverna
+2. **Preparar o Navio** - Reparar pelo menos 20 pontos de casco, comprar suprimentos básicos
+3. **Primeira Viagem** - Navegar com eventos scripted para ensinar mecânicas de mar
+4. **Chegada e Comércio** - Vender produtos, aceitar contrato de retorno
+
+**Mecânicas Tutorial:**
+- Sistema de dicas contextuais integradas à UI existente
+- Eventos de mar predeterminados (tempestade leve, encontro amigável)
+- Primeiro contrato simples e seguro garantido
+- Economia balanceada para garantir sucesso sem ser trivial
+
+**Implementação Técnica:**
+- Novo estado `TUTORIAL` no App.jsx entre INTRO e PLAYING
+- Componente `TutorialOverlay` com dicas contextuais
+- Flag `tutorialCompleted` no modelo Game para controlar o fluxo
+- Eventos especiais de tutorial no sistema de encontros marítimos
+
+### Status
+**Não Iniciado** - Aguardando aprovação para implementação.
+
 
 

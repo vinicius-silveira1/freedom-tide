@@ -1068,4 +1068,53 @@ public class GameService {
         }
         return possibilities.get(ThreadLocalRandom.current().nextInt(possibilities.size()));
     }
+
+    /**
+     * Processa a escolha inicial do jogador na sequência de introdução,
+     * definindo os valores iniciais da Bússola do Capitão.
+     */
+    @Transactional
+    public GameActionResponseDTO processIntroChoice(Long gameId, String choice) {
+        Game game = gameRepository.findById(gameId)
+                .orElseThrow(() -> new EntityNotFoundException("Jogo não encontrado com ID: " + gameId));
+        
+        List<String> eventMessages = new ArrayList<>();
+        
+        switch (choice.toLowerCase()) {
+            case "cooperate" -> {
+                // Contrato da Guilda: +Reputação, mas cumplicidade
+                game.setReputation(Math.min(1000, game.getReputation() + 50));
+                game.setInfamy(Math.max(0, game.getInfamy() - 10));
+                game.setAlliance(Math.max(0, game.getAlliance() - 20));
+                eventMessages.add("Você aceita o contrato da Guilda. Sua reputação cresce, mas o peso da cumplicidade pesa em sua consciência.");
+            }
+            case "resist" -> {
+                // Saque violento: +Infâmia, violência
+                game.setInfamy(Math.min(1000, game.getInfamy() + 60));
+                game.setReputation(Math.max(0, game.getReputation() - 40));
+                game.setAlliance(Math.max(0, game.getAlliance() - 30));
+                eventMessages.add("Você escolhe a força bruta. Sua infâmia cresce, mas inocentes pagam o preço de sua sobrevivência.");
+            }
+            case "neutral" -> {
+                // Contrabando humanitário: +Aliança, -Reputação, risco
+                game.setAlliance(Math.min(1000, game.getAlliance() + 80));
+                game.setReputation(Math.max(0, game.getReputation() - 30));
+                game.setInfamy(Math.min(1000, game.getInfamy() + 20));
+                eventMessages.add("Você arrisca tudo para ajudar os necessitados. Ganha aliados entre os oprimidos, mas se torna inimigo do sistema.");
+            }
+            default -> {
+                eventMessages.add("Escolha não reconhecida. Mantendo valores padrão.");
+            }
+        }
+        
+        gameRepository.save(game);
+        
+        // Buscar ações disponíveis no porto atual
+        List<PortActionDTO> portActions = getAvailablePortActions(gameId);
+        
+        return GameActionResponseDTO.builder()
+                .gameStatus(gameMapper.toGameStatusResponseDTO(game, portActions))
+                .eventLog(eventMessages)
+                .build();
+    }
 }

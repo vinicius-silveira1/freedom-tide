@@ -202,4 +202,17 @@ public class GameController {
         GameActionResponseDTO response = gameService.resolveContract(gameId);
         return ResponseEntity.ok(response);
     }
+
+    // --- Endpoint da Bússola do Capitão ---
+
+    /**
+     * Processa a escolha inicial do jogador na sequência de introdução.
+     */
+    @PostMapping("/{gameId}/compass")
+    public ResponseEntity<GameActionResponseDTO> processIntroChoice(
+            @PathVariable Long gameId,
+            @Valid @RequestBody IntroChoiceRequestDTO request) {
+        GameActionResponseDTO response = gameService.processIntroChoice(gameId, request.getChoice());
+        return ResponseEntity.ok(response);
+    }
 }
