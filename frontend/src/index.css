@@ -20,6 +20,20 @@
   --color-infamy: #c04040;           /* Vermelho Infâmia */
   --color-alliance: #4080c0;         /* Azul Aliança */
   --color-parchment-light: #fdf6e4;  /* Pergaminho claro para mostradores */
+
+  /* Cores dos Botões */
+  --color-button-primary: #27ae60;
+  --color-button-primary-hover: #2ecc71;
+  --color-button-danger: #c0392b;
+  --color-button-danger-hover: #e74c3c;
+  --color-button-disabled: #a0a0a0;
+
+  /* Cores de Texto Adicionais */
+  --color-text-lighter: #bdc3c7;
+  --color-text-muted: #606060;
+  
+  /* Cores de Interface */
+  --color-shadow: #444;
 }
 
 * {

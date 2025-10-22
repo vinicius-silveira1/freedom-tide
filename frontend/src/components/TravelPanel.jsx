@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import './TravelPanel.css';
 
 function TravelPanel({ gameId, onTravel, onCancel }) {
   const [destinations, setDestinations] = useState([]);

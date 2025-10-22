@@ -3,7 +3,9 @@ package com.tidebreakerstudios.freedom_tide.service;
 import com.tidebreakerstudios.freedom_tide.dto.*;
 import com.tidebreakerstudios.freedom_tide.mapper.GameMapper;
 import com.tidebreakerstudios.freedom_tide.model.*;
+import com.tidebreakerstudios.freedom_tide.model.enums.IntroChoice;
 import com.tidebreakerstudios.freedom_tide.repository.*;
+import com.tidebreakerstudios.freedom_tide.service.tutorial.TutorialMetricsService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -28,6 +30,7 @@ public class GameService {
     private final ShipUpgradeRepository shipUpgradeRepository;
     private final GameMapper gameMapper;
     private final ContractService contractService;
+    private final TutorialMetricsService tutorialMetricsService;
 
     // Constantes de Moral
     private static final int INSUBORDINATION_THRESHOLD = 30;
@@ -61,12 +64,14 @@ public class GameService {
                 .crew(new ArrayList<>())
                 .maxHullIntegrity(initialShipType.getMaxHull())
                 .hullIntegrity(initialShipType.getMaxHull() - 20) // Navio começa com 20 de dano
+                .foodRations(30) // Começa com poucos suprimentos para o tutorial
+                .rumRations(15)  // Começa com poucos suprimentos para o tutorial
                 .build();
 
         Game newGame = Game.builder()
                 .ship(newShip)
                 .currentPort(startingPort)
-                .gold(500) // Ouro inicial para testes
+                .gold(1000) // Ouro inicial suficiente para o tutorial
                 .build();
 
         newShip.setGame(newGame);
@@ -139,14 +144,15 @@ public class GameService {
         // O SeaEncounter é salvo em cascata a partir do Game
         Game savedGame = gameRepository.save(game);
 
-        String message = String.format("Você zarpa de %s em direção a %s.", currentPort.getName(), destinationPort.getName());
+        String departureMessage = String.format("Você zarpa de %s em direção a %s.", currentPort.getName(), destinationPort.getName());
+        String encounterMessage = String.format("Encontro no mar: %s", encounter.getDescription());
 
         List<PortActionDTO> portActions = getAvailablePortActions(savedGame.getId());
         List<EncounterActionDTO> encounterActions = getAvailableEncounterActions(savedGame.getId());
 
         return GameActionResponseDTO.builder()
                 .gameStatus(gameMapper.toGameStatusResponseDTO(savedGame, portActions, encounterActions))
-                .eventLog(List.of(message))
+                .eventLog(List.of(departureMessage, encounterMessage))
                 .build();
     }
 
@@ -1080,8 +1086,12 @@ public class GameService {
         
         List<String> eventMessages = new ArrayList<>();
         
+        // Definir a escolha inicial para personalizar o tutorial
+        IntroChoice introChoiceEnum;
+        
         switch (choice.toLowerCase()) {
             case "cooperate" -> {
+                introChoiceEnum = IntroChoice.COOPERATE;
                 // Contrato da Guilda: +Reputação, mas cumplicidade
                 game.setReputation(Math.min(1000, game.getReputation() + 50));
                 game.setInfamy(Math.max(0, game.getInfamy() - 10));
@@ -1089,6 +1099,7 @@ public class GameService {
                 eventMessages.add("Você aceita o contrato da Guilda. Sua reputação cresce, mas o peso da cumplicidade pesa em sua consciência.");
             }
             case "resist" -> {
+                introChoiceEnum = IntroChoice.RESIST;
                 // Saque violento: +Infâmia, violência
                 game.setInfamy(Math.min(1000, game.getInfamy() + 60));
                 game.setReputation(Math.max(0, game.getReputation() - 40));
@@ -1096,6 +1107,7 @@ public class GameService {
                 eventMessages.add("Você escolhe a força bruta. Sua infâmia cresce, mas inocentes pagam o preço de sua sobrevivência.");
             }
             case "neutral" -> {
+                introChoiceEnum = IntroChoice.NEUTRAL;
                 // Contrabando humanitário: +Aliança, -Reputação, risco
                 game.setAlliance(Math.min(1000, game.getAlliance() + 80));
                 game.setReputation(Math.max(0, game.getReputation() - 30));
@@ -1103,11 +1115,18 @@ public class GameService {
                 eventMessages.add("Você arrisca tudo para ajudar os necessitados. Ganha aliados entre os oprimidos, mas se torna inimigo do sistema.");
             }
             default -> {
+                introChoiceEnum = IntroChoice.COOPERATE; // Default fallback
                 eventMessages.add("Escolha não reconhecida. Mantendo valores padrão.");
             }
         }
         
+        // Definir a escolha inicial para personalizar o tutorial
+        game.setIntroChoice(introChoiceEnum);
+        
         gameRepository.save(game);
+        
+        // Iniciar rastreamento de métricas do tutorial
+        tutorialMetricsService.startTutorialSession(gameId, introChoiceEnum);
         
         // Buscar ações disponíveis no porto atual
         List<PortActionDTO> portActions = getAvailablePortActions(gameId);

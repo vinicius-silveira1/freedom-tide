@@ -1,6 +1,8 @@
 package com.tidebreakerstudios.freedom_tide.model;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.tidebreakerstudios.freedom_tide.model.enums.IntroChoice;
+import com.tidebreakerstudios.freedom_tide.model.enums.TutorialPhase;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -74,4 +76,18 @@ public class Game {
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "current_encounter_id")
     private SeaEncounter currentEncounter;
+
+    // Tutorial-related fields
+    @Enumerated(EnumType.STRING)
+    @Column(name = "intro_choice")
+    private IntroChoice introChoice;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "tutorial_phase")
+    @Builder.Default
+    private TutorialPhase tutorialPhase = TutorialPhase.PREPARATION_CREW;
+
+    @Column(name = "tutorial_completed")
+    @Builder.Default
+    private boolean tutorialCompleted = false;
 }

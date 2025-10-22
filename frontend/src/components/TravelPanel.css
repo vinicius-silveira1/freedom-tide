@@ -1,0 +1,77 @@
+/* TravelPanel.css - Estilo para painel de viagem */
+
+.travel-panel {
+    background-color: var(--color-panel-bg);
+    border: 4px solid var(--color-border);
+    box-shadow: inset 0 0 0 4px var(--color-accent);
+    padding: 20px;
+    color: var(--color-text-darker);
+    text-align: left;
+}
+
+.travel-panel h2 {
+    font-family: var(--font-pixel);
+    font-size: 2em;
+    color: var(--color-text-darker);
+    border-bottom: 4px solid var(--color-border);
+    padding-bottom: 10px;
+    margin-bottom: 20px;
+    text-transform: uppercase;
+}
+
+.destinations-list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.destination-button {
+    font-family: var(--font-pixel);
+    font-size: 1.2em;
+    padding: 15px 20px;
+    border: 2px solid var(--color-border);
+    background-color: var(--color-accent);
+    color: var(--color-text-darker);
+    cursor: pointer;
+    transition: all 0.1s ease-in-out;
+    text-align: center;
+    text-transform: uppercase;
+    box-shadow: 4px 4px 0px 0px var(--color-border);
+}
+
+.destination-button:hover {
+    background-color: var(--color-reputation);
+    transform: translate(2px, 2px);
+    box-shadow: 2px 2px 0px 0px var(--color-border);
+}
+
+.destination-button:active {
+    transform: translate(4px, 4px);
+    box-shadow: 0px 0px 0px 0px var(--color-border);
+}
+
+.cancel-button {
+    font-family: var(--font-pixel);
+    font-size: 1.2em;
+    padding: 15px 20px;
+    border: 2px solid var(--color-border);
+    background-color: var(--color-danger);
+    color: var(--color-panel-bg);
+    cursor: pointer;
+    transition: all 0.1s ease-in-out;
+    text-align: center;
+    text-transform: uppercase;
+    box-shadow: 4px 4px 0px 0px var(--color-border);
+}
+
+.cancel-button:hover {
+    background-color: var(--color-infamy);
+    transform: translate(2px, 2px);
+    box-shadow: 2px 2px 0px 0px var(--color-border);
+}
+
+.cancel-button:active {
+    transform: translate(4px, 4px);
+    box-shadow: 0px 0px 0px 0px var(--color-border);
+}

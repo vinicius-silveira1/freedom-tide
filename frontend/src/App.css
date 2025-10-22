@@ -49,47 +49,76 @@ body {
 
 /* Painel de Ações */
 .actions-panel {
-  margin-top: 2rem;
-  max-width: 1200px;
+  margin-top: 1rem;
+  max-width: 800px;
   margin-left: auto;
   margin-right: auto;
+  height: auto;
+  padding: 20px;
 }
 
 .actions-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 0.8rem;
+  max-width: 100%;
 }
 
 .action-button {
-  background-color: #4a505a;
-  border: 1px solid #6f737a;
-  border-radius: 6px;
-  padding: 1rem;
-  text-align: left;
-  color: white;
-  font-family: inherit;
+  font-family: var(--font-pixel);
+  font-size: 1.2em;
+  padding: 15px 20px;
+  border: 2px solid var(--color-border);
+  background-color: var(--color-accent);
+  color: var(--color-text-darker);
   cursor: pointer;
-  transition: background-color 0.2s, border-color 0.2s;
+  transition: all 0.1s ease-in-out;
+  text-align: center;
+  text-transform: uppercase;
+  box-shadow: 4px 4px 0px 0px var(--color-border);
   display: flex;
   flex-direction: column;
+  text-align: left;
 }
 
 .action-button:hover {
-  background-color: #5a606a;
-  border-color: #61dafb;
+  background-color: var(--color-reputation);
+  transform: translate(2px, 2px);
+  box-shadow: 2px 2px 0px 0px var(--color-border);
+}
+
+.action-button:active {
+  transform: translate(4px, 4px);
+  box-shadow: 0px 0px 0px 0px var(--color-border);
 }
 
 .action-button .action-name {
   font-size: 1.2rem;
   font-weight: bold;
-  color: #61dafb;
+  color: var(--color-text-darker);
   margin-bottom: 0.5rem;
+  text-transform: uppercase;
 }
 
 .action-button .action-desc {
   font-size: 0.9rem;
-  color: #cccccc;
+  color: var(--color-text-darker);
+  text-transform: none;
+}
+
+/* Estilo específico para botões de encontro baseado no tipo */
+.action-button.flee-action {
+  background-color: var(--color-button-danger);
+  color: var(--color-panel-bg);
+}
+
+.action-button.flee-action:hover {
+  background-color: var(--color-button-danger-hover);
+}
+
+.action-button.flee-action .action-name,
+.action-button.flee-action .action-desc {
+  color: var(--color-panel-bg);
 }
 
 /* Fundos Contextuais */
@@ -100,6 +129,44 @@ body {
   background-color: var(--color-background); /* Cor de fallback */
   transition: background-image 0.5s ease-in-out;
   min-height: 100vh;
+}
+
+/* Container para encontros no mar com background completo */
+.sea-encounter-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  padding: 20px;
+  overflow-y: auto;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.sea-encounter-container .status-dashboard {
+  flex-shrink: 0;
+}
+
+.sea-encounter-container .log-panel {
+  margin-top: 20px;
+  flex-shrink: 0;
+}
+
+.sea-encounter-container .actions-panel {
+  margin-top: 10px;
+  margin-bottom: auto;
+  flex-shrink: 0;
+  height: auto !important;
+  min-height: auto !important;
+  padding-bottom: 20px;
+  width: 100%;
+  max-width: 800px;
 }
 
 /* Tela de Carregamento */

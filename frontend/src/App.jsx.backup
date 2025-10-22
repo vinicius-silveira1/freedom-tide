@@ -28,8 +28,6 @@ function App() {
   const [eventLog, setEventLog] = useState([]);
   const [error, setError] = useState(null);
   const [currentView, setCurrentView] = useState('DASHBOARD');
-  const [tutorialRefresh, setTutorialRefresh] = useState(0); // Força refresh do tutorial
-  const [wasInEncounter, setWasInEncounter] = useState(false); // Rastrear se estava em encontro
 
   // Handler para completar a sequência introdutória
   const handleIntroComplete = async (selectedChoice) => {
@@ -60,7 +58,7 @@ function App() {
       if (gameResponse.ok) {
         const fullGameStatus = await gameResponse.json();
         setGame(fullGameStatus);
-      }
+        }
       
       setGameState('PLAYING');
     } catch (e) {
@@ -72,30 +70,8 @@ function App() {
   };
 
   // Handler para ações do tutorial
-  const handleTutorialAction = async (action, tutorialState, encounterAction = null) => {
+  const handleTutorialAction = async (action, tutorialState) => {
     try {
-      // Para ações de encontro marítimo, executar a ação real
-      if (['ATTACK', 'FLEE', 'BOARD'].includes(action) && encounterAction) {
-        await handleAction(encounterAction);
-        return;
-      }
-      
-      // Navegar para a view apropriada quando botão é clicado
-      switch (action) {
-        case 'TAVERN':
-          setCurrentView('TAVERN');
-          break;
-        case 'SHIPYARD':
-          setCurrentView('SHIPYARD');
-          break;
-        case 'MARKET':
-          setCurrentView('MARKET');
-          break;
-        case 'TRAVEL':
-          setCurrentView('TRAVEL');
-          break;
-      }
-      
       // Atualizar o estado do jogo após ação do tutorial
       const gameResponse = await fetch(`/api/games/${game.id}`);
       if (gameResponse.ok) {
@@ -107,32 +83,6 @@ function App() {
     }
   };
 
-  // Função para notificar progresso do tutorial
-  const notifyTutorialProgress = async (action) => {
-    try {
-      console.log(`Notificando progresso do tutorial: ${action}`);
-      const response = await fetch(`/api/games/${game.id}/tutorial/progress`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action })
-      });
-      
-      if (!response.ok) {
-        console.error(`Erro na resposta da API tutorial: ${response.status}`);
-        const errorData = await response.json().catch(() => null);
-        console.error('Dados do erro:', errorData);
-      } else {
-        console.log('Progresso do tutorial notificado com sucesso');
-      }
-      
-      // Forçar refresh do tutorial
-      setTutorialRefresh(prev => prev + 1);
-    } catch (e) {
-      console.error("Erro ao notificar progresso do tutorial:", e);
-    }
-  };
-
-  // Handler to start a new game
   const handleNewGame = async () => {
     setGameState('LOADING');
     try {
@@ -168,25 +118,6 @@ function App() {
     }
   }, [game?.currentPort, gameState]);
 
-  // EFFECT: Track encounter state and detect resolution
-  useEffect(() => {
-    if (gameState === 'PLAYING' && game) {
-      // Rastrear se o jogador está em um encontro
-      if (game.currentEncounter && !wasInEncounter) {
-        console.log('Jogador entrou em encontro marítimo');
-        setWasInEncounter(true);
-      }
-      
-      // Se estava em encontro e agora está em um porto (sem encontro), foi resolvido
-      if (wasInEncounter && !game.currentEncounter && game.currentPort) {
-        console.log('Detectado: Chegada ao porto após resolução de encontro - completando tutorial');
-        setWasInEncounter(false);
-        // Notificar que o encontro foi resolvido (completa o tutorial)
-        notifyTutorialProgress('ENCOUNTER_RESOLVED');
-      }
-    }
-  }, [game?.currentEncounter, game?.currentPort, wasInEncounter]);
-
   // Function to execute the actual travel POST request
   const executeTravel = async (destinationId) => {
     try {
@@ -209,9 +140,6 @@ function App() {
       setEventLog(updatedGameResponse.eventLog);
       setCurrentView('DASHBOARD');
       setError(null);
-      
-      // Notificar progresso do tutorial para viagem
-      await notifyTutorialProgress('START_JOURNEY');
     } catch (e) {
       setError(e.message);
       console.error("Erro ao viajar:", e);
@@ -238,33 +166,46 @@ function App() {
       setGame(updatedGameResponse);
       setEventLog(prevLog => [...prevLog, `Novo tripulante contratado: ${recruitRequest.name}!`]);
       setError(null);
-      
-      // Notificar progresso do tutorial
-      await notifyTutorialProgress('HIRE_CREW');
     } catch (e) {
       setError(e.message);
       console.error("Erro ao contratar:", e);
     }
   };
 
-  const handleRepair = async () => {
+  // Handler para ações do tutorial
+  const handleTutorialAction = async (action, tutorialState) => {
     try {
-      const response = await fetch(`/api/games/${game.id}/port/shipyard/repair`, { method: 'POST' });
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => null);
-        if (errorData && errorData.message) { throw new Error(errorData.message); }
-        throw new Error(`HTTP error! status: ${response.status}`);
+      // Atualizar o estado do jogo após ação do tutorial
+      const gameResponse = await fetch(`/api/games/${game.id}`);
+      if (gameResponse.ok) {
+        const updatedGame = await gameResponse.json();
+        setGame(updatedGame);
       }
-      const updatedGameResponse = await response.json();
-      setGame(updatedGameResponse.gameStatus);
-      setEventLog(updatedGameResponse.eventLog);
-      setError(null);
-      
-      // Notificar progresso do tutorial
-      await notifyTutorialProgress('REPAIR_SHIP');
+    } catch (e) {
+      console.error("Erro ao atualizar jogo após ação do tutorial:", e);
+    }
+  };
+
+  const handleNewGame = async () => {
+    setGameState('LOADING');
+    try {
+      const createResponse = await fetch('/api/games', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+      });
+
+      if (!createResponse.ok) {
+        throw new Error(`HTTP error! status: ${createResponse.status}`);
+      }
+
+      const newGame = await createResponse.json();
+      setGame(newGame);
+      setEventLog(["Bem-vindo a Freedom Tide!"]);
+      setGameState('INTRO'); // Move to intro sequence first
     } catch (e) {
       setError(e.message);
-      console.error("Erro ao reparar o navio:", e);
+      setGameState('ERROR'); // Move to error state
+      console.error("Erro ao criar o jogo:", e);
     }
   };
 
@@ -302,11 +243,6 @@ function App() {
       setGame(updatedGameResponse.gameStatus);
       setEventLog(prevLog => [...prevLog, `Comprou ${tradeRequest.quantity} de ${tradeRequest.item}.`]);
       setError(null);
-      
-      // Notificar progresso do tutorial para compras de suprimentos
-      if (tradeRequest.item === 'FOOD' || tradeRequest.item === 'RUM') {
-        await notifyTutorialProgress('BUY_SUPPLIES');
-      }
     } catch (e) {
       setError(e.message);
       console.error("Erro ao comprar item:", e);
@@ -354,40 +290,18 @@ function App() {
   };
 
   const handleAction = (action) => {
-    // Notificar progresso do tutorial para navegação
-    const notifyNavigation = async (actionType) => {
-      switch (actionType) {
-        case 'GO_TO_TAVERN':
-          await notifyTutorialProgress('TAVERN');
-          break;
-        case 'GO_TO_SHIPYARD':
-          await notifyTutorialProgress('SHIPYARD');
-          break;
-        case 'GO_TO_MARKET':
-          await notifyTutorialProgress('MARKET');
-          break;
-        case 'TRAVEL':
-          await notifyTutorialProgress('TRAVEL');
-          break;
-      }
-    };
-    
     switch (action.actionType) {
       case 'TRAVEL':
         setCurrentView('TRAVEL');
-        notifyNavigation('TRAVEL');
         break;
       case 'GO_TO_TAVERN':
         setCurrentView('TAVERN');
-        notifyNavigation('GO_TO_TAVERN');
         break;
       case 'GO_TO_SHIPYARD':
         setCurrentView('SHIPYARD');
-        notifyNavigation('GO_TO_SHIPYARD');
         break;
       case 'GO_TO_MARKET':
         setCurrentView('MARKET');
-        notifyNavigation('GO_TO_MARKET');
         break;
       case 'VIEW_CONTRACTS':
         setCurrentView('CONTRACTS');
@@ -407,16 +321,9 @@ function App() {
                     throw new Error(`HTTP error! status: ${response.status}`);
                 }
                 const updatedGameResponse = await response.json();
-                const newGameState = updatedGameResponse.gameStatus;
-                setGame(newGameState);
+                setGame(updatedGameResponse.gameStatus);
                 setEventLog(updatedGameResponse.eventLog);
                 setError(null);
-                
-                // Verificar se o encontro foi resolvido após a ação
-                if (!newGameState.currentEncounter && newGameState.currentPort) {
-                    console.log('Encontro resolvido após ação - completando tutorial');
-                    await notifyTutorialProgress('ENCOUNTER_RESOLVED');
-                }
             } catch (e) {
                 setError(e.message);
                 console.error("Erro ao executar a ação:", e);
@@ -492,12 +399,9 @@ function App() {
             </div>
           );
         } else {
-          // View when at sea with full background coverage
+          // Default view when at sea (no desk)
           return (
-            <div 
-              className="sea-encounter-container" 
-              style={{ backgroundImage: `url(${seaBackground})` }}
-            >
+            <>
               <div className="status-dashboard">
                 <LocationStatus encounter={game.currentEncounter} />
                 <ShipStatus ship={game.ship} />
@@ -510,7 +414,7 @@ function App() {
                   onActionClick={handleAction} 
                 />
               )}
-            </div>
+            </>
           );
         }
     }
@@ -557,12 +461,10 @@ function App() {
         <TutorialOverlay 
           gameId={game.id} 
           onTutorialAction={handleTutorialAction}
-          refreshTrigger={tutorialRefresh}
-          gameState={game}
         />
       )}
     </div>
   );
-}
+
 
 export default App;

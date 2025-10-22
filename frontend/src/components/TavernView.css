@@ -1,29 +1,29 @@
 .tavern-view {
     padding: 20px;
-    background-color: #1a252f;
+    background-color: var(--color-panel-bg);
+    border: 4px solid var(--color-border);
+    box-shadow: inset 0 0 0 4px var(--color-accent);
+    color: var(--color-text-darker);
 }
 
 .tavern-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    border-bottom: 1px solid #34495e;
+    border-bottom: 4px solid var(--color-border);
     padding-bottom: 15px;
     margin-bottom: 20px;
 }
 
 .tavern-header h2 {
     margin: 0;
-    color: #e0e0e0;
+    color: var(--color-text-darker);
+    font-family: var(--font-pixel);
+    font-size: 2em;
+    text-transform: uppercase;
 }
 
-.back-button {
-    background-color: #c0392b;
-}
-
-.back-button:hover {
-    background-color: #e74c3c;
-}
+/* Removido - definido nos estilos globais de botões abaixo */
 
 .recruits-list {
     display: grid;
@@ -32,15 +32,16 @@
 }
 
 .recruit-card {
-    background-color: #2c3e50;
-    border: 1px solid #34495e;
+    background-color: transparent;
+    border: 2px solid var(--color-border);
     border-radius: 5px;
     overflow: hidden;
+    margin-bottom: 15px;
 }
 
 .recruit-header {
     padding: 10px 15px;
-    background-color: #34495e;
+    background-color: var(--color-accent);
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -48,6 +49,8 @@
 
 .recruit-header h3 {
     margin: 0;
+    color: var(--color-text-darker);
+    font-family: var(--font-pixel);
     font-size: 1.1em;
 }
 
@@ -69,6 +72,7 @@
     padding: 15px;
     display: flex;
     justify-content: space-between;
+    color: var(--color-text-darker);
 }
 
 .recruit-stats ul {
@@ -90,10 +94,45 @@
     align-items: center;
 }
 
+/* Removido - definido nos estilos globais de botões abaixo */
+
+/* Estilos para botões seguindo padrão dos contratos */
+.tavern-view button {
+    font-family: var(--font-pixel);
+    font-size: 1.2em;
+    padding: 15px 20px;
+    border: 2px solid var(--color-border);
+    cursor: pointer;
+    transition: all 0.1s ease-in-out;
+    text-align: center;
+    text-transform: uppercase;
+    box-shadow: 4px 4px 0px 0px var(--color-border);
+}
+
+.tavern-view button:hover {
+    transform: translate(2px, 2px);
+    box-shadow: 2px 2px 0px 0px var(--color-border);
+}
+
+.tavern-view button:active {
+    transform: translate(4px, 4px);
+    box-shadow: 0px 0px 0px 0px var(--color-border);
+}
+
 .hire-button {
-    background-color: #27ae60;
+    background-color: var(--color-button-primary);
+    color: var(--color-text-darker);
 }
 
 .hire-button:hover {
-    background-color: #2ecc71;
+    background-color: var(--color-button-primary-hover);
+}
+
+.tavern-view .back-button {
+    background-color: var(--color-button-danger) !important;
+    color: var(--color-panel-bg) !important;
+}
+
+.tavern-view .back-button:hover {
+    background-color: var(--color-button-danger-hover) !important;
 }

@@ -2,11 +2,34 @@ import React, { useState, useEffect, useCallback } from 'react';
 import './MarketView.css';
 
 const ResourceRow = ({ resourceName, price, shipQuantity, onTrade }) => {
-  const [amount, setAmount] = useState(1);
+  const [amount, setAmount] = useState('');
 
   const handleAmountChange = (e) => {
-    const value = parseInt(e.target.value, 10);
-    setAmount(isNaN(value) || value < 1 ? 1 : value);
+    const value = e.target.value;
+    // Permitir campo vazio ou números válidos
+    if (value === '' || (parseInt(value, 10) > 0 && !isNaN(parseInt(value, 10)))) {
+      setAmount(value);
+    }
+  };
+
+  const handleFocus = (e) => {
+    // Limpar o campo quando focar se estiver vazio
+    if (amount === '') {
+      setAmount('');
+    }
+  };
+
+  const handleBlur = (e) => {
+    // Se o campo estiver vazio quando perder foco, definir como 1
+    if (amount === '' || parseInt(amount, 10) < 1) {
+      setAmount('1');
+    }
+  };
+
+  const getAmountValue = () => {
+    // Retorna o valor atual ou 1 se estiver vazio
+    const numValue = parseInt(amount, 10);
+    return isNaN(numValue) || numValue < 1 ? 1 : numValue;
   };
 
   return (
@@ -20,10 +43,13 @@ const ResourceRow = ({ resourceName, price, shipQuantity, onTrade }) => {
           min="1"
           value={amount}
           onChange={handleAmountChange}
+          onFocus={handleFocus}
+          onBlur={handleBlur}
+          placeholder="1"
           className="quantity-input"
         />
-        <button onClick={() => onTrade('buy', resourceName, amount)} className="action-button buy-button">Comprar</button>
-        <button onClick={() => onTrade('sell', resourceName, amount)} className="action-button sell-button">Vender</button>
+        <button onClick={() => onTrade('buy', resourceName, getAmountValue())} className="action-button buy-button">Comprar</button>
+        <button onClick={() => onTrade('sell', resourceName, getAmountValue())} className="action-button sell-button">Vender</button>
       </div>
     </div>
   );

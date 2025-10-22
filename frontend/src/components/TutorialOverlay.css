@@ -1,0 +1,363 @@
+/* Tutorial Overlay - Sistema de tutorial integrado */
+.tutorial-overlay {
+  position: fixed;
+  top: 5px;
+  right: 20px;
+  width: 350px;
+  background: var(--color-panel-bg);
+  border: 4px solid var(--color-border);
+  border-radius: 8px;
+  box-shadow: 6px 6px 0px 0px var(--color-border);
+  z-index: 1000;
+  transition: all 0.3s ease;
+  font-family: var(--font-pixel);
+}
+
+.tutorial-overlay.minimized {
+  width: 300px;
+}
+
+.tutorial-overlay.tutorial-error {
+  border-color: var(--color-danger);
+  background: var(--color-panel-bg);
+  box-shadow: 6px 6px 0px 0px var(--color-danger), 
+              inset 0 0 20px rgba(197, 48, 48, 0.2);
+}
+
+/* Header do tutorial */
+.tutorial-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 20px 10px;
+  border-bottom: 2px solid var(--color-border);
+  background: linear-gradient(90deg, var(--color-accent) 0%, transparent 100%);
+  background-size: 100% 50%;
+  background-repeat: no-repeat;
+  background-position: bottom;
+}
+
+.tutorial-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--color-text-darker);
+  font-weight: bold;
+  font-size: 18px;
+  text-shadow: 1px 1px 0px var(--color-accent);
+}
+
+.tutorial-icon {
+  font-size: 20px;
+}
+
+.tutorial-controls {
+  display: flex;
+  gap: 5px;
+}
+
+.tutorial-minimize {
+  background: var(--color-panel-bg);
+  border: 2px solid var(--color-border);
+  color: var(--color-text-darker);
+  width: 28px;
+  height: 28px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  box-shadow: 2px 2px 0px 0px var(--color-border);
+}
+
+.tutorial-minimize:hover {
+  background: var(--color-accent);
+  color: var(--color-text-darker);
+  transform: translate(1px, 1px);
+  box-shadow: 1px 1px 0px 0px var(--color-border);
+}
+
+/* Barra de progresso */
+.tutorial-progress {
+  height: 6px;
+  background: var(--color-border);
+  margin: 0 20px 15px;
+  border-radius: 3px;
+  overflow: hidden;
+  border: 1px solid var(--color-text-dark);
+}
+
+.tutorial-progress-bar {
+  height: 100%;
+  background: linear-gradient(90deg, var(--color-accent) 0%, var(--color-reputation) 100%);
+  transition: width 0.6s ease;
+  border-radius: 2px;
+}
+
+/* Conteúdo principal */
+.tutorial-content {
+  color: var(--color-text-darker);
+}
+
+.tutorial-message {
+  padding: 0 20px 15px;
+  line-height: 1.5;
+}
+
+.tutorial-message p {
+  margin: 0;
+  font-size: 20px;
+}
+
+/* Objetivos */
+.tutorial-objectives {
+  padding: 0 20px 15px;
+}
+
+.tutorial-objectives h4 {
+  color: #d4af37;
+  margin: 0 0 8px 0;
+  font-size: 20px;
+}
+
+.tutorial-objectives ul {
+  margin: 0;
+  padding-left: 18px;
+  font-size: 16px;
+  line-height: 1.4;
+}
+
+.tutorial-objectives li {
+  margin-bottom: 4px;
+}
+
+/* Checklist de progresso */
+.tutorial-checklist {
+  padding: 0 20px 15px;
+}
+
+.tutorial-checklist h4 {
+  color: #d4af37;
+  margin: 0 0 8px 0;
+  font-size: 20px;
+}
+
+.checklist-items {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.checklist-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 16px;
+  padding: 4px 0;
+  transition: all 0.2s ease;
+}
+
+.checklist-item.completed {
+  color: var(--color-success);
+}
+
+.checklist-icon {
+  font-size: 14px;
+  min-width: 16px;
+}
+
+/* Dicas contextuais */
+.tutorial-hints {
+  padding: 15px 20px;
+  background: transparent;
+  margin: 0 10px 10px;
+  border-radius: 6px;
+  border: 2px solid var(--color-border);
+  border-left: 4px solid var(--color-accent);
+  box-shadow: inset 0 0 10px rgba(58, 53, 47, 0.05);
+}
+
+.tutorial-hints h4 {
+  color: var(--color-accent);
+  margin: 0 0 8px 0;
+  font-size: 16px;
+  font-weight: bold;
+}
+
+.tutorial-hints ul {
+  margin: 0 0 12px 0;
+  padding-left: 18px;
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.tutorial-hints li {
+  margin-bottom: 6px;
+  font-style: italic;
+  color: var(--color-text-dark);
+}
+
+/* Ações sugeridas */
+.tutorial-actions {
+  padding: 15px 20px 20px;
+  border-top: 2px solid var(--color-border);
+  background: transparent;
+}
+
+.tutorial-actions h4 {
+  color: var(--color-accent);
+  margin: 0 0 10px 0;
+  font-size: 14px;
+  font-weight: bold;
+}
+
+.action-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.tutorial-action-button {
+  background: var(--color-button-primary);
+  border: 2px solid var(--color-border);
+  color: var(--color-text-darker);
+  padding: 12px 18px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 500;
+  font-family: var(--font-pixel);
+  transition: all 0.1s ease-in-out;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  box-shadow: 4px 4px 0px 0px var(--color-border);
+}
+
+.tutorial-action-button:hover {
+  background: var(--color-button-primary-hover);
+  transform: translate(2px, 2px);
+  box-shadow: 2px 2px 0px 0px var(--color-border);
+}
+
+.tutorial-action-button:active {
+  transform: translateY(0);
+}
+
+/* Botão de erro */
+.tutorial-button {
+  background: var(--color-button-danger);
+  border: 2px solid var(--color-border);
+  color: var(--color-text-darker);
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 13px;
+  margin-top: 10px;
+  font-family: var(--font-pixel);
+  box-shadow: 3px 3px 0px 0px var(--color-border);
+  transition: all 0.1s ease-in-out;
+}
+
+.tutorial-button:hover {
+  background: var(--color-button-danger-hover);
+  transform: translate(1px, 1px);
+  box-shadow: 2px 2px 0px 0px var(--color-border);
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+  .tutorial-overlay {
+    position: fixed;
+    top: auto;
+    bottom: 20px;
+    right: 20px;
+    left: 20px;
+    width: auto;
+  }
+  
+  .tutorial-overlay.minimized {
+    width: auto;
+  }
+}
+
+/* Animação de entrada */
+.tutorial-overlay {
+  animation: slideInFromRight 0.4s ease-out;
+}
+
+@keyframes slideInFromRight {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+/* Tutorial Completion Styles */
+.tutorial-overlay.tutorial-completion {
+  background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
+  border-color: #f39c12;
+  box-shadow: 0 8px 32px rgba(39, 174, 96, 0.4);
+  animation: celebrationGlow 2s infinite alternate;
+}
+
+.tutorial-completion .tutorial-message h3 {
+  color: #ffffff;
+  margin: 0 0 15px 0;
+  text-align: center;
+  font-size: 1.3em;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.tutorial-completion .tutorial-message ul {
+  list-style: none;
+  padding: 0;
+  margin: 15px 0 0 0;
+}
+
+.tutorial-completion .tutorial-message li {
+  padding: 5px 0;
+  color: #ffffff;
+  font-weight: 500;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+@keyframes celebrationGlow {
+  from {
+    box-shadow: 0 8px 32px rgba(39, 174, 96, 0.4);
+  }
+  to {
+    box-shadow: 0 8px 40px rgba(241, 196, 15, 0.6);
+  }
+}
+
+.tutorial-completion-actions {
+  margin-top: 20px;
+  text-align: center;
+}
+
+.tutorial-close-button {
+  background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
+  color: white;
+  border: 2px solid #ffffff;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-size: 1.1em;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.tutorial-close-button:hover {
+  background: linear-gradient(135deg, #e67e22 0%, #d35400 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+}

@@ -17,7 +17,7 @@ function EncounterActions({ actions, onActionClick }) {
         {actions.map(action => (
           <button
             key={action.actionType}
-            className="action-button"
+            className={`action-button ${action.actionType === 'FLEE' ? 'flee-action' : ''}`}
             onClick={() => onActionClick(action)} // Pass the whole action object
           >
             <span className="action-name">{action.name}</span>

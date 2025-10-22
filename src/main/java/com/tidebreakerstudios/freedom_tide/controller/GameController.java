@@ -1,12 +1,15 @@
 package com.tidebreakerstudios.freedom_tide.controller;
 
 import com.tidebreakerstudios.freedom_tide.dto.*;
+import com.tidebreakerstudios.freedom_tide.dto.tutorial.TutorialProgressRequestDTO;
+import com.tidebreakerstudios.freedom_tide.dto.tutorial.TutorialStateDTO;
 import com.tidebreakerstudios.freedom_tide.mapper.GameMapper;
 import com.tidebreakerstudios.freedom_tide.model.Contract;
 import com.tidebreakerstudios.freedom_tide.model.CrewMember;
 import com.tidebreakerstudios.freedom_tide.model.Game;
 import com.tidebreakerstudios.freedom_tide.service.ContractService;
 import com.tidebreakerstudios.freedom_tide.service.GameService;
+import com.tidebreakerstudios.freedom_tide.service.TutorialService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -26,6 +29,7 @@ public class GameController {
 
     private final GameService gameService;
     private final ContractService contractService; // Dependência adicionada
+    private final TutorialService tutorialService; // Dependência adicionada
     private final GameMapper gameMapper;
 
     @PostMapping
@@ -214,5 +218,21 @@ public class GameController {
             @Valid @RequestBody IntroChoiceRequestDTO request) {
         GameActionResponseDTO response = gameService.processIntroChoice(gameId, request.getChoice());
         return ResponseEntity.ok(response);
+    }
+
+    // --- Endpoint do Tutorial ---
+
+    @GetMapping("/{gameId}/tutorial")
+    public ResponseEntity<TutorialStateDTO> getTutorialState(@PathVariable Long gameId) {
+        TutorialStateDTO tutorialState = tutorialService.getTutorialState(gameId);
+        return ResponseEntity.ok(tutorialState);
+    }
+
+    @PostMapping("/{gameId}/tutorial/progress")
+    public ResponseEntity<TutorialStateDTO> progressTutorial(
+            @PathVariable Long gameId,
+            @Valid @RequestBody TutorialProgressRequestDTO request) {
+        TutorialStateDTO tutorialState = tutorialService.progressTutorial(gameId, request);
+        return ResponseEntity.ok(tutorialState);
     }
 }
