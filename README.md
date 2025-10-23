@@ -75,14 +75,65 @@ Execute estes passos em um **novo terminal**, a partir do diretório raiz do pro
     ```
     A interface do jogo estará acessível em `http://localhost:5173` (ou outra porta indicada no terminal). O Vite já está configurado com um proxy para se comunicar com o backend.
 
+## 🎨 Assets e Recursos Visuais
+
+O jogo utiliza um sistema de ícones pixel art para manter a identidade visual náutica/pirata. Os assets estão organizados em:
+
+*   `/frontend/public/assets/icons/professions/` - Ícones das 10 profissões da tripulação
+*   `/frontend/public/assets/icons/game-over/` - Ícones da tela de game over (caveira, bandeira pirata, vela, gancho)
+*   `/frontend/public/assets/icons/stats/` - Ícones para estatísticas (ouro, reputação, infâmia, etc.)
+
+### Especificações dos Ícones
+*   **Formato:** PNG com transparência
+*   **Tamanho:** 20x20px (interface), 32x32px (títulos), 80x80px (ícones principais)
+*   **Estilo:** Pixel art náutico/pirata
+*   **Renderização:** Pixel-perfect (crisp-edges)
+
 ## ✨ Funcionalidades Implementadas
 
-*   **Criação e Gerenciamento de Jogo:** API para iniciar e consultar o estado do jogo.
-*   **Mundo Interativo:** Sistema de viagem entre portos com possibilidade de encontros aleatórios no mar.
-*   **Ações no Porto:**
-    *   **Estaleiro:** Reparo de navio e compra de melhorias de status. O inventário de melhorias varia com a facção do porto.
-    *   **Mercado:** Compra e venda de recursos (comida, rum, etc.) com preços que variam conforme a facção.
-    *   **Taverna:** Geração procedural de tripulantes para recrutamento, com atributos e personalidades influenciados pela facção do porto.
-*   **Combate Naval:** Lógica para encontros com outros navios, permitindo ações como atacar, abordar ou fugir.
-*   **Sistema de Moral:** Consumo de recursos (comida, rum) e pagamento de salários que afetam a moral da tripulação.
-*   **Frontend Básico:** Interface inicial em React que se conecta ao backend, cria um jogo e exibe o estado atual.
+### 🎮 **Sistema de Jogo Principal**
+*   **Criação e Gerenciamento de Jogo:** API completa para iniciar, salvar e consultar o estado do jogo
+*   **Mundo Interativo:** Sistema de viagem entre portos com encontros aleatórios no mar
+*   **Combate Naval:** Batalhas táticas com outros navios (atacar, abordar, fugir)
+*   **Sistema de Moral:** Consumo de recursos e pagamento de salários afetando a tripulação
+
+### ⚓ **Ações nos Portos**
+*   **Estaleiro:** Reparo de navio e compra de melhorias com inventário baseado na facção
+*   **Mercado:** Compra e venda de recursos com preços dinâmicos por facção
+*   **Taverna:** Recrutamento de tripulação com personagens únicos e temáticos
+*   **Contratos:** Sistema de missões com recompensas e consequências
+
+### 👥 **Sistema de Progressão da Tripulação (v1.28)**
+*   **9 Profissões Especializadas:** Navegador, Artilheiro, Combatente, Médico, Carpinteiro, Estrategista + 3 híbridas
+*   **Sistema de Ranks:** 5 níveis de progressão por profissão com habilidades únicas
+*   **XP Automático:** Ganho de experiência em todas as ações (combate +20, navegação +15, reparos +15, contratos +25)
+*   **28 Personagens Únicos:** Caracteres temáticos organizados por tipo de porto com backgrounds completos
+
+### 🖥️ **Interface do Usuário**
+*   **Painel de Gerenciamento da Tripulação:** Interface completa com barras de XP, estatísticas e progressão
+*   **Ícones Pixel Art:** Sistema visual coeso com ícones temáticos para profissões e interface
+*   **Tela de Game Over:** Interface dramática com elementos visuais pixel art
+*   **Interface Responsiva:** Design adaptável para diferentes tamanhos de tela
+
+### 🎨 **Sistema Visual**
+*   **Ícones das Profissões:** 10 ícones pixel art únicos para cada especialização
+*   **Fallback Inteligente:** Sistema que reverte para emojis se ícones não carregarem
+*   **Tema Náutico/Pirata:** Visual coerente em toda a aplicação
+
+## 📋 Versão Atual: v1.28 - "Gamificação da Tripulação"
+
+### Principais Atualizações:
+*   ✅ Sistema completo de progressão da tripulação
+*   ✅ 9 profissões especializadas com ranks e habilidades
+*   ✅ 28 personagens únicos organizados por porto
+*   ✅ Interface de gerenciamento de tripulação com barras de XP
+*   ✅ Sistema visual com ícones pixel art
+*   ✅ XP automático integrado em todas as ações do jogo
+
+## 🔜 Próximos Passos
+
+*   **Habilidades Ativas:** Implementar habilidades especiais por rank
+*   **Tutorial Interativo:** Guia para novos jogadores
+*   **Sistema de Conquistas:** Marcos e recompensas por progresso
+*   **Eventos Dinâmicos:** Eventos aleatórios baseados na composição da tripulação
+*   **Personalização Visual:** Temas e skins para interface

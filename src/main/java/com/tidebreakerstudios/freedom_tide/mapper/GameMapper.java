@@ -98,14 +98,35 @@ public class GameMapper {
                 .intelligence(crewMember.getIntelligence())
                 .build();
 
+        // Calcular XP para próximo rank
+        int experienceToNext = 0;
+        if (crewMember.getRank() != null && crewMember.getProfession() != null) {
+            var nextRank = crewMember.getRank().getNextRank(crewMember.getProfession());
+            if (nextRank != crewMember.getRank()) {
+                experienceToNext = nextRank.getRequiredXP() - crewMember.getExperiencePoints();
+            }
+        }
+
         return CrewMemberResponseDTO.builder()
                 .id(crewMember.getId())
                 .name(crewMember.getName())
+                .background(crewMember.getBackground())
+                .catchphrase(crewMember.getCatchphrase())
                 .personality(crewMember.getPersonality().name())
                 .moral(crewMember.getMoral())
                 .loyalty(crewMember.getLoyalty())
                 .salary(crewMember.getSalary())
                 .attributes(attributesDTO)
+                .profession(crewMember.getProfession() != null ? crewMember.getProfession().getDisplayName() : "Marinheiro")
+                .rank(crewMember.getRank() != null ? crewMember.getRank().getDisplayName() : "Recruta")
+                .experiencePoints(crewMember.getExperiencePoints())
+                .experienceToNextRank(experienceToNext)
+                .progressSummary(crewMember.getProgressSummary())
+                .combatsParticipated(crewMember.getCombatsParticipated())
+                .journeysCompleted(crewMember.getJourneysCompleted())
+                .repairsPerformed(crewMember.getRepairsPerformed())
+                .healingsPerformed(crewMember.getHealingsPerformed())
+                .unlockedAbilities(crewMember.getUnlockedAbilities())
                 .build();
     }
 

@@ -50,9 +50,31 @@ function TavernView({ gameId, onHire, onBack }) {
             <div key={index} className="recruit-card">
               <div className="recruit-header">
                 <h3>{recruit.name}</h3>
+                <div className="recruit-profession" style={{ color: recruit.professionColor }}>
+                  <img 
+                    src={`/assets/icons/professions/${recruit.professionIcon}`} 
+                    alt={recruit.profession}
+                    className="profession-icon"
+                    onError={(e) => {
+                      // Fallback para texto se a imagem não carregar
+                      e.target.style.display = 'none';
+                      e.target.nextSibling.textContent = `[${recruit.profession}] ${recruit.profession}`;
+                    }}
+                  />
+                  <span className="profession-name">{recruit.profession}</span>
+                </div>
                 <p className={`personality ${recruit.personality.toLowerCase()}`}>{recruit.personality}</p>
               </div>
               <div className="recruit-body">
+                <div className="recruit-background">
+                  <p className="background-text">"{recruit.background}"</p>
+                  <p className="catchphrase" style={{ fontStyle: 'italic', color: recruit.professionColor }}>
+                    {recruit.catchphrase}
+                  </p>
+                  <p className="specialization">
+                    <strong>{recruit.specialization}</strong> - {recruit.professionDescription}
+                  </p>
+                </div>
                 <div className="recruit-stats">
                   <p><strong>Custo de Contratação: {recruit.hiringCost} Ouro</strong></p>
                   <p>Salário Mensal: {recruit.salary} Ouro</p>
@@ -67,11 +89,12 @@ function TavernView({ gameId, onHire, onBack }) {
                     <li>INT: {recruit.intelligence}</li>
                   </ul>
                 </div>
-                <div className="recruit-actions">
-                    <button onClick={() => handleHire(recruit)} className="action-button hire-button">
-                        Contratar
-                    </button>
-                </div>
+              </div>
+              
+              <div className="recruit-actions">
+                <button onClick={() => handleHire(recruit)} className="action-button hire-button">
+                    Contratar
+                </button>
               </div>
             </div>
           ))}

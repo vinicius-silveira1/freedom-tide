@@ -235,4 +235,15 @@ public class GameController {
         TutorialStateDTO tutorialState = tutorialService.progressTutorial(gameId, request);
         return ResponseEntity.ok(tutorialState);
     }
+
+    // --- Endpoint de Gerenciamento da Tripulação ---
+
+    /**
+     * Retorna informações detalhadas de toda a tripulação incluindo XP, progressão e habilidades.
+     */
+    @GetMapping("/{gameId}/crew")
+    public ResponseEntity<CrewManagementDTO> getCrewManagement(@PathVariable Long gameId) {
+        CrewManagementDTO crewManagement = gameService.getCrewManagement(gameId);
+        return ResponseEntity.ok(crewManagement);
+    }
 }

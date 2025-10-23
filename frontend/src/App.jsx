@@ -15,6 +15,7 @@ import TavernView from './components/TavernView';
 import ShipyardView from './components/ShipyardView';
 import MarketView from './components/MarketView';
 import ContractsView from './components/ContractsView';
+import CrewManagementView from './components/CrewManagementView';
 import TutorialOverlay from './components/TutorialOverlay';
 import audioService from './utils/AudioService';
 import './App.css';
@@ -632,6 +633,8 @@ function App() {
         return <MarketView gameId={game.id} onBuy={handleBuy} onSell={handleSell} onBack={() => setCurrentView('DASHBOARD')} />;
       case 'CONTRACTS':
         return <ContractsView game={game} onAccept={handleAcceptContract} onBack={() => setCurrentView('DASHBOARD')} />;
+      case 'CREW_MANAGEMENT':
+        return <CrewManagementView gameId={game.id} onBack={() => setCurrentView('DASHBOARD')} />;
       case 'DASHBOARD':
       default:
         // The Captain's Desk metaphor is only for when in a port.
@@ -647,7 +650,7 @@ function App() {
                 <ShipStatus ship={game.ship} />
               </div>
               <div className="desk-item crew-status-on-desk">
-                <CrewStatus crew={game.crew} />
+                <CrewStatus crew={game.crew} onViewDetails={() => setCurrentView('CREW_MANAGEMENT')} />
               </div>
               <div className="desk-item location-status-on-desk">
                 <LocationStatus port={game.currentPort} />
@@ -690,7 +693,7 @@ function App() {
                   <div className="status-dashboard">
                     <LocationStatus encounter={game.currentEncounter} />
                     <ShipStatus ship={game.ship} />
-                    <CrewStatus crew={game.crew} />
+                    <CrewStatus crew={game.crew} onViewDetails={() => setCurrentView('CREW_MANAGEMENT')} />
                   </div>
                   <EventLog logs={eventLog} />
                   {game.currentEncounter && (

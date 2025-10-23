@@ -1,0 +1,351 @@
+.crew-management {
+    padding: 20px;
+    background-color: var(--color-panel-bg);
+    border: 4px solid var(--color-border);
+    box-shadow: inset 0 0 0 4px var(--color-accent);
+    color: var(--color-text-darker);
+    max-height: 80vh;
+    overflow-y: auto;
+}
+
+.crew-management-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 4px solid var(--color-border);
+    padding-bottom: 15px;
+    margin-bottom: 20px;
+}
+
+.crew-management-header h2 {
+    margin: 0;
+    color: var(--color-text-darker);
+    font-family: var(--font-pixel);
+    font-size: 2em;
+    text-transform: uppercase;
+}
+
+/* Estatísticas Gerais */
+.crew-statistics {
+    margin-bottom: 25px;
+    background-color: rgba(255, 255, 255, 0.05);
+    padding: 15px;
+    border-radius: 5px;
+    border-left: 4px solid var(--color-accent);
+}
+
+.crew-statistics h3 {
+    margin: 0 0 15px 0;
+    color: var(--color-accent);
+    font-family: var(--font-pixel);
+    text-transform: uppercase;
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+}
+
+.stat-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 12px;
+    background-color: rgba(255, 255, 255, 0.08);
+    border-radius: 3px;
+}
+
+.stat-label {
+    font-weight: normal;
+    color: var(--color-text-darker);
+}
+
+.stat-value {
+    font-weight: bold;
+    color: var(--color-accent);
+    font-family: var(--font-pixel);
+}
+
+/* Resumo por Profissão */
+.profession-summaries {
+    margin-bottom: 25px;
+}
+
+.profession-summaries h3 {
+    margin: 0 0 15px 0;
+    color: var(--color-accent);
+    font-family: var(--font-pixel);
+    text-transform: uppercase;
+}
+
+.profession-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 15px;
+}
+
+.profession-summary {
+    background-color: rgba(255, 255, 255, 0.05);
+    padding: 12px;
+    border-radius: 5px;
+    border-left: 4px solid;
+}
+
+.profession-summary-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+}
+
+.profession-summary-icon {
+    width: 20px;
+    height: 20px;
+    image-rendering: pixelated;
+}
+
+.profession-summary-name {
+    font-weight: bold;
+    font-family: var(--font-pixel);
+    text-transform: uppercase;
+}
+
+.profession-summary-stats {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    font-size: 0.9em;
+}
+
+/* Lista da Tripulação */
+.crew-members-list h3 {
+    margin: 0 0 20px 0;
+    color: var(--color-accent);
+    font-family: var(--font-pixel);
+    text-transform: uppercase;
+}
+
+.crew-member-detail {
+    background-color: rgba(255, 255, 255, 0.03);
+    border: 2px solid var(--color-border);
+    border-radius: 8px;
+    margin-bottom: 20px;
+    overflow: hidden;
+}
+
+.crew-member-header {
+    background-color: var(--color-accent);
+    padding: 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.crew-member-name-profession h4 {
+    margin: 0 0 8px 0;
+    color: var(--color-text-darker);
+    font-family: var(--font-pixel);
+    font-size: 1.2em;
+}
+
+.crew-member-profession {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: bold;
+}
+
+.crew-member-profession-icon {
+    width: 20px;
+    height: 20px;
+    image-rendering: pixelated;
+}
+
+.morale-salary {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    font-size: 0.9em;
+    color: var(--color-text-darker);
+}
+
+.crew-member-body {
+    padding: 15px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+.crew-member-body > div {
+    background-color: rgba(255, 255, 255, 0.05);
+    padding: 12px;
+    border-radius: 5px;
+}
+
+.crew-member-body h5 {
+    margin: 0 0 10px 0;
+    color: var(--color-accent);
+    font-family: var(--font-pixel);
+    font-size: 0.9em;
+    text-transform: uppercase;
+}
+
+/* Barra de XP */
+.xp-section {
+    grid-column: 1 / -1;
+}
+
+.xp-bar-container {
+    margin: 10px 0;
+}
+
+.xp-bar {
+    width: 100%;
+    height: 20px;
+    background-color: rgba(0, 0, 0, 0.3);
+    border: 2px solid var(--color-border);
+    border-radius: 3px;
+    overflow: hidden;
+    position: relative;
+}
+
+.xp-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #4CAF50, #8BC34A);
+    transition: width 0.3s ease;
+    position: relative;
+}
+
+.xp-bar-fill::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: repeating-linear-gradient(
+        45deg,
+        transparent,
+        transparent 2px,
+        rgba(255, 255, 255, 0.1) 2px,
+        rgba(255, 255, 255, 0.1) 4px
+    );
+}
+
+.xp-text {
+    text-align: center;
+    margin-top: 5px;
+    font-family: var(--font-pixel);
+    font-size: 0.8em;
+    color: var(--color-accent);
+}
+
+.rank-info {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 8px;
+    font-size: 0.9em;
+}
+
+/* Atributos */
+.attributes-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+}
+
+.attribute {
+    padding: 6px 10px;
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 3px;
+    text-align: center;
+    font-family: var(--font-pixel);
+    font-size: 0.9em;
+}
+
+/* Experiência de Campo */
+.experience-stats {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+    font-size: 0.9em;
+}
+
+.experience-stats > div {
+    padding: 6px 10px;
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 3px;
+    text-align: center;
+}
+
+/* Background */
+.background-section {
+    grid-column: 1 / -1;
+}
+
+.member-background {
+    margin: 8px 0;
+    font-style: italic;
+    line-height: 1.4;
+    font-size: 0.9em;
+}
+
+.member-catchphrase {
+    margin: 8px 0 0 0;
+    font-weight: bold;
+    font-style: italic;
+    font-size: 0.85em;
+}
+
+/* Botões */
+.crew-management button {
+    font-family: var(--font-pixel);
+    font-size: 1.2em;
+    padding: 15px 20px;
+    border: 2px solid var(--color-border);
+    cursor: pointer;
+    transition: all 0.1s ease-in-out;
+    text-align: center;
+    text-transform: uppercase;
+    box-shadow: 4px 4px 0px 0px var(--color-border);
+}
+
+.crew-management button:hover {
+    transform: translate(2px, 2px);
+    box-shadow: 2px 2px 0px 0px var(--color-border);
+}
+
+.crew-management button:active {
+    transform: translate(4px, 4px);
+    box-shadow: 0px 0px 0px 0px var(--color-border);
+}
+
+.crew-management .back-button {
+    background-color: var(--color-button-danger) !important;
+    color: var(--color-panel-bg) !important;
+}
+
+.crew-management .back-button:hover {
+    background-color: var(--color-button-danger-hover) !important;
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+    .crew-member-body {
+        grid-template-columns: 1fr;
+    }
+    
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .profession-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .crew-member-header {
+        flex-direction: column;
+        gap: 10px;
+        align-items: flex-start;
+    }
+}

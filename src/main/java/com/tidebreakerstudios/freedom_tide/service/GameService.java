@@ -4,6 +4,8 @@ import com.tidebreakerstudios.freedom_tide.dto.*;
 import com.tidebreakerstudios.freedom_tide.mapper.GameMapper;
 import com.tidebreakerstudios.freedom_tide.model.*;
 import com.tidebreakerstudios.freedom_tide.model.enums.IntroChoice;
+import com.tidebreakerstudios.freedom_tide.model.enums.CrewProfession;
+import com.tidebreakerstudios.freedom_tide.model.enums.CrewRank;
 import com.tidebreakerstudios.freedom_tide.repository.*;
 import com.tidebreakerstudios.freedom_tide.service.tutorial.TutorialMetricsService;
 import jakarta.persistence.EntityNotFoundException;
@@ -28,6 +30,8 @@ public class GameService {
     private final SeaEncounterRepository seaEncounterRepository;
     private final ShipRepository shipRepository;
     private final ShipUpgradeRepository shipUpgradeRepository;
+    private final CrewProgressionService crewProgressionService;
+    private final UniqueCharacterService uniqueCharacterService;
     private final GameMapper gameMapper;
     private final ContractService contractService;
     private final TutorialMetricsService tutorialMetricsService;
@@ -144,15 +148,23 @@ public class GameService {
         // O SeaEncounter é salvo em cascata a partir do Game
         Game savedGame = gameRepository.save(game);
 
+        // Conceder XP de navegação para navegadores
+        List<String> progressMessages = crewProgressionService.awardNavigationXP(savedGame);
+
         String departureMessage = String.format("Você zarpa de %s em direção a %s.", currentPort.getName(), destinationPort.getName());
         String encounterMessage = String.format("Encontro no mar: %s", encounter.getDescription());
+        
+        List<String> eventLog = new ArrayList<>();
+        eventLog.add(departureMessage);
+        eventLog.add(encounterMessage);
+        eventLog.addAll(progressMessages);
 
         List<PortActionDTO> portActions = getAvailablePortActions(savedGame.getId());
         List<EncounterActionDTO> encounterActions = getAvailableEncounterActions(savedGame.getId());
 
         return GameActionResponseDTO.builder()
                 .gameStatus(gameMapper.toGameStatusResponseDTO(savedGame, portActions, encounterActions))
-                .eventLog(List.of(departureMessage, encounterMessage))
+                .eventLog(eventLog)
                 .build();
     }
 
@@ -295,7 +307,8 @@ public class GameService {
         }
 
         CrewMember newCrewMember = CrewMember.builder()
-                .name(request.getName()).personality(request.getPersonality()).despairLevel(request.getDespairLevel())
+                .name(request.getName()).background(request.getBackground()).catchphrase(request.getCatchphrase())
+                .personality(request.getPersonality()).despairLevel(request.getDespairLevel())
                 .navigation(request.getNavigation()).artillery(request.getArtillery()).combat(request.getCombat())
                 .medicine(request.getMedicine()).carpentry(request.getCarpentry()).intelligence(request.getIntelligence())
                 .ship(ship).build();
@@ -306,6 +319,9 @@ public class GameService {
         int initialMoral = baseMoral + personalityModifier - despairPenalty;
         newCrewMember.setMoral(Math.max(0, Math.min(100, initialMoral)));
         newCrewMember.setSalary(salary);
+
+        // Determinar profissão inicial baseada nos atributos
+        newCrewMember.updateProfession();
 
         // Cobrar o custo de contratação
         game.setGold(game.getGold() - hiringCost);
@@ -689,6 +705,10 @@ public class GameService {
             }
             game.setGold(game.getGold() + goldReward);
 
+            // Conceder XP de combate para a tripulação (vitória)
+            List<String> progressMessages = crewProgressionService.awardCombatXP(game, true, false);
+            eventLog.addAll(progressMessages);
+
             Port destination = game.getDestinationPort();
             game.setCurrentPort(destination);
             game.setCurrentEncounter(null);
@@ -697,6 +717,10 @@ public class GameService {
             endTurnCycle(game, eventLog);
 
         } else {
+            // Conceder XP de combate para a tripulação (participação, sem vitória)
+            List<String> progressMessages = crewProgressionService.awardCombatXP(game, false, false);
+            eventLog.addAll(progressMessages);
+            
             int enemyDamage = encounter.getCannons() + ThreadLocalRandom.current().nextInt(1, 7);
             ship.setHullIntegrity(ship.getHullIntegrity() - enemyDamage);
             eventLog.add(String.format("O inimigo revida! Os canhões deles causam %d de dano ao seu casco.", enemyDamage));
@@ -890,6 +914,11 @@ public class GameService {
         ship.setHullIntegrity(ship.getMaxHullIntegrity());
 
         eventLog.add(String.format("Você pagou %d de ouro ao estaleiro. O casco do seu navio foi totalmente reparado!", repairCost));
+        
+        // Conceder XP de carpintaria para carpinteiros
+        boolean emergencyRepair = damage >= (ship.getMaxHullIntegrity() * 0.5); // 50% ou mais de dano
+        List<String> progressMessages = crewProgressionService.awardRepairXP(game, emergencyRepair);
+        eventLog.addAll(progressMessages);
 
         Game savedGame = gameRepository.save(game);
         List<PortActionDTO> portActions = getAvailablePortActions(savedGame.getId());
@@ -1095,51 +1124,65 @@ public class GameService {
         List<TavernRecruitDTO> recruits = new ArrayList<>();
         int numberOfRecruits = ThreadLocalRandom.current().nextInt(2, 4); // Gera de 2 a 3 recrutas
 
-        for (int i = 0; i < numberOfRecruits; i++) {
-            String name = generateRandomName();
-            CrewPersonality personality = generateRandomPersonality(currentPort.getType());
-            int despair = ThreadLocalRandom.current().nextInt(1, 11);
+        // Gerar personagens únicos específicos para este tipo de porto
+        List<RecruitCrewMemberRequest> uniqueCharacters = 
+            uniqueCharacterService.generateTavernCharacters(currentPort.getType(), numberOfRecruits);
 
-            int nav = ThreadLocalRandom.current().nextInt(1, 6);
-            int art = ThreadLocalRandom.current().nextInt(1, 6);
-            int com = ThreadLocalRandom.current().nextInt(1, 6);
-            int med = ThreadLocalRandom.current().nextInt(1, 6);
-            int car = ThreadLocalRandom.current().nextInt(1, 6);
-            int intel = ThreadLocalRandom.current().nextInt(1, 6);
-
-            int attributeSum = nav + art + com + med + car + intel;
-            int salary = Math.max(5, 20 + (attributeSum / 8) - despair); // Atualizado para consistência com recrutamento
+        for (RecruitCrewMemberRequest character : uniqueCharacters) {
+            int attributeSum = character.getNavigation() + character.getArtillery() + character.getCombat() +
+                             character.getMedicine() + character.getCarpentry() + character.getIntelligence();
             
-            // Calcular custo de contratação usando a mesma lógica do método recruitCrewMember
+            int salary = Math.max(5, 20 + (attributeSum / 8) - character.getDespairLevel());
             int hiringCost = (salary * 3) + (attributeSum > 45 ? (attributeSum - 45) * 10 : 0);
-            
-            int initialMoral = Math.max(0, Math.min(100, 50 + (personality.getMoralModifier() * 5) - (despair * 2)));
+            int initialMoral = Math.max(0, Math.min(100, 50 + (character.getPersonality().getMoralModifier() * 5) - (character.getDespairLevel() * 2)));
 
-            RecruitCrewMemberRequest request = new RecruitCrewMemberRequest();
-            request.setName(name);
-            request.setPersonality(personality);
-            request.setDespairLevel(despair);
-            request.setNavigation(nav);
-            request.setArtillery(art);
-            request.setCombat(com);
-            request.setMedicine(med);
-            request.setCarpentry(car);
-            request.setIntelligence(intel);
+            // Determinar profissão baseada nos atributos
+            CrewProfession profession = CrewProfession.determineProfession(
+                character.getNavigation(), character.getArtillery(), character.getCombat(),
+                character.getMedicine(), character.getCarpentry(), character.getIntelligence()
+            );
+
+            // Encontrar atributo principal
+            int primaryAttribute = switch (profession) {
+                case NAVIGATOR -> character.getNavigation();
+                case GUNNER -> character.getArtillery();
+                case FIGHTER -> character.getCombat();
+                case MEDIC -> character.getMedicine();
+                case CARPENTER -> character.getCarpentry();
+                case STRATEGIST -> character.getIntelligence();
+                case CORSAIR -> Math.max(character.getCombat(), character.getArtillery());
+                case EXPLORER -> Math.max(character.getNavigation(), character.getIntelligence());
+                case BATTLE_MEDIC -> Math.max(character.getMedicine(), character.getCombat());
+                case SAILOR -> attributeSum / 6;
+            };
+
+            // Usar background e catchphrase dos personagens únicos
+            String background = character.getBackground() != null ? character.getBackground() : "História pessoal a ser revelada...";
+            String catchphrase = character.getCatchphrase() != null ? character.getCatchphrase() : "\"...\"";
+            String specialization = profession.getDisplayName() + " Nível " + primaryAttribute;
 
             TavernRecruitDTO dto = TavernRecruitDTO.builder()
-                    .name(name)
-                    .personality(personality)
-                    .despairLevel(despair)
+                    .name(character.getName())
+                    .background(background)
+                    .catchphrase(catchphrase)
+                    .personality(character.getPersonality())
+                    .despairLevel(character.getDespairLevel())
                     .salary(salary)
                     .hiringCost(hiringCost)
                     .initialMoral(initialMoral)
-                    .navigation(nav)
-                    .artillery(art)
-                    .combat(com)
-                    .medicine(med)
-                    .carpentry(car)
-                    .intelligence(intel)
-                    .recruitRequest(request)
+                    .profession(profession.getDisplayName())
+                    .professionDescription(profession.getDescription())
+                    .professionIcon(profession.getIcon())
+                    .professionColor(profession.getColor())
+                    .primaryAttribute(primaryAttribute)
+                    .specialization(specialization)
+                    .navigation(character.getNavigation())
+                    .artillery(character.getArtillery())
+                    .combat(character.getCombat())
+                    .medicine(character.getMedicine())
+                    .carpentry(character.getCarpentry())
+                    .intelligence(character.getIntelligence())
+                    .recruitRequest(character)
                     .build();
 
             recruits.add(dto);
@@ -1229,6 +1272,132 @@ public class GameService {
         return GameActionResponseDTO.builder()
                 .gameStatus(gameMapper.toGameStatusResponseDTO(game, portActions))
                 .eventLog(eventMessages)
+                .build();
+    }
+
+    /**
+     * Retorna informações detalhadas de gerenciamento da tripulação.
+     */
+    public CrewManagementDTO getCrewManagement(Long gameId) {
+        Game game = gameRepository.findById(gameId)
+                .orElseThrow(() -> new RuntimeException("Jogo não encontrado"));
+
+        List<CrewMember> crewMembers = game.getShip().getCrew();
+        
+        // Construir DTOs detalhados para cada tripulante
+        List<CrewMemberDetailDTO> crewMemberDetails = crewMembers.stream()
+                .map(this::buildCrewMemberDetailDTO)
+                .collect(Collectors.toList());
+
+        // Calcular estatísticas gerais
+        double averageMorale = crewMembers.stream()
+                .mapToInt(CrewMember::getMoral)
+                .average()
+                .orElse(0.0);
+
+        int totalSalaryExpenses = crewMembers.stream()
+                .mapToInt(CrewMember::getSalary)
+                .sum();
+
+        int totalXPEarned = crewMembers.stream()
+                .mapToInt(CrewMember::getExperiencePoints)
+                .sum();
+
+        // Calcular resumos por profissão
+        List<ProfessionSummaryDTO> professionSummaries = crewMembers.stream()
+                .collect(Collectors.groupingBy(CrewMember::getProfession))
+                .entrySet().stream()
+                .map(entry -> {
+                    CrewProfession profession = entry.getKey();
+                    List<CrewMember> membersOfProfession = entry.getValue();
+                    
+                    double averageRankLevel = membersOfProfession.stream()
+                            .mapToInt(member -> member.getRank().ordinal() + 1)
+                            .average()
+                            .orElse(0.0);
+                            
+                    int totalXP = membersOfProfession.stream()
+                            .mapToInt(CrewMember::getExperiencePoints)
+                            .sum();
+                    
+                    return ProfessionSummaryDTO.builder()
+                            .profession(profession.getDisplayName())
+                            .professionIcon(profession.getIcon())
+                            .professionColor(profession.getColor())
+                            .memberCount(membersOfProfession.size())
+                            .averageRankLevel(averageRankLevel)
+                            .totalXP(totalXP)
+                            .build();
+                })
+                .collect(Collectors.toList());
+
+        return CrewManagementDTO.builder()
+                .totalCrewMembers(crewMembers.size())
+                .averageMorale(averageMorale)
+                .totalSalaryExpenses(totalSalaryExpenses)
+                .totalXPEarned(totalXPEarned)
+                .totalCombatsParticipated(crewMembers.stream().mapToInt(CrewMember::getCombatsParticipated).sum())
+                .totalRepairsCompleted(crewMembers.stream().mapToInt(CrewMember::getRepairsPerformed).sum())
+                .totalNavigationsCompleted(crewMembers.stream().mapToInt(CrewMember::getJourneysCompleted).sum())
+                .totalContractsCompleted(crewMembers.stream().mapToInt(member -> 0).sum()) // Não há campo específico para contratos
+                .crewMembers(crewMemberDetails)
+                .professionSummaries(professionSummaries)
+                .build();
+    }
+
+    private CrewMemberDetailDTO buildCrewMemberDetailDTO(CrewMember member) {
+        CrewProfession profession = member.getProfession();
+        CrewRank currentRank = member.getRank();
+        CrewRank nextRank = currentRank.getNextRank(profession);
+        
+        int xpForCurrentRank = currentRank.getRequiredXP();
+        int xpForNextRank = nextRank != null ? nextRank.getRequiredXP() : currentRank.getRequiredXP();
+        int currentXP = member.getExperiencePoints();
+        
+        // Calcular progresso de XP (0.0 a 1.0)
+        double xpProgress = 0.0;
+        if (nextRank != null && xpForNextRank > xpForCurrentRank) {
+            int xpInCurrentLevel = currentXP - xpForCurrentRank;
+            int xpNeededForNext = xpForNextRank - xpForCurrentRank;
+            xpProgress = Math.min(1.0, Math.max(0.0, (double) xpInCurrentLevel / xpNeededForNext));
+        }
+
+        // Lista de habilidades desbloqueadas baseada no rank atual
+        List<String> unlockedAbilities = List.of(
+                String.format("Rank %s: %s", currentRank.getDisplayName(), currentRank.getDescription()),
+                String.format("Bônus de Atributos: +%d pontos", currentRank.ordinal()),
+                String.format("Experiência em %s", profession.getDescription())
+        );
+
+        return CrewMemberDetailDTO.builder()
+                .id(member.getId())
+                .name(member.getName())
+                .background(member.getBackground())
+                .catchphrase(member.getCatchphrase())
+                .personality(member.getPersonality())
+                .salary(member.getSalary())
+                .morale(member.getMoral())
+                .navigation(member.getNavigation())
+                .artillery(member.getArtillery())
+                .combat(member.getCombat())
+                .medicine(member.getMedicine())
+                .carpentry(member.getCarpentry())
+                .intelligence(member.getIntelligence())
+                .profession(profession)
+                .professionIcon(profession.getIcon())
+                .professionColor(profession.getColor())
+                .currentRank(currentRank)
+                .nextRank(nextRank)
+                .currentXP(currentXP)
+                .xpForCurrentRank(xpForCurrentRank)
+                .xpForNextRank(xpForNextRank)
+                .xpProgress(xpProgress)
+                .unlockedAbilities(unlockedAbilities)
+                .rankDescription(currentRank.getDescription())
+                .totalCombats(member.getCombatsParticipated())
+                .totalRepairs(member.getRepairsPerformed())
+                .totalNavigations(member.getJourneysCompleted())
+                .totalContracts(0) // Campo não existe ainda no modelo
                 .build();
     }
 }

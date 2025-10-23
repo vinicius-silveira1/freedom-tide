@@ -17,6 +17,9 @@ public class RecruitCrewMemberRequest {
     @NotBlank(message = "O nome do tripulante não pode ser vazio.")
     private String name;
 
+    private String background; // História pessoal do personagem
+    private String catchphrase; // Frase característica
+
     @NotNull(message = "A personalidade não pode ser nula.")
     private CrewPersonality personality;
 

@@ -274,3 +274,77 @@
     padding: 12px 24px;
   }
 }
+
+/* Estilos para ícones pixel art */
+.death-icon {
+  width: 32px;
+  height: 32px;
+  display: inline-block;
+  image-rendering: pixelated;
+  image-rendering: -moz-crisp-edges;
+  image-rendering: crisp-edges;
+  vertical-align: middle;
+  margin: 0 8px;
+  filter: drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.5));
+}
+
+.stat-icon {
+  width: 20px;
+  height: 20px;
+  display: inline-block;
+  image-rendering: pixelated;
+  image-rendering: -moz-crisp-edges;
+  image-rendering: crisp-edges;
+  vertical-align: middle;
+  margin-right: 8px;
+  filter: drop-shadow(1px 1px 2px rgba(0, 0, 0, 0.3));
+}
+
+.button-icon {
+  width: 20px;
+  height: 20px;
+  display: inline-block;
+  image-rendering: pixelated;
+  image-rendering: -moz-crisp-edges;
+  image-rendering: crisp-edges;
+  vertical-align: middle;
+  margin: 0 8px;
+  filter: drop-shadow(1px 1px 2px rgba(0, 0, 0, 0.4));
+}
+
+/* Animação sutil para ícones */
+.death-icon {
+  animation: gentleFloat 3s ease-in-out infinite;
+}
+
+@keyframes gentleFloat {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-2px); }
+}
+
+/* Estilo hover para ícones de estatísticas */
+.stat-item:hover .stat-icon {
+  transform: scale(1.1);
+  transition: transform 0.2s ease;
+}
+
+/* Responsividade para ícones */
+@media (max-width: 768px) {
+  .death-icon {
+    width: 24px;
+    height: 24px;
+    margin: 0 4px;
+  }
+  
+  .stat-icon {
+    width: 16px;
+    height: 16px;
+    margin-right: 6px;
+  }
+  
+  .button-icon {
+    width: 16px;
+    height: 16px;
+    margin: 0 6px;
+  }
+}
