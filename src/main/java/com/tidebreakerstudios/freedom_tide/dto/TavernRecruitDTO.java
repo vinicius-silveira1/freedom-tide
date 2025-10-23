@@ -11,7 +11,8 @@ public class TavernRecruitDTO {
     private String name;
     private CrewPersonality personality;
     private int despairLevel; // Nível de Desespero (afeta salário e risco)
-    private int salary; // Salário exigido
+    private int salary; // Salário mensal exigido
+    private int hiringCost; // Custo inicial de contratação
     private int initialMoral; // Moral inicial que o tripulante terá
 
     // Atributos do tripulante

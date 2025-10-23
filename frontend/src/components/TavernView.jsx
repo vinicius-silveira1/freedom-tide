@@ -54,7 +54,8 @@ function TavernView({ gameId, onHire, onBack }) {
               </div>
               <div className="recruit-body">
                 <div className="recruit-stats">
-                  <p>Salário: {recruit.salary} Ouro</p>
+                  <p><strong>Custo de Contratação: {recruit.hiringCost} Ouro</strong></p>
+                  <p>Salário Mensal: {recruit.salary} Ouro</p>
                   <p>Moral Inicial: {recruit.initialMoral}%</p>
                   <p>Desespero: {recruit.despairLevel}</p>
                   <ul>

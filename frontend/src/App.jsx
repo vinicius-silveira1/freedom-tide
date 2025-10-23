@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import MenuView from './components/MenuView'; // Import new component
 import IntroSequence from './components/IntroSequence'; // Import intro sequence
+import GameOver from './components/GameOver'; // Import game over screen
 import CaptainCompass from './components/CaptainCompass';
 import ShipStatus from './components/ShipStatus';
 import CrewStatus from './components/CrewStatus';
@@ -159,6 +160,48 @@ function App() {
     }
   };
 
+  // Helper para verificar game over em qualquer resposta
+  const checkGameOver = (gameResponse) => {
+    if (gameResponse.gameOver || gameResponse.gameStatus.gameOver) {
+      setGameState('GAME_OVER');
+      setEventLog(prevLog => [...prevLog, "=== FIM DE JOGO ===", ...(gameResponse.eventLog || [])]);
+      return true;
+    }
+    return false;
+  };
+
+  // Handler para reiniciar o jogo completamente (usado no game over)
+  const handleRestartGame = async () => {
+    // Reset todos os estados
+    setGame(null);
+    setEventLog([]);
+    setError(null);
+    setCurrentView('port');
+    setCombatState(null);
+    setWasInEncounter(false);
+    setTutorialRefresh(0);
+    
+    // Ir para o menu para criar um novo jogo
+    setGameState('MENU');
+  };
+
+  // Handler para novo jogo após game over
+  const handleNewGameFromGameOver = async () => {
+    await handleNewGame();
+  };
+
+  // Handler para voltar ao menu principal
+  const handleMainMenu = () => {
+    setGameState('MENU');
+    setGame(null);
+    setEventLog([]);
+    setError(null);
+    setCurrentView('port');
+    setCombatState(null);
+    setWasInEncounter(false);
+    setTutorialRefresh(0);
+  };
+
   // The old useEffect is removed. Game creation is now manual.
 
   // EFFECT: Manage background music based on location
@@ -248,6 +291,12 @@ function App() {
       const updatedGameResponse = await response.json();
       setGame(updatedGameResponse.gameStatus);
       setEventLog(updatedGameResponse.eventLog);
+      
+      // Verificar se o jogo terminou
+      if (checkGameOver(updatedGameResponse)) {
+        return;
+      }
+      
       setCurrentView('DASHBOARD');
       setError(null);
       
@@ -444,6 +493,11 @@ function App() {
       setGame(updatedGameResponse.gameStatus);
       setEventLog(updatedGameResponse.eventLog);
       
+      // Verificar se o jogo terminou
+      if (checkGameOver(updatedGameResponse)) {
+        return; // Sair da função sem processar mais atualizações
+      }
+      
       // Atualizar o combatState com nova informação
       if (combatState && updatedGameResponse.gameStatus.currentEncounter) {
         setCombatState(prev => ({
@@ -532,6 +586,11 @@ function App() {
                 setGame(newGameState);
                 setEventLog(updatedGameResponse.eventLog);
                 setError(null);
+                
+                // Verificar se o jogo terminou
+                if (checkGameOver(updatedGameResponse)) {
+                    return; // Sair da função sem processar mais atualizações
+                }
                 
                 // Verificar se o encontro foi resolvido após a ação
                 if (!newGameState.currentEncounter && newGameState.currentPort) {
@@ -668,6 +727,14 @@ function App() {
               {renderMainPanel()}
             </main>
           </>
+        );
+      case 'GAME_OVER':
+        return (
+          <GameOver 
+            gameOverReason={game?.gameOverReason}
+            onNewGame={handleNewGameFromGameOver}
+            onMainMenu={handleMainMenu}
+          />
         );
       case 'ERROR':
         return (

@@ -1,0 +1,276 @@
+/* GameOverScreen.css - Tela de Game Over Temática Naval */
+
+.game-over-screen {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: 
+    /* Efeito de água escura e profundidades do mar */
+    radial-gradient(ellipse at center top, 
+      rgba(0, 30, 60, 0.9) 0%, 
+      rgba(0, 15, 40, 0.95) 50%, 
+      rgba(0, 0, 20, 1) 100%),
+    /* Textura de ondas */
+    linear-gradient(45deg, 
+      transparent 25%, 
+      rgba(0, 40, 80, 0.1) 26%, 
+      rgba(0, 40, 80, 0.1) 50%, 
+      transparent 51%);
+  
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+  animation: deepWaterSway 10s ease-in-out infinite;
+}
+
+@keyframes deepWaterSway {
+  0%, 100% { transform: translateY(0px) rotate(0deg); }
+  33% { transform: translateY(-5px) rotate(0.5deg); }
+  66% { transform: translateY(2px) rotate(-0.5deg); }
+}
+
+.game-over-content {
+  width: 90%;
+  max-width: 700px;
+  max-height: 90vh;
+  overflow-y: auto;
+  
+  /* Estilo pergaminho de epitáfio */
+  background: 
+    /* Manchas de água salgada e deterioração */
+    radial-gradient(circle at 20% 30%, rgba(60, 40, 30, 0.15) 0%, transparent 25%),
+    radial-gradient(circle at 80% 20%, rgba(70, 50, 40, 0.12) 0%, transparent 20%),
+    radial-gradient(circle at 60% 80%, rgba(50, 30, 20, 0.1) 0%, transparent 15%),
+    
+    /* Base de pergaminho escurecido pela água */
+    #f0e6d3;
+  
+  border: 5px solid var(--color-border);
+  border-radius: 15px;
+  box-shadow: 
+    0 0 30px rgba(0, 0, 0, 0.8),
+    inset -3px -3px 6px rgba(60, 40, 30, 0.2),
+    inset 3px 3px 6px rgba(250, 240, 220, 0.3);
+  
+  padding: 30px;
+  text-align: center;
+  transform: rotate(-1deg);
+}
+
+.death-banner {
+  margin-bottom: 30px;
+  padding-bottom: 20px;
+  border-bottom: 3px solid var(--color-border);
+}
+
+.death-banner h1 {
+  font-family: var(--font-pixel);
+  font-size: 3em;
+  color: #1e3a8a;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+  margin: 0 0 10px 0;
+  text-transform: uppercase;
+  letter-spacing: 3px;
+}
+
+.death-banner h2 {
+  font-family: var(--font-pixel);
+  font-size: 1.3em;
+  color: var(--color-text-darker);
+  margin: 0;
+  font-style: italic;
+}
+
+.final-stats {
+  margin: 25px 0;
+  padding: 20px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 2px solid var(--color-border);
+  border-radius: 8px;
+}
+
+.final-stats h3 {
+  font-family: var(--font-pixel);
+  font-size: 1.4em;
+  color: var(--color-text-darker);
+  margin-bottom: 15px;
+  text-transform: uppercase;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 10px;
+}
+
+.stat-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 12px;
+  background: rgba(250, 240, 220, 0.3);
+  border-radius: 5px;
+  border: 1px solid rgba(139, 119, 89, 0.3);
+}
+
+.stat-label {
+  font-family: var(--font-pixel);
+  color: var(--color-text-darker);
+  font-size: 0.9em;
+}
+
+.stat-value {
+  font-family: var(--font-pixel);
+  color: var(--color-accent);
+  font-weight: bold;
+  font-size: 0.9em;
+}
+
+.death-reason {
+  margin: 25px 0;
+  padding: 15px;
+  background: rgba(220, 180, 140, 0.2);
+  border-left: 4px solid var(--color-border);
+  text-align: left;
+}
+
+.death-reason h3 {
+  font-family: var(--font-pixel);
+  font-size: 1.2em;
+  color: var(--color-text-darker);
+  margin-bottom: 10px;
+  text-transform: uppercase;
+}
+
+.death-reason p {
+  font-family: var(--font-pixel);
+  color: var(--color-text-darker);
+  font-size: 1em;
+  line-height: 1.4;
+  margin: 0;
+}
+
+.final-log {
+  margin: 25px 0;
+  text-align: left;
+}
+
+.final-log h3 {
+  font-family: var(--font-pixel);
+  font-size: 1.2em;
+  color: var(--color-text-darker);
+  margin-bottom: 10px;
+  text-transform: uppercase;
+  text-align: center;
+}
+
+.final-events {
+  max-height: 150px;
+  overflow-y: auto;
+  padding: 10px;
+  background: rgba(250, 240, 220, 0.2);
+  border: 2px solid rgba(139, 119, 89, 0.3);
+  border-radius: 5px;
+}
+
+.final-event {
+  font-family: var(--font-pixel);
+  color: var(--color-text-darker);
+  font-size: 0.9em;
+  line-height: 1.3;
+  margin: 5px 0;
+  padding: 3px 0;
+  border-bottom: 1px dotted rgba(139, 119, 89, 0.3);
+}
+
+.final-event:last-child {
+  border-bottom: none;
+}
+
+.game-over-actions {
+  margin: 30px 0 20px 0;
+}
+
+.new-game-button {
+  font-family: var(--font-pixel);
+  font-size: 1.3em;
+  padding: 15px 30px;
+  background: var(--color-accent);
+  color: var(--color-text-darker);
+  border: 3px solid var(--color-border);
+  border-radius: 8px;
+  cursor: pointer;
+  text-transform: uppercase;
+  font-weight: bold;
+  letter-spacing: 1px;
+  
+  box-shadow: 
+    4px 4px 0px 0px var(--color-border),
+    inset -1px -1px 3px rgba(139, 119, 89, 0.2);
+  
+  transition: all 0.2s ease;
+}
+
+.new-game-button:hover {
+  background: #e6d7c1;
+  transform: translateY(-2px);
+  box-shadow: 
+    4px 6px 0px 0px var(--color-border),
+    inset -1px -1px 3px rgba(139, 119, 89, 0.2);
+}
+
+.new-game-button:active {
+  transform: translateY(1px);
+  box-shadow: 
+    2px 2px 0px 0px var(--color-border),
+    inset -1px -1px 3px rgba(139, 119, 89, 0.3);
+}
+
+.epitaph {
+  margin-top: 25px;
+  padding-top: 20px;
+  border-top: 2px solid var(--color-border);
+  font-style: italic;
+}
+
+.epitaph p {
+  font-family: var(--font-pixel);
+  color: var(--color-text-darker);
+  font-size: 0.9em;
+  line-height: 1.4;
+  margin: 8px 0;
+  opacity: 0.8;
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+  .game-over-content {
+    width: 95%;
+    padding: 20px;
+    margin: 5vh 0;
+  }
+  
+  .death-banner h1 {
+    font-size: 2.2em;
+    letter-spacing: 2px;
+  }
+  
+  .death-banner h2 {
+    font-size: 1.1em;
+  }
+  
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .stat-item {
+    padding: 6px 10px;
+  }
+  
+  .new-game-button {
+    font-size: 1.1em;
+    padding: 12px 24px;
+  }
+}

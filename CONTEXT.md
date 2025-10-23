@@ -648,5 +648,106 @@ public/assets/icons/
 
 **Todos os emojis foram substituídos por ícones PNG profissionais, criando uma experiência visual autêntica e imersiva no universo náutico do Freedom Tide.**
 
+---
+
+## v1.27 - Economia Balanceada & Consequências Finais (Concluído)
+
+**Versão do Jogo:** 1.27  
+**Foco:** Implementar limitações econômicas realistas e consequências definitivas de derrota no gameplay.
+
+### Contexto
+Durante testes de gameplay, foram identificados dois problemas críticos que tornavam a experiência muito fácil e sem tensão:
+1. **Contratação Ilimitada**: Jogadores podiam contratar infinitos tripulantes pagando apenas salário mensal
+2. **Imortalidade Naval**: Navios podiam ter casco negativo e continuar funcionando indefinidamente
+
+### Implementações
+
+#### **Sistema de Custo de Contratação**
+**Backend (`GameService.java`):**
+- ✅ **Custo Inicial**: 3x salário mensal + bônus por atributos altos (>45 pontos = +10 moedas por ponto extra)
+- ✅ **Validação Financeira**: Verificação de fundos antes da contratação
+- ✅ **Cobrança Automática**: Dedução do custo inicial do ouro do jogador
+
+**Frontend (`TavernView.jsx`):**
+- ✅ **Interface Atualizada**: Exibição clara do custo inicial e salário mensal separadamente
+- ✅ **DTO Expandido**: `TavernRecruitDTO` com campo `hiringCost` para transparência total
+
+**Fórmula do Custo:**
+```java
+int hiringCost = (salary * 3) + (attributeSum > 45 ? (attributeSum - 45) * 10 : 0);
+```
+
+#### **Sistema de Game Over por Destruição Naval**
+**Backend (`GameService.java`):**
+- ✅ **Verificação Crítica**: Implementada em todos os métodos que causam dano ao casco:
+  - `attackEncounter()` - Combate naval direto
+  - `boardEncounter()` - Tentativas de abordagem falhadas
+  - `investigateEncounter()` - Danos acidentais por destroços
+
+**Modelo de Dados (`Game.java`):**
+- ✅ **Campos Adicionados**: `gameOver` (boolean) e `gameOverReason` (String)
+- ✅ **Persistência**: Auto-criação via `ddl-auto=create`
+
+**Frontend (`App.jsx` + `GameOver.jsx`):**
+- ✅ **Tela Temática**: Interface de game over com estética naval (pergaminho náufrago)
+- ✅ **Narrativa Contextual**: Mensagens específicas por tipo de derrota
+- ✅ **Funcionalidades**: Botões para nova jornada ou menu principal
+
+#### **Melhorias Técnicas**
+**DTOs Expandidos:**
+- ✅ `GameActionResponseDTO`: Adicionado campo `gameOver` boolean
+- ✅ `GameStatusResponseDTO`: Adicionados `gameOver` e `gameOverReason`
+- ✅ `GameMapper`: Mapeamento automático dos campos de game over
+
+**Verificação Unificada:**
+```javascript
+const checkGameOver = (response) => {
+  if (response.gameOver || response.gameStatus.gameOver) {
+    setGameState('GAME_OVER');
+    return true;
+  }
+  return false;
+};
+```
+
+#### **Interface de Game Over**
+**Design Temático (`GameOver.jsx` + `GameOver.css`):**
+- 🌊 **Estética Naval**: Pergaminho envelhecido com ondas animadas
+- 💀 **Narrativa Dramática**: Epitáfio poético e razão específica da derrota
+- ⚓ **Opções de Continuação**: Nova jornada ou retorno ao menu principal
+- 🎯 **Animações Contextuais**: Balanço suave, ondas em movimento, efeitos fantasmagóricos
+
+#### **Mensagens de Derrota por Contexto**
+- **Combate Naval**: *"O casco se parte sob o bombardeio inimigo..."*
+- **Abordagem Falhada**: *"O dano estrutural é irreparável..."*
+- **Acidente com Destroços**: *"Os destroços perfuraram completamente o casco..."*
+
+### Impacto no Gameplay
+
+#### **Economia Mais Realista:**
+- Contratação agora requer planejamento financeiro estratégico
+- Tripulantes de alta qualidade custam significativamente mais
+- Balanceamento natural entre quantidade vs. qualidade de tripulação
+
+#### **Tensão de Combate:**
+- Cada decisão de combate agora tem consequências permanentes potenciais
+- Gestão de riscos torna-se fundamental
+- Reparos no porto ganham importância crítica
+
+#### **Progressão Orgânica:**
+- Jogadores são incentivados a crescer gradualmente
+- Economia de recursos naturalmente limitada
+- Decisões táticas ganham peso real
+
+### Compatibilidade
+- ✅ **Backward Compatible**: Jogos existentes funcionam normalmente
+- ✅ **Auto-Migration**: Campos `gameOver` adicionados automaticamente
+- ✅ **Graceful Degradation**: Sistema funciona mesmo com dados parciais
+
+### Status:
+✅ **Concluído** - Sistema completo de economia balanceada e game over implementado.
+
+**O Freedom Tide agora oferece uma experiência de gameplay com tensão real e consequências definitivas, mantendo o equilíbrio entre desafio e diversão.**
+
 
 

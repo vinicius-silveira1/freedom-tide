@@ -13,4 +13,6 @@ public class GameStatusResponseDTO {
     private ContractDTO activeContract;
     private PortDTO currentPort;
     private SeaEncounterDTO currentEncounter;
+    private boolean gameOver;
+    private String gameOverReason;
 }

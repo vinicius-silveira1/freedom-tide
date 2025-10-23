@@ -56,6 +56,8 @@ public class GameMapper {
                 .activeContract(toContractDTO(game.getActiveContract()))
                 .currentPort(toPortDTO(game.getCurrentPort(), portActions))
                 .currentEncounter(toSeaEncounterDTO(game.getCurrentEncounter(), encounterActions))
+                .gameOver(game.isGameOver())
+                .gameOverReason(game.getGameOverReason())
                 .build();
     }
 

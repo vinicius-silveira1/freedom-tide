@@ -10,4 +10,5 @@ import java.util.List;
 public class GameActionResponseDTO {
     private GameStatusResponseDTO gameStatus;
     private List<String> eventLog;
+    private boolean gameOver;
 }

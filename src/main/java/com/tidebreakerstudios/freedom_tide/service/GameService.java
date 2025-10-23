@@ -277,6 +277,23 @@ public class GameService {
         Game game = findGameById(gameId);
         Ship ship = game.getShip();
 
+        // Calcular custos ANTES de criar o tripulante
+        int attributeSum = request.getNavigation() + request.getArtillery() + request.getCombat() +
+                           request.getMedicine() + request.getCarpentry() + request.getIntelligence();
+        int baseSalary = 20; // Aumentado de 10 para 20 para maior pressão econômica
+        int salary = baseSalary + (attributeSum / 8) - request.getDespairLevel(); // Divisor reduzido de 10 para 8
+        salary = Math.max(5, salary); // Salário mínimo aumentado de 1 para 5
+        
+        // Custo de contratação: 3x o salário mensal + bônus por atributos altos
+        int hiringCost = (salary * 3) + (attributeSum > 45 ? (attributeSum - 45) * 10 : 0);
+        
+        // Verificar se o jogador tem dinheiro suficiente
+        if (game.getGold() < hiringCost) {
+            throw new IllegalStateException(String.format(
+                "Dinheiro insuficiente para contratar %s. Custo: %d moedas, Disponível: %d moedas", 
+                request.getName(), hiringCost, game.getGold()));
+        }
+
         CrewMember newCrewMember = CrewMember.builder()
                 .name(request.getName()).personality(request.getPersonality()).despairLevel(request.getDespairLevel())
                 .navigation(request.getNavigation()).artillery(request.getArtillery()).combat(request.getCombat())
@@ -288,13 +305,11 @@ public class GameService {
         int despairPenalty = request.getDespairLevel() * 2;
         int initialMoral = baseMoral + personalityModifier - despairPenalty;
         newCrewMember.setMoral(Math.max(0, Math.min(100, initialMoral)));
+        newCrewMember.setSalary(salary);
 
-        int attributeSum = request.getNavigation() + request.getArtillery() + request.getCombat() +
-                           request.getMedicine() + request.getCarpentry() + request.getIntelligence();
-        int baseSalary = 20; // Aumentado de 10 para 20 para maior pressão econômica
-        int salary = baseSalary + (attributeSum / 8) - request.getDespairLevel(); // Divisor reduzido de 10 para 8
-        newCrewMember.setSalary(Math.max(5, salary)); // Salário mínimo aumentado de 1 para 5
-
+        // Cobrar o custo de contratação
+        game.setGold(game.getGold() - hiringCost);
+        
         ship.getCrew().add(newCrewMember);
         return gameRepository.save(game);
     }
@@ -574,6 +589,25 @@ public class GameService {
             int hullDamage = ThreadLocalRandom.current().nextInt(3, 8);
             ship.setHullIntegrity(ship.getHullIntegrity() - hullDamage);
             eventLog.add(String.format("RISCO: Ao se aproximar, destroços ocultos arranham o casco, causando %d de dano!", hullDamage));
+            
+            // Verificar se o navio foi destruído
+            if (ship.getHullIntegrity() <= 0) {
+                ship.setHullIntegrity(0);
+                eventLog.add("💀 CATÁSTROFE! O dano foi crítico!");
+                eventLog.add("Os destroços perfuraram completamente o casco. Água jorra para dentro do navio.");
+                eventLog.add("Não há tempo para reparos... o navio está perdido!");
+                eventLog.add("🌊 SEU NAVIO AFUNDOU - FIM DE JOGO 🌊");
+                
+                game.setGameOver(true);
+                game.setGameOverReason("Navio destruído por destroços durante investigação");
+                
+                Game savedGame = gameRepository.save(game);
+                return GameActionResponseDTO.builder()
+                        .gameStatus(gameMapper.toGameStatusResponseDTO(savedGame))
+                        .eventLog(eventLog)
+                        .gameOver(true)
+                        .build();
+            }
         }
 
         int crewIntelligence = ship.getCrew().stream().mapToInt(CrewMember::getIntelligence).sum();
@@ -666,6 +700,26 @@ public class GameService {
             int enemyDamage = encounter.getCannons() + ThreadLocalRandom.current().nextInt(1, 7);
             ship.setHullIntegrity(ship.getHullIntegrity() - enemyDamage);
             eventLog.add(String.format("O inimigo revida! Os canhões deles causam %d de dano ao seu casco.", enemyDamage));
+            
+            // Verificar se o navio foi destruído
+            if (ship.getHullIntegrity() <= 0) {
+                ship.setHullIntegrity(0); // Garantir que não fique negativo
+                eventLog.add("💀 DERROTA TOTAL! Seu navio foi destruído!");
+                eventLog.add("O casco se parte sob o bombardeio inimigo. Água salgada invade os compartimentos.");
+                eventLog.add("Sua tripulação luta desesperadamente, mas não há como salvar o navio...");
+                eventLog.add("🌊 SEU NAVIO AFUNDOU - FIM DE JOGO 🌊");
+                
+                // Marcar o jogo como terminado
+                game.setGameOver(true);
+                game.setGameOverReason("Navio destruído em combate");
+                
+                Game savedGame = gameRepository.save(game);
+                return GameActionResponseDTO.builder()
+                        .gameStatus(gameMapper.toGameStatusResponseDTO(savedGame))
+                        .eventLog(eventLog)
+                        .gameOver(true)
+                        .build();
+            }
         }
 
         Game savedGame = gameRepository.save(game);
@@ -741,6 +795,25 @@ public class GameService {
             ship.getCrew().forEach(member -> member.setMoral(member.getMoral() + moralePenalty));
 
             eventLog.add(String.format("DERROTA! Sua tripulação foi repelida! Em meio à retirada caótica, seu navio sofre %d de dano ao casco e a moral da tripulação despenca.", hullDamage));
+            
+            // Verificar se o navio foi destruído
+            if (ship.getHullIntegrity() <= 0) {
+                ship.setHullIntegrity(0);
+                eventLog.add("💀 DERROTA TOTAL! Seu navio foi destruído!");
+                eventLog.add("O dano estrutural é irreparável. Água do mar invade o compartimento principal.");
+                eventLog.add("Sua tripulação abandona o navio que está afundando...");
+                eventLog.add("🌊 SEU NAVIO AFUNDOU - FIM DE JOGO 🌊");
+                
+                game.setGameOver(true);
+                game.setGameOverReason("Navio destruído durante tentativa de abordagem");
+                
+                Game savedGame = gameRepository.save(game);
+                return GameActionResponseDTO.builder()
+                        .gameStatus(gameMapper.toGameStatusResponseDTO(savedGame))
+                        .eventLog(eventLog)
+                        .gameOver(true)
+                        .build();
+            }
         }
 
         Game savedGame = gameRepository.save(game);
@@ -1036,6 +1109,10 @@ public class GameService {
 
             int attributeSum = nav + art + com + med + car + intel;
             int salary = Math.max(5, 20 + (attributeSum / 8) - despair); // Atualizado para consistência com recrutamento
+            
+            // Calcular custo de contratação usando a mesma lógica do método recruitCrewMember
+            int hiringCost = (salary * 3) + (attributeSum > 45 ? (attributeSum - 45) * 10 : 0);
+            
             int initialMoral = Math.max(0, Math.min(100, 50 + (personality.getMoralModifier() * 5) - (despair * 2)));
 
             RecruitCrewMemberRequest request = new RecruitCrewMemberRequest();
@@ -1054,6 +1131,7 @@ public class GameService {
                     .personality(personality)
                     .despairLevel(despair)
                     .salary(salary)
+                    .hiringCost(hiringCost)
                     .initialMoral(initialMoral)
                     .navigation(nav)
                     .artillery(art)

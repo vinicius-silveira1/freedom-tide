@@ -90,4 +90,12 @@ public class Game {
     @Column(name = "tutorial_completed")
     @Builder.Default
     private boolean tutorialCompleted = false;
+
+    // Game Over fields
+    @Column(name = "game_over")
+    @Builder.Default
+    private boolean gameOver = false;
+
+    @Column(name = "game_over_reason")
+    private String gameOverReason;
 }
