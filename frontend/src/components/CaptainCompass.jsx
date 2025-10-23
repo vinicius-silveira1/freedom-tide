@@ -15,6 +15,7 @@ function CaptainCompass({ compass }) {
   return (
     <div className="compass-widget">
       <div className="compass-container">
+        <img src="/assets/icons/compass/compass.png" alt="Compass" className="compass-bg-icon" />
         <div className="compass-rose">
           <div className="compass-center-dial"></div>
         </div>

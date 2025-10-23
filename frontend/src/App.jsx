@@ -8,7 +8,7 @@ import LocationStatus from './components/LocationStatus';
 import PortView from './components/PortView';
 import EncounterActions from './components/EncounterActions';
 import BattleScene from './components/BattleScene'; // New combat component
-import TravelPanel from './components/TravelPanel';
+import MapView from './components/MapView';
 import EventLog from './components/EventLog';
 import TavernView from './components/TavernView';
 import ShipyardView from './components/ShipyardView';
@@ -564,7 +564,7 @@ function App() {
   const renderMainPanel = () => {
     switch (currentView) {
       case 'TRAVEL':
-        return <TravelPanel gameId={game.id} onTravel={executeTravel} onCancel={() => setCurrentView('DASHBOARD')} />;
+        return <MapView gameId={game.id} onTravel={executeTravel} onCancel={() => setCurrentView('DASHBOARD')} currentPort={game.currentPort} />;
       case 'TAVERN':
         return <TavernView gameId={game.id} onHire={handleHire} onBack={() => setCurrentView('DASHBOARD')} />;
       case 'SHIPYARD':

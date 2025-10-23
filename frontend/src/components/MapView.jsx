@@ -51,14 +51,14 @@ function MapView({ gameId, onTravel, onCancel, currentPort }) {
     'Refúgio do Kraken': { x: 10, y: 60, type: 'PIRATE' }
   };
 
-  // Ícones por tipo de porto
+  // Ícones por tipo de porto - Pixel Art
   const getPortIcon = (type) => {
     switch(type) {
-      case 'IMPERIAL': return '⚔️';
-      case 'GUILD': return '💰';
-      case 'PIRATE': return '🏴‍☠️';
-      case 'FREE': return '🏛️';
-      default: return '⚓';
+      case 'IMPERIAL': return <div className="pixel-fort" style={{transform: 'scale(1.5)'}}></div>;
+      case 'GUILD': return <div className="pixel-coin" style={{transform: 'scale(1.2)'}}></div>;
+      case 'PIRATE': return <div className="pixel-skull" style={{transform: 'scale(1.3)'}}></div>;
+      case 'FREE': return <div className="pixel-anchor" style={{transform: 'scale(2.2)'}}></div>;
+      default: return <div className="pixel-anchor"></div>;
     }
   };
 
@@ -110,26 +110,30 @@ function MapView({ gameId, onTravel, onCancel, currentPort }) {
   return (
     <div className="status-panel map-view">
       <div className="map-header">
+        {/* Âncoras decorativas */}
+        <div className="anchor-decoration-1"><div className="pixel-anchor"></div></div>
+        <div className="anchor-decoration-2"><div className="pixel-anchor"></div></div>
+        <div className="anchor-decoration-3"><div className="pixel-anchor"></div></div>
+        <div className="anchor-decoration-4"><div className="pixel-anchor"></div></div>
+        <div className="anchor-decoration-5"><div className="pixel-anchor"></div></div>
+        <div className="anchor-decoration-6"><div className="pixel-anchor"></div></div>
+        
         <h2>Carta Náutica do Arquipélago de Alvor</h2>
         <p className="map-subtitle">Selecione seu próximo destino, Capitão</p>
       </div>
 
       <div className="nautical-map">
-        {/* Rosa dos Ventos */}
+        {/* Rosa dos Ventos - PNG Icon */}
         <div className="compass-rose">
-          <div className="compass-needle"></div>
-          <div className="compass-directions">
-            <span className="north">N</span>
-            <span className="south">S</span>
-            <span className="east">E</span>
-            <span className="west">W</span>
-          </div>
+          <img src="/assets/icons/compass/compass.png" alt="Compass" style={{width: '64px', height: '64px'}} />
         </div>
 
         {/* Decorações marítimas */}
         <div className="sea-monster sea-monster-1">🐙</div>
         <div className="sea-monster sea-monster-2">🐋</div>
-        <div className="decorative-ship decorative-ship-1">⛵</div>
+        <div className="decorative-ship decorative-ship-1">
+          <div className="pixel-ship"></div>
+        </div>
         
         {/* Título do mapa */}
         <div className="map-title">
@@ -163,16 +167,16 @@ function MapView({ gameId, onTravel, onCancel, currentPort }) {
               </div>
 
               {/* Rota animada se selecionado */}
-              {isSelected && currentPort && (
+              {isSelected && currentPort && portCoordinates[currentPort.name] && (
                 <div className="travel-route">
                   <svg className="route-svg" viewBox="0 0 100 100" preserveAspectRatio="none">
                     <path 
                       className="route-line"
-                      d={`M${portCoordinates[currentPort.name]?.x || 50},${portCoordinates[currentPort.name]?.y || 50} Q${(coords.x + 50)/2},${(coords.y + 50)/2} ${coords.x},${coords.y}`}
+                      d={`M${portCoordinates[currentPort.name].x},${portCoordinates[currentPort.name].y} Q${(coords.x + portCoordinates[currentPort.name].x)/2},${(coords.y + portCoordinates[currentPort.name].y)/2} ${coords.x},${coords.y}`}
                       fill="none"
                       stroke="#8B4513"
                       strokeWidth="2"
-                      strokeDasharray="5,5"
+                      strokeDasharray="8,4"
                     />
                   </svg>
                 </div>
@@ -184,21 +188,42 @@ function MapView({ gameId, onTravel, onCancel, currentPort }) {
         {/* Informações do porto selecionado/hover */}
         {(selectedDestination || hoveredPort) && (
           <div className="port-info-panel">
-            <h4>{(selectedDestination || destinations.find(d => d.id === hoveredPort))?.name}</h4>
-            <p className="port-type">
-              {portCoordinates[(selectedDestination || destinations.find(d => d.id === hoveredPort))?.name]?.type}
-            </p>
-            
-            {selectedDestination && (
-              <div className="travel-actions">
-                <button className="confirm-travel-button" onClick={handleConfirmTravel}>
-                  ⚓ Zarpar para {selectedDestination.name}
-                </button>
-                <button className="deselect-button" onClick={() => setSelectedDestination(null)}>
-                  Cancelar Seleção
-                </button>
-              </div>
-            )}
+            {(() => {
+              const port = selectedDestination || destinations.find(d => d.id === hoveredPort);
+              const portInfo = portCoordinates[port?.name];
+              const typeNames = {
+                'IMPERIAL': 'Porto Imperial',
+                'GUILD': 'Porto da Guilda',
+                'PIRATE': 'Porto Pirata', 
+                'FREE': 'Porto Livre'
+              };
+              
+              return (
+                <>
+                  <h4>{port?.name}</h4>
+                  <p className="port-type">
+                    {typeNames[portInfo?.type] || portInfo?.type}
+                  </p>
+                  
+                  {!selectedDestination && hoveredPort && (
+                    <p style={{fontSize: '0.9em', color: '#654321', margin: '5px 0'}}>
+                      Clique para selecionar destino
+                    </p>
+                  )}
+                  
+                  {selectedDestination && (
+                    <div className="travel-actions">
+                      <button className="confirm-travel-button" onClick={handleConfirmTravel}>
+                        ⚓ Zarpar para {selectedDestination.name}
+                      </button>
+                      <button className="deselect-button" onClick={() => setSelectedDestination(null)}>
+                        Cancelar Seleção
+                      </button>
+                    </div>
+                  )}
+                </>
+              );
+            })()}
           </div>
         )}
       </div>

@@ -588,21 +588,65 @@ public void progressTutorial(Long gameId, String action);
 
 ---
 
-## v1.26 - Mapa Artístico Interativo (Futuro)
+## v1.26 - Mapa Artístico Interativo & Sistema de Ícones PNG (Concluído)
 
-**Versão do Jogo:** 1.26
-**Foco:** Transformar a tela de seleção de destinos em um grande mapa artístico interativo.
+**Versão do Jogo:** 1.26  
+**Foco:** Transformar a tela de seleção de destinos em um mapa artístico interativo com sistema completo de ícones PNG.
 
 ### Conceito "Carta Náutica do Arquipélago":
-- **Estilo Visual**: Pergaminho antigo com decorações náuticas (rosa dos ventos, monstros marinhos, anotações manuscritas)
-- **Interatividade**: Portos clicáveis com preview de informações, rotas animadas, seleção visual
-- **Elementos Artísticos**: Cada porto com ícone temático por facção, decorações regionais, efeitos hover
-- **Funcionalidade**: Integração completa com dados existentes, cálculo de distâncias, confirmação de viagem
+✅ **MapView Component**: Desenvolvido completamente substituindo TravelPanel  
+✅ **Estilo Visual**: Pergaminho antigo com decorações náuticas autênticas  
+✅ **Interatividade**: Portos clicáveis com preview, seleção visual e confirmação  
+✅ **Sistema de Coordenadas**: 10 portos posicionados no mapa com precisão  
 
-### Pré-requisitos:
-✅ **Sistema de Portos Expandido** (v1.25)  
-⚠️ **Assets Visuais**: Criação de elementos gráficos para o mapa  
-⚠️ **MapView Component**: Desenvolvimento do componente React (já iniciado)
+### Sistema de Ícones PNG Implementado:
+
+#### **Estrutura de Assets:**
+```
+public/assets/icons/
+├── ports/           # Ícones das facções (24x24px)
+│   ├── imperial-sword.png      # Império - Espada elegante
+│   ├── guild-coins.png         # Guilda - Pilha de moedas douradas  
+│   ├── pirate-flag.png         # Piratas - Bandeira com caveira
+│   └── free-anchor.png         # Porto Livre - Âncora simples
+├── compass/         # Rosa dos ventos (64x64px)
+│   └── compass.png             # Bússola ornamentada central
+├── decorative/      # Elementos decorativos (16-48px)
+│   ├── anchor-small.png        # Âncoras pequenas para header
+│   ├── telescope.png           # Luneta (32x32px)
+│   ├── treasure-map.png        # Mapa desenrolado (48x32px)
+│   └── steering-wheel.png      # Timão (40x40px)
+├── ships/           # Navios decorativos
+│   └── ships.png               # Navio para animações
+└── ui/              # Interface geral
+    └── treasure-chest.png      # Baú para painéis
+```
+
+#### **Implementação nos Componentes:**
+
+**MapView.jsx & MapView.css:**
+- ✅ **Ícones das Facções**: Sistema de mapeamento automático por tipo de porto
+- ✅ **Animações Temáticas**: Brilho dourado (Guilda), gleam azul (Império), tremulação (Piratas), balanço (Porto Livre)
+- ✅ **Rosa dos Ventos**: Ícone PNG limpo sem fundos indesejados
+- ✅ **Decorações**: Telescópio (superior esquerdo), timão (inferior direito), mapa desenrolado, âncoras no header
+- ✅ **Substituição de Emojis**: Âncora do título convertida para PNG
+
+**CaptainCompass.jsx & CaptainCompass.css:**
+- ✅ **Ícone de Fundo**: Bússola PNG integrada com agulhas funcionais
+- ✅ **Dimensionamento**: Container expandido (200x200px) com ícone otimizado (140x140px)
+- ✅ **Z-index Organizado**: Ícone (z:1), centro (z:20), agulhas (z:15)
+- ✅ **Posicionamento**: Centralização precisa com margens calculadas
+
+#### **Melhorias Visuais:**
+- ✅ **Filtros CSS**: Drop-shadows, sepia, brightness para integração temática
+- ✅ **Animações Personalizadas**: `coin-glow`, `sword-gleam`, `flag-wave`, `anchor-sway`
+- ✅ **Transparências**: Opacidades variáveis para profundidade visual
+- ✅ **Overflow Management**: Elementos posicionados para extrapolação controlada
+
+### Status:
+✅ **Concluído** - Sistema completo de ícones PNG implementado com sucesso.
+
+**Todos os emojis foram substituídos por ícones PNG profissionais, criando uma experiência visual autêntica e imersiva no universo náutico do Freedom Tide.**
 
 
 
