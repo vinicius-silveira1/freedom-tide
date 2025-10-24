@@ -73,25 +73,23 @@ public class DataSeeder implements CommandLineRunner {
 
     private Map<String, Port> createAndGetPorts() {
         List<Port> portBlueprints = Arrays.asList(
-                // Portos Originais
-                Port.builder().name("Porto Real").type(PortType.IMPERIAL).foodPrice(10).rumPrice(20).toolsPrice(30).shotPrice(40).build(),
-                Port.builder().name("Baía da Guilda").type(PortType.GUILD).foodPrice(15).rumPrice(25).toolsPrice(25).shotPrice(45).build(),
-                Port.builder().name("Ninho do Corvo").type(PortType.PIRATE).foodPrice(20).rumPrice(15).toolsPrice(35).shotPrice(30).build(),
+                // Portos Imperiais - Moderados, equipamentos militares caros
+                Port.builder().name("Porto Real").type(PortType.IMPERIAL).foodPrice(12).rumPrice(18).toolsPrice(25).shotPrice(45).build(),
+                Port.builder().name("Fortaleza de Ferro").type(PortType.IMPERIAL).foodPrice(10).rumPrice(20).toolsPrice(22).shotPrice(40).build(),
+                Port.builder().name("Porto da Coroa").type(PortType.IMPERIAL).foodPrice(14).rumPrice(16).toolsPrice(28).shotPrice(48).build(),
                 
-                // Expansão - Região Norte Imperial
-                Port.builder().name("Fortaleza de Ferro").type(PortType.IMPERIAL).foodPrice(8).rumPrice(25).toolsPrice(20).shotPrice(35).build(),
-                Port.builder().name("Porto da Coroa").type(PortType.IMPERIAL).foodPrice(12).rumPrice(18).toolsPrice(28).shotPrice(42).build(),
+                // Portos da Guilda - Comércio eficiente, ferramentas baratas
+                Port.builder().name("Baía da Guilda").type(PortType.GUILD).foodPrice(11).rumPrice(22).toolsPrice(18).shotPrice(35).build(),
+                Port.builder().name("Entreposto Dourado").type(PortType.GUILD).foodPrice(13).rumPrice(20).toolsPrice(16).shotPrice(32).build(),
+                Port.builder().name("Ilha dos Mercadores").type(PortType.GUILD).foodPrice(15).rumPrice(24).toolsPrice(20).shotPrice(38).build(),
                 
-                // Expansão - Região Leste da Guilda
-                Port.builder().name("Entreposto Dourado").type(PortType.GUILD).foodPrice(18).rumPrice(22).toolsPrice(22).shotPrice(48).build(),
-                Port.builder().name("Ilha dos Mercadores").type(PortType.GUILD).foodPrice(14).rumPrice(30).toolsPrice(20).shotPrice(50).build(),
+                // Portos Piratas - Rum barato, comida cara, munição variada
+                Port.builder().name("Ninho do Corvo").type(PortType.PIRATE).foodPrice(18).rumPrice(12).toolsPrice(30).shotPrice(25).build(),
+                Port.builder().name("Refúgio do Kraken").type(PortType.PIRATE).foodPrice(20).rumPrice(10).toolsPrice(35).shotPrice(28).build(),
                 
-                // Expansão - Região Sul Independente
-                Port.builder().name("Vila dos Pescadores").type(PortType.FREE).foodPrice(8).rumPrice(12).toolsPrice(40).shotPrice(25).build(),
-                Port.builder().name("Ruínas de Atlântida").type(PortType.FREE).foodPrice(25).rumPrice(40).toolsPrice(15).shotPrice(60).build(),
-                
-                // Expansão - Região Oeste Pirata
-                Port.builder().name("Refúgio do Kraken").type(PortType.PIRATE).foodPrice(22).rumPrice(10).toolsPrice(45).shotPrice(28).build()
+                // Portos Livres - Extremos: abundância local vs escassez
+                Port.builder().name("Vila dos Pescadores").type(PortType.FREE).foodPrice(8).rumPrice(14).toolsPrice(40).shotPrice(30).build(),
+                Port.builder().name("Ruínas de Atlântida").type(PortType.FREE).foodPrice(25).rumPrice(35).toolsPrice(15).shotPrice(55).build()
         );
 
         Map<String, Port> savedPorts = portBlueprints.stream()
@@ -113,6 +111,11 @@ public class DataSeeder implements CommandLineRunner {
 
     private void seedContracts(Map<String, Port> ports) {
         List<Contract> contractBlueprints = Arrays.asList(
+                // Contratos Iniciais - Disponíveis em Porto Real para as escolhas da introdução
+                createIntroGuildContract(ports.get("Porto Real"), ports.get("Baía da Guilda")),
+                createIntroRevolutionaryContract(ports.get("Porto Real"), ports.get("Ninho do Corvo")), 
+                createIntroBrotherhoodContract(ports.get("Porto Real"), ports.get("Refúgio do Kraken")),
+                
                 // Contratos Originais
                 createGuildContract(ports.get("Baía da Guilda"), ports.get("Porto Real")),
                 createRevolutionaryContract(ports.get("Porto Real"), ports.get("Ninho do Corvo")),
@@ -172,7 +175,7 @@ public class DataSeeder implements CommandLineRunner {
                 .status(ContractStatus.AVAILABLE)
                 .originPort(originPort)
                 .destinationPort(destinationPort)
-                .rewardGold(200) // Reduzido de 500 para 200
+                .rewardGold(180) // Ajustado de 200 para 180 (ligeiramente maior que tutorial)
                 .rewardReputation(25)
                 .rewardInfamy(0)
                 .rewardAlliance(-5)
@@ -190,7 +193,7 @@ public class DataSeeder implements CommandLineRunner {
                 .status(ContractStatus.AVAILABLE)
                 .originPort(originPort)
                 .destinationPort(destinationPort)
-                .rewardGold(150) // Aumentado de 50 para 150
+                .rewardGold(160) // Aumentado de 150 para 160 (ligeiramente maior que tutorial)
                 .rewardReputation(-15)
                 .rewardInfamy(10)
                 .rewardAlliance(30)
@@ -208,7 +211,7 @@ public class DataSeeder implements CommandLineRunner {
                 .status(ContractStatus.AVAILABLE)
                 .originPort(originPort)
                 .destinationPort(destinationPort)
-                .rewardGold(250) // Reduzido de 300 para 250
+                .rewardGold(220) // Reduzido de 250 para 220 (ligeiramente maior que tutorial)
                 .rewardReputation(-30)
                 .rewardInfamy(20)
                 .rewardAlliance(15)
@@ -635,5 +638,61 @@ public class DataSeeder implements CommandLineRunner {
 
         narrativeEventRepository.save(treasureEvent);
         System.out.println("--- Evento 'Mapa do Tesouro' semeado no banco de dados. ---");
+    }
+    
+    // ============= CONTRATOS ESPECÍFICOS PARA AS ESCOLHAS INICIAIS =============
+    
+    private Contract createIntroGuildContract(Port originPort, Port destinationPort) {
+        return Contract.builder()
+                .title("Transporte de Especiarias")
+                .description("A Guilda Mercante precisa de um capitão para transportar \"especiarias especiais\" para suas plantações. O produto é utilizado para manter a produtividade dos trabalhadores em níveis ideais. Trabalho estável e bem remunerado.")
+                .faction(Faction.GUILD)
+                .status(ContractStatus.AVAILABLE)
+                .originPort(originPort)
+                .destinationPort(destinationPort)
+                .rewardGold(180)  // Ajustado para ROI neutro
+                .rewardReputation(25)
+                .rewardInfamy(0)
+                .rewardAlliance(-10)
+                .requiredReputation(0)
+                .requiredInfamy(0)
+                .requiredAlliance(0)
+                .build();
+    }
+    
+    private Contract createIntroRevolutionaryContract(Port originPort, Port destinationPort) {
+        return Contract.builder()
+                .title("Contrabando Médico")
+                .description("Uma colônia isolada precisa urgentemente de medicamentos que foram declarados contrabando pelo Império. Levar essas provisões salvará vidas, mas desafiará a autoridade imperial. A rede revolucionária compensará bem por sua coragem.")
+                .faction(Faction.REVOLUTIONARY)
+                .status(ContractStatus.AVAILABLE)
+                .originPort(originPort)
+                .destinationPort(destinationPort)
+                .rewardGold(160)  // Ajustado para ROI neutro
+                .rewardReputation(-15)
+                .rewardInfamy(15)
+                .rewardAlliance(35)
+                .requiredReputation(0)
+                .requiredInfamy(0)
+                .requiredAlliance(0)
+                .build();
+    }
+    
+    private Contract createIntroBrotherhoodContract(Port originPort, Port destinationPort) {
+        return Contract.builder()
+                .title("Saque ao Esperança Dourada")
+                .description("Um navio mercante desprotegido, o \"Esperança Dourada\", navega com carga valiosa incluindo provisões familiares de colonos. O saque renderá dinheiro rápido, mas custará a paz de espírito. Vida livre, sem patrões.")
+                .faction(Faction.BROTHERHOOD)
+                .status(ContractStatus.AVAILABLE)
+                .originPort(originPort)
+                .destinationPort(destinationPort)
+                .rewardGold(220)  // Ajustado para ROI ligeiramente positivo
+                .rewardReputation(-25)
+                .rewardInfamy(40)
+                .rewardAlliance(-15)
+                .requiredReputation(0)
+                .requiredInfamy(0)
+                .requiredAlliance(0)
+                .build();
     }
 }

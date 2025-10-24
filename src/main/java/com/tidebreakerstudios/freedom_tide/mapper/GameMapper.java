@@ -50,6 +50,7 @@ public class GameMapper {
 
         return GameStatusResponseDTO.builder()
                 .id(game.getId())
+                .captainName(game.getCaptainName())
                 .captainCompass(compassDTO)
                 .ship(shipDTO)
                 .crew(crewDTO)

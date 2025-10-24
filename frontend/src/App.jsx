@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import MenuView from './components/MenuView'; // Import new component
 import IntroSequence from './components/IntroSequence'; // Import intro sequence
 import GameOver from './components/GameOver'; // Import game over screen
+import CaptainNameSelector from './components/CaptainNameSelector'; // Import captain name selector
+import NarrativeEncounter from './components/NarrativeEncounter'; // Import narrative encounter component
 import CaptainCompass from './components/CaptainCompass';
 import ShipStatus from './components/ShipStatus';
 import CrewStatus from './components/CrewStatus';
@@ -24,9 +26,10 @@ import './components/Dashboard/Dashboard.css';
 // Importar as imagens de fundo
 import portBackground from './assets/backgrounds/port.jpg';
 import seaBackground from './assets/backgrounds/sea-day.png';
+import seaNightBackground from './assets/backgrounds/sea-night.png';
 
 function App() {
-  const [gameState, setGameState] = useState('MENU'); // MENU, LOADING, INTRO, PLAYING, ERROR
+  const [gameState, setGameState] = useState('MENU'); // MENU, CAPTAIN_NAME, LOADING, INTRO, PLAYING, ERROR
   const [game, setGame] = useState(null);
   const [eventLog, setEventLog] = useState([]);
   const [error, setError] = useState(null);
@@ -99,6 +102,12 @@ function App() {
         case 'TRAVEL':
           setCurrentView('TRAVEL');
           break;
+        case 'CONTINUE':
+        case 'UNDERSTOOD':
+        case 'GRADUATE':
+          // Para ações de progressão do tutorial, notificar o backend
+          await notifyTutorialProgress(action);
+          break;
       }
       
       // Atualizar o estado do jogo após ação do tutorial
@@ -138,27 +147,43 @@ function App() {
   };
 
   // Handler to start a new game
-  const handleNewGame = async () => {
+  const handleNewGame = () => {
+    // Ir para tela de seleção de nome do capitão
+    setGameState('CAPTAIN_NAME');
+  };
+
+  // Handler to create game with captain name
+  const handleCreateGameWithCaptain = async (captainName) => {
     setGameState('LOADING');
     try {
-      const createResponse = await fetch('/api/games', {
+      const createResponse = await fetch('/api/games/create', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ captainName: captainName })
       });
 
       if (!createResponse.ok) {
+        const errorData = await createResponse.json().catch(() => null);
+        if (errorData && errorData.message) {
+          throw new Error(errorData.message);
+        }
         throw new Error(`HTTP error! status: ${createResponse.status}`);
       }
 
       const newGame = await createResponse.json();
       setGame(newGame);
-      setEventLog(["Bem-vindo a Freedom Tide!"]);
+      setEventLog([`Bem-vindo a Freedom Tide, Capitão ${captainName}!`]);
       setGameState('INTRO'); // Move to intro sequence first
     } catch (e) {
       setError(e.message);
       setGameState('ERROR'); // Move to error state
       console.error("Erro ao criar o jogo:", e);
     }
+  };
+
+  // Handler to go back to menu from captain name selector
+  const handleBackToMenu = () => {
+    setGameState('MENU');
   };
 
   // Helper para verificar game over em qualquer resposta
@@ -187,8 +212,8 @@ function App() {
   };
 
   // Handler para novo jogo após game over
-  const handleNewGameFromGameOver = async () => {
-    await handleNewGame();
+  const handleNewGameFromGameOver = () => {
+    handleNewGame(); // Vai para seleção de nome
   };
 
   // Handler para voltar ao menu principal
@@ -237,7 +262,18 @@ function App() {
   // EFFECT: Detect combat start and manage battle scene
   useEffect(() => {
     if (game?.currentEncounter && game.currentEncounter.type) {
-      const combatTypes = ['MERCHANT_SHIP', 'PIRATE_VESSEL', 'NAVY_PATROL', 'MYSTERIOUS_WRECK'];
+      // Tipos de encontro que requerem combate (incluindo os novos tipos)
+      const combatTypes = [
+        'MERCHANT_SHIP', 'PIRATE_VESSEL', 'NAVY_PATROL',
+        'GUILD_CONVOY', 'IMPERIAL_ESCORT', 'REBEL_SABOTEURS', 'TAX_COLLECTORS',
+        'SMUGGLER_MEET', 'IMPERIAL_PURSUIT', 'PIRATE_ALLIANCE', 'FREEDOM_FIGHTERS'
+      ];
+      
+      // Tipos de encontro narrativos (não-combativos)
+      const narrativeTypes = [
+        'MYSTERIOUS_WRECK', 'TRADE_DISPUTE', 'MERCHANT_DISTRESS',
+        'IMPERIAL_OPPRESSION', 'UNDERGROUND_NETWORK'
+      ];
       
       // Só ativar combate se:
       // 1. É um tipo de encontro de combate
@@ -676,6 +712,21 @@ function App() {
           );
         } else {
           // View when at sea with full background coverage
+          // Detectar se é um encontro narrativo
+          const narrativeTypes = ['MYSTERIOUS_WRECK'];
+          const isNarrativeEncounter = game.currentEncounter && 
+                                      narrativeTypes.includes(game.currentEncounter.type);
+          
+          if (isNarrativeEncounter) {
+            return (
+              <NarrativeEncounter 
+                encounter={game.currentEncounter}
+                onActionClick={handleAction}
+                seaNightBackground={seaNightBackground}
+              />
+            );
+          }
+          
           return (
             <div 
               className="sea-encounter-container" 
@@ -715,6 +766,8 @@ function App() {
     switch (gameState) {
       case 'MENU':
         return <MenuView onNewGame={handleNewGame} />;
+      case 'CAPTAIN_NAME':
+        return <CaptainNameSelector onConfirm={handleCreateGameWithCaptain} onBack={handleBackToMenu} />;
       case 'LOADING':
         return <div className="loading-screen"><p>Criando e carregando o jogo...</p></div>;
       case 'INTRO':
@@ -722,7 +775,7 @@ function App() {
       case 'PLAYING':
         return (
           <>
-            <CaptainCompass compass={game?.captainCompass} />
+            <CaptainCompass compass={game?.captainCompass} captainName={game?.captainName} />
             <header className="app-header">
               <h1>Freedom Tide</h1>
             </header>

@@ -1,20 +1,34 @@
 /* Tutorial Overlay - Sistema de tutorial integrado */
 .tutorial-overlay {
   position: fixed;
-  top: 5px;
+  top: 20px;
   right: 20px;
-  width: 350px;
-  background: var(--color-panel-bg);
+  width: 280px;
+  max-width: 280px;
+  max-height: 70vh;
+  overflow-y: auto;
+  background-color: var(--color-panel-bg);
   border: 4px solid var(--color-border);
   border-radius: 8px;
-  box-shadow: 6px 6px 0px 0px var(--color-border);
+  box-shadow: 
+    6px 6px 0px 0px var(--color-border),
+    inset 0 0 0 2px var(--color-accent),
+    inset 0 0 20px rgba(139, 69, 19, 0.1);
   z-index: 1000;
   transition: all 0.3s ease;
   font-family: var(--font-pixel);
+  
+  /* Textura de papel */
+  background-image: 
+    radial-gradient(circle at 20% 80%, rgba(120, 119, 108, 0.3) 0%, transparent 50%),
+    radial-gradient(circle at 80% 20%, rgba(255, 255, 255, 0.15) 0%, transparent 50%),
+    radial-gradient(circle at 40% 40%, rgba(120, 119, 108, 0.2) 0%, transparent 50%);
+  background-size: 200px 200px, 150px 150px, 100px 100px;
 }
 
 .tutorial-overlay.minimized {
-  width: 300px;
+  width: 240px;
+  max-height: 50vh;
 }
 
 .tutorial-overlay.tutorial-error {
@@ -29,12 +43,32 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 15px 20px 10px;
-  border-bottom: 2px solid var(--color-border);
-  background: linear-gradient(90deg, var(--color-accent) 0%, transparent 100%);
-  background-size: 100% 50%;
-  background-repeat: no-repeat;
-  background-position: bottom;
+  padding: 8px 15px 6px;
+  border-bottom: 3px solid var(--color-border);
+  background: linear-gradient(135deg, 
+    var(--color-accent) 0%, 
+    rgba(205, 133, 63, 0.8) 50%, 
+    var(--color-accent) 100%);
+  position: relative;
+  
+  /* Efeito de desgaste no header */
+  box-shadow: 
+    inset 0 1px 0 rgba(255, 255, 255, 0.2),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.1);
+}
+
+/* Adicionar manchas de idade no header */
+.tutorial-header::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: 
+    radial-gradient(circle at 10% 20%, rgba(139, 69, 19, 0.15) 0%, transparent 30%),
+    radial-gradient(circle at 90% 80%, rgba(160, 82, 45, 0.1) 0%, transparent 40%);
+  pointer-events: none;
 }
 
 .tutorial-title {
@@ -44,11 +78,15 @@
   color: var(--color-text-darker);
   font-weight: bold;
   font-size: 18px;
-  text-shadow: 1px 1px 0px var(--color-accent);
+  text-shadow: 
+    1px 1px 0px rgba(255, 255, 255, 0.3),
+    2px 2px 4px rgba(0, 0, 0, 0.2);
+  position: relative;
+  z-index: 1;
 }
 
 .tutorial-icon {
-  font-size: 20px;
+  font-size: 1px;
 }
 
 .tutorial-controls {
@@ -57,7 +95,7 @@
 }
 
 .tutorial-minimize {
-  background: var(--color-panel-bg);
+  background: linear-gradient(145deg, var(--color-panel-bg), rgba(224, 220, 211, 0.8));
   border: 2px solid var(--color-border);
   color: var(--color-text-darker);
   width: 28px;
@@ -65,25 +103,32 @@
   border-radius: 4px;
   cursor: pointer;
   font-size: 12px;
+  font-weight: bold;
   display: flex;
   align-items: center;
   justify-content: center;
   transition: all 0.2s ease;
-  box-shadow: 2px 2px 0px 0px var(--color-border);
+  box-shadow: 
+    2px 2px 0px 0px var(--color-border),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  position: relative;
+  z-index: 1;
 }
 
 .tutorial-minimize:hover {
-  background: var(--color-accent);
+  background: linear-gradient(145deg, var(--color-accent), rgba(205, 133, 63, 0.9));
   color: var(--color-text-darker);
   transform: translate(1px, 1px);
-  box-shadow: 1px 1px 0px 0px var(--color-border);
+  box-shadow: 
+    1px 1px 0px 0px var(--color-border),
+    inset 0 1px 0 rgba(255, 255, 255, 0.4);
 }
 
 /* Barra de progresso */
 .tutorial-progress {
-  height: 6px;
+  height: 5px;
   background: var(--color-border);
-  margin: 0 20px 15px;
+  margin: 0 15px 10px;
   border-radius: 3px;
   overflow: hidden;
   border: 1px solid var(--color-text-dark);
@@ -102,46 +147,102 @@
 }
 
 .tutorial-message {
-  padding: 0 20px 15px;
+  padding: 0 15px 12px;
   line-height: 1.5;
 }
 
 .tutorial-message p {
   margin: 0;
-  font-size: 20px;
+  font-size: 16px;
 }
 
 /* Objetivos */
 .tutorial-objectives {
-  padding: 0 20px 15px;
+  padding: 10px 15px;
+  background: rgba(255, 248, 220, 0.2);
+  margin: 0 8px 8px;
+  border-radius: 6px;
+  border: 2px solid var(--color-border);
+  border-left: 4px solid var(--color-reputation);
+  position: relative;
+  box-shadow: 
+    inset 0 0 8px rgba(58, 53, 47, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15);
+}
+
+.tutorial-objectives::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: 
+    radial-gradient(circle at 25% 75%, rgba(139, 69, 19, 0.06) 0%, transparent 35%),
+    radial-gradient(circle at 75% 25%, rgba(160, 82, 45, 0.04) 0%, transparent 30%);
+  pointer-events: none;
+  border-radius: 4px;
 }
 
 .tutorial-objectives h4 {
-  color: #d4af37;
+  color: var(--color-reputation);
   margin: 0 0 8px 0;
-  font-size: 20px;
+  font-size: 18px;
+  font-weight: bold;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+  position: relative;
+  z-index: 1;
 }
 
 .tutorial-objectives ul {
   margin: 0;
-  padding-left: 18px;
+  padding-left: 16px;
   font-size: 16px;
   line-height: 1.4;
+  position: relative;
+  z-index: 1;
 }
 
 .tutorial-objectives li {
   margin-bottom: 4px;
+  color: var(--color-text-darker);
 }
 
 /* Checklist de progresso */
 .tutorial-checklist {
-  padding: 0 20px 15px;
+  padding: 15px 20px;
+  background: rgba(245, 222, 179, 0.2);
+  margin: 0 10px 10px;
+  border-radius: 6px;
+  border: 2px solid var(--color-border);
+  position: relative;
+  box-shadow: 
+    inset 0 0 8px rgba(139, 69, 19, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15);
+}
+
+.tutorial-checklist::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: 
+    radial-gradient(circle at 20% 80%, rgba(139, 69, 19, 0.06) 0%, transparent 40%),
+    radial-gradient(circle at 80% 20%, rgba(160, 82, 45, 0.05) 0%, transparent 35%);
+  pointer-events: none;
+  border-radius: 4px;
 }
 
 .tutorial-checklist h4 {
-  color: #d4af37;
-  margin: 0 0 8px 0;
-  font-size: 20px;
+  color: var(--color-accent);
+  margin: 0 0 10px 0;
+  font-size: 18px;
+  font-weight: bold;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+  position: relative;
+  z-index: 1;
 }
 
 .checklist-items {
@@ -155,7 +256,7 @@
   align-items: center;
   gap: 8px;
   font-size: 16px;
-  padding: 4px 0;
+  padding: 5px 0;
   transition: all 0.2s ease;
 }
 
@@ -171,30 +272,47 @@
 /* Dicas contextuais */
 .tutorial-hints {
   padding: 15px 20px;
-  background: transparent;
+  background: rgba(255, 248, 220, 0.3);
   margin: 0 10px 10px;
   border-radius: 6px;
   border: 2px solid var(--color-border);
   border-left: 4px solid var(--color-accent);
-  box-shadow: inset 0 0 10px rgba(58, 53, 47, 0.05);
+  box-shadow: 
+    inset 0 0 10px rgba(58, 53, 47, 0.05),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  position: relative;
+}
+
+.tutorial-hints::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: 
+    radial-gradient(circle at 15% 25%, rgba(139, 69, 19, 0.08) 0%, transparent 35%),
+    radial-gradient(circle at 85% 75%, rgba(160, 82, 45, 0.06) 0%, transparent 30%);
+  pointer-events: none;
+  border-radius: 4px;
 }
 
 .tutorial-hints h4 {
   color: var(--color-accent);
-  margin: 0 0 8px 0;
-  font-size: 16px;
+  margin: 0 0 10px 0;
+  font-size: 18px;
   font-weight: bold;
 }
 
 .tutorial-hints ul {
   margin: 0 0 12px 0;
   padding-left: 18px;
-  font-size: 14px;
-  line-height: 1.4;
+  font-size: 16px;
+  line-height: 1.5;
 }
 
 .tutorial-hints li {
-  margin-bottom: 6px;
+  margin-bottom: 8px;
   font-style: italic;
   color: var(--color-text-dark);
 }
@@ -220,31 +338,58 @@
 }
 
 .tutorial-action-button {
-  background: var(--color-button-primary);
-  border: 2px solid var(--color-border);
+  background: linear-gradient(145deg, var(--color-button-primary), rgba(205, 133, 63, 0.8));
+  border: 3px solid var(--color-border);
   color: var(--color-text-darker);
-  padding: 12px 18px;
-  border-radius: 4px;
+  padding: 14px 20px;
+  border-radius: 6px;
   cursor: pointer;
-  font-size: 13px;
-  font-weight: 500;
+  font-size: 14px;
+  font-weight: bold;
   font-family: var(--font-pixel);
-  transition: all 0.1s ease-in-out;
+  transition: all 0.2s ease;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
-  box-shadow: 4px 4px 0px 0px var(--color-border);
+  gap: 8px;
+  box-shadow: 
+    4px 4px 0px 0px var(--color-border),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.1);
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+  
+  /* Efeito de desgaste */
+  position: relative;
+  overflow: hidden;
+}
+
+.tutorial-action-button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: 
+    radial-gradient(circle at 30% 70%, rgba(139, 69, 19, 0.1) 0%, transparent 40%),
+    radial-gradient(circle at 70% 30%, rgba(160, 82, 45, 0.08) 0%, transparent 30%);
+  pointer-events: none;
 }
 
 .tutorial-action-button:hover {
-  background: var(--color-button-primary-hover);
+  background: linear-gradient(145deg, var(--color-button-primary-hover), rgba(222, 184, 135, 0.9));
   transform: translate(2px, 2px);
-  box-shadow: 2px 2px 0px 0px var(--color-border);
+  box-shadow: 
+    2px 2px 0px 0px var(--color-border),
+    inset 0 1px 0 rgba(255, 255, 255, 0.4),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.15);
 }
 
 .tutorial-action-button:active {
-  transform: translateY(0);
+  transform: translate(3px, 3px);
+  box-shadow: 
+    1px 1px 0px 0px var(--color-border),
+    inset 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
 /* Botão de erro */

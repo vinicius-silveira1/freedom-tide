@@ -90,14 +90,17 @@ function TutorialOverlay({ gameId, onTutorialAction, refreshTrigger, gameState }
             <div className="tutorial-progress-bar" style={{ width: '100%' }}></div>
           </div>
           <div className="tutorial-message">
-            <h3>🏴‍☠️ Parabéns, Capitão!</h3>
-            <p>Você completou o tutorial básico do Freedom Tide. Agora está pronto para navegar pelos mares da liberdade e escrever sua própria lenda!</p>
+            <h3>� Capitão Certificado!</h3>
+            <p>Você completou o tutorial COMPLETO do Freedom Tide! Dominou todas as mecânicas essenciais e está pronto para conquistar os mares!</p>
             <ul>
-              <li>✅ Tripulação recrutada</li>
-              <li>✅ Navio reparado</li>
-              <li>✅ Suprimentos estocados</li>
-              <li>✅ Primeira viagem realizada</li>
-              <li>✅ Encontro marítimo resolvido</li>
+              <li>✅ Tripulação recrutada e gerenciada</li>
+              <li>✅ Navio reparado e mantido</li>
+              <li>✅ Suprimentos comprados estrategicamente</li>
+              <li>✅ Mecânicas de viagem dominadas</li>
+              <li>✅ Sistema de contratos compreendido</li>
+              <li>✅ Encontro marítimo resolvido com sucesso</li>
+              <li>✅ Economia regional mapeada</li>
+              <li>✅ Sistema de upgrades estudado</li>
             </ul>
             <div className="tutorial-completion-actions">
               <button 
@@ -137,14 +140,23 @@ function TutorialOverlay({ gameId, onTutorialAction, refreshTrigger, gameState }
       case 'PREPARATION_CREW': return '👥';
       case 'PREPARATION_SHIPYARD': return '🔧';
       case 'PREPARATION_MARKET': return '🛒';
+      case 'JOURNEY_MECHANICS': return '🎓';
+      case 'CONTRACT_SYSTEM': return '📜';
       case 'JOURNEY_START': return '⛵';
       case 'JOURNEY_EVENT': return '⚔️';
+      case 'ARRIVAL_ECONOMICS': return '💰';
+      case 'ARRIVAL_UPGRADES': return '⚙️';
+      case 'GRADUATION': return '🎓';
       default: return '📋';
     }
   };
 
   const getProgressPercentage = () => {
-    const phases = ['PREPARATION_CREW', 'PREPARATION_SHIPYARD', 'PREPARATION_MARKET', 'JOURNEY_START', 'JOURNEY_EVENT'];
+    const phases = [
+      'PREPARATION_CREW', 'PREPARATION_SHIPYARD', 'PREPARATION_MARKET', 
+      'JOURNEY_MECHANICS', 'CONTRACT_SYSTEM', 'JOURNEY_START', 'JOURNEY_EVENT',
+      'ARRIVAL_ECONOMICS', 'ARRIVAL_UPGRADES', 'GRADUATION'
+    ];
     const currentIndex = phases.indexOf(tutorialState.currentPhase);
     return ((currentIndex + 1) / phases.length) * 100;
   };
@@ -187,7 +199,7 @@ function TutorialOverlay({ gameId, onTutorialAction, refreshTrigger, gameState }
             {/* Objetivos */}
             {tutorialState.objectives && tutorialState.objectives.length > 0 && (
               <div className="tutorial-objectives">
-                <h4>Objetivos:</h4>
+                <h4>🎯 Objetivos:</h4>
                 <ul>
                   {tutorialState.objectives.map((objective, index) => (
                     <li key={index}>{objective}</li>
@@ -199,7 +211,7 @@ function TutorialOverlay({ gameId, onTutorialAction, refreshTrigger, gameState }
             {/* Checklist de progresso */}
             {tutorialState.checklist && (
               <div className="tutorial-checklist">
-                <h4>Progresso:</h4>
+                <h4>📋 Progresso Geral:</h4>
                 <div className="checklist-items">
                   <div className={`checklist-item ${tutorialState.checklist.crewHired ? 'completed' : ''}`}>
                     <span className="checklist-icon">{tutorialState.checklist.crewHired ? '✅' : '⏳'}</span>
@@ -220,7 +232,7 @@ function TutorialOverlay({ gameId, onTutorialAction, refreshTrigger, gameState }
             {/* Dicas contextuais */}
             {tutorialState.hints && tutorialState.hints.length > 0 && (
               <div className="tutorial-hints">
-                <h4>💡 Dicas:</h4>
+                <h4>💡 Dicas Importantes:</h4>
                 <ul>
                   {tutorialState.hints.map((hint, index) => (
                     <li key={index}>{hint}</li>
@@ -232,7 +244,6 @@ function TutorialOverlay({ gameId, onTutorialAction, refreshTrigger, gameState }
             {/* Ações sugeridas */}
             {tutorialState.highlightedActions && tutorialState.highlightedActions.length > 0 && (
               <div className="tutorial-actions">
-                <h4>Próximos Passos:</h4>
                 <div className="action-buttons">
                   {tutorialState.highlightedActions.map((action, index) => (
                     <button
@@ -240,11 +251,9 @@ function TutorialOverlay({ gameId, onTutorialAction, refreshTrigger, gameState }
                       onClick={() => handleTutorialAction(action)}
                       className="tutorial-action-button"
                     >
-                      {action === 'TAVERN' && '🍺 Ir à Taverna'}
-                      {action === 'SHIPYARD' && '🔧 Ir ao Estaleiro'}
-                      {action === 'MARKET' && '🛒 Ir ao Mercado'}
-                      {action === 'TRAVEL' && '⛵ Viajar'}
-                      {!['TAVERN', 'SHIPYARD', 'MARKET', 'TRAVEL'].includes(action) && action}
+                      {action === 'CONTINUE' && '✅ Entendi, Continuar'}
+                      {action === 'GRADUATE' && '🎓 Formatura Completa!'}
+                      {!['CONTINUE', 'GRADUATE'].includes(action) && action}
                     </button>
                   ))}
                 </div>

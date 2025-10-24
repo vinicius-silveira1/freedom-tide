@@ -1,7 +1,7 @@
 import React from 'react';
 import './CaptainCompass.css';
 
-function CaptainCompass({ compass }) {
+function CaptainCompass({ compass, captainName }) {
   // Se a bússola não estiver disponível, renderiza um placeholder invisível para manter o espaço
   if (!compass) {
     return <div className="compass-widget" style={{ visibility: 'hidden' }}></div>;
@@ -14,6 +14,12 @@ function CaptainCompass({ compass }) {
 
   return (
     <div className="compass-widget">
+      {captainName && (
+        <div className="captain-name-display">
+          <span className="captain-title">Capitão</span>
+          <span className="captain-name">{captainName}</span>
+        </div>
+      )}
       <div className="compass-container">
         <img src="/assets/icons/compass/compass.png" alt="Compass" className="compass-bg-icon" />
         <div className="compass-rose">

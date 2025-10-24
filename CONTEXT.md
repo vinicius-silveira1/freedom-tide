@@ -749,5 +749,486 @@ const checkGameOver = (response) => {
 
 **O Freedom Tide agora oferece uma experiência de gameplay com tensão real e consequências definitivas, mantendo o equilíbrio entre desafio e diversão.**
 
+## v1.28 - Sistema Completo de Progressão da Tripulação (Concluído)
 
+**Versão do Jogo:** 1.28
+**Foco:** Implementação completa do sistema de gamificação através de progressão da tripulação, personagens únicos e melhorias visuais.
 
+### Objetivos Alcançados
+
+#### **Sistema de Progressão da Tripulação**
+- ✅ **9 Profissões Especializadas**: Cada uma com ícones e cores distintivas
+- ✅ **5 Níveis de Patente**: De Novato a Lenda, com thresholds de XP balanceados
+- ✅ **Ganho Automático de XP**: Sistema integrado que recompensa ações de jogo
+- ✅ **Interface Visual Completa**: Barras de XP, estatísticas e indicadores visuais
+
+#### **28 Personagens Únicos**
+- ✅ **Distribuição por Portos**: Organização temática por tipo de porto
+- ✅ **Backgrounds Ricos**: Histórias elaboradas para cada personagem
+- ✅ **Balanceamento Estratégico**: Diferentes custos e atributos por raridade
+
+#### **Sistema de Ícones Pixel Art**
+- ✅ **Substituição Completa de Emojis**: Transição para arte consistente
+- ✅ **Organização Estruturada**: Diretórios organizados com READMEs
+- ✅ **Fallback Gracioso**: Sistema robusto com tratamento de erros
+
+#### **Melhorias na Interface de Game Over**
+- ✅ **Simplificação Visual**: Remoção de elementos desnecessários
+- ✅ **Foco no Essencial**: Caveira ampliada e título mais proeminente
+- ✅ **Design Limpo**: Botões apenas com texto, sem ícones
+
+### Arquitetura Técnica
+
+#### **Backend (Spring Boot)**
+```java
+// Enum de Profissões com Métodos Visuais
+public enum CrewProfession {
+    NAVIGATOR("Navegador", "compass.png", "#4A90E2"),
+    GUNNER("Artilheiro", "cannon.png", "#E24A4A");
+    
+    public String getIcon() { return iconFile; }
+    public String getColor() { return colorCode; }
+}
+
+// Sistema de Patentes com XP
+public enum CrewRank {
+    NOVICE(0), EXPERIENCED(100), SKILLED(300), 
+    VETERAN(600), LEGENDARY(1000);
+}
+```
+
+#### **Frontend (React)**
+```jsx
+// Componente de Gestão da Tripulação
+const CrewManagementView = () => {
+    return (
+        <div className="crew-management">
+            {crew.map(member => (
+                <div className="crew-card">
+                    <XPBar current={member.experience} 
+                           next={member.nextRankThreshold} />
+                    <ProfessionIcon profession={member.profession} />
+                </div>
+            ))}
+        </div>
+    );
+};
+```
+
+#### **Serviço de Personagens Únicos**
+```java
+@Service
+public class UniqueCharacterService {
+    // 28 personagens organizados por 4 tipos de porto
+    // Cada personagem com background único e atributos balanceados
+}
+```
+
+### Impacto no Gameplay
+
+#### **Engajamento Aprofundado**
+- **Progressão Visível**: Jogadores veem crescimento em tempo real
+- **Especialização Estratégica**: Diferentes profissões oferecem vantagens únicas
+- **Coleta de Personagens**: 28 personagens únicos incentivam exploração
+
+#### **Recompensas Automáticas**
+- **XP por Ações**: Combate, viagem e comércio concedem experiência
+- **Progressão Natural**: Sistema integrado sem microgerenciamento
+- **Feedback Imediato**: Barras de XP mostram progresso instantâneo
+
+### Melhorias Visuais
+
+#### **Consistência Artística**
+- **Pixel Art Unificada**: Identidade visual coesa em todo o jogo
+- **Ícones Temáticos**: Representações visuais claras de cada profissão
+- **Interface Polida**: Game over screen simplificada e elegante
+
+### Status:
+✅ **Concluído** - Sistema completo de progressão da tripulação implementado com sucesso.
+
+**O Freedom Tide agora oferece um sistema de gamificação robusto que recompensa o jogador com progressão visual e mecânica, mantendo o engajamento através de recompensas contínuas e coleta de personagens únicos.**
+
+## v1.29 - Sistema de Encontros Orientados por Contratos (Concluído)
+
+**Versão do Jogo:** 1.29
+**Foco:** Implementar conexão inteligente entre contratos ativos e encontros marítimos para criar narrativa coesa.
+
+### Problema Identificado
+
+O sistema anterior de encontros era completamente aleatório, desconectado dos contratos ativos do jogador. Isso criava uma experiência fragmentada onde as missões não tinham impacto real na jornada, reduzindo a imersão e o senso de propósito narrativo.
+
+### Solução Implementada
+
+#### **Sistema de Peso Alto para Contratos**
+- **70% de chance** de encontros relacionados ao contrato ativo
+- **30% de encontros aleatórios** para manter variedade
+- **Encontros contextuais** baseados na facção do contrato
+
+#### **Novos Tipos de Encontros por Facção**
+
+**🏛️ GUILD (Guilda Mercante)**
+```java
+GUILD_CONVOY,       // Comboio da Guilda transportando mercadorias valiosas
+TRADE_DISPUTE,      // Disputa comercial que precisa de mediação  
+MERCHANT_DISTRESS   // Mercador em apuros pedindo ajuda
+```
+
+**⚔️ EMPIRE (Império de Alvor)**
+```java
+IMPERIAL_ESCORT,    // Escolta imperial transportando diplomatas ou tesouros
+REBEL_SABOTEURS,    // Sabotadores tentando interceptar recursos imperiais
+TAX_COLLECTORS      // Coletores de impostos imperiais fazendo inspeções
+```
+
+**🏴‍☠️ BROTHERHOOD (Irmandade de Grani)**
+```java
+SMUGGLER_MEET,      // Encontro secreto with contrabandistas
+IMPERIAL_PURSUIT,   // Perseguição imperial a atividades ilícitas
+PIRATE_ALLIANCE     // Proposta de aliança com outros piratas
+```
+
+**🗽 REVOLUTIONARY (Movimento Revolucionário)**
+```java
+FREEDOM_FIGHTERS,   // Lutadores pela liberdade pedindo apoio
+IMPERIAL_OPPRESSION,// Testemunhar atos de opressão imperial
+UNDERGROUND_NETWORK // Contato com a rede clandestina revolucionária
+```
+
+### Implementação Técnica
+
+#### **Serviço Especializado**
+```java
+@Service
+public class ContractEncounterService {
+    private static final double CONTRACT_ENCOUNTER_WEIGHT = 0.7;
+    
+    public SeaEncounterType generateEncounterType(Game game) {
+        Contract activeContract = game.getActiveContract();
+        
+        if (activeContract != null && random.nextDouble() < CONTRACT_ENCOUNTER_WEIGHT) {
+            return generateContractRelatedEncounter(activeContract);
+        }
+        
+        return generateBasicEncounter();
+    }
+}
+```
+
+#### **Sistema de Bônus por Lealdade**
+```java
+private int applyContractBonus(Game game, SeaEncounterType encounterType, 
+                              int baseReward, List<String> eventLog) {
+    // 25% de bônus quando encontro relaciona com contrato ativo
+    double bonusMultiplier = 1.25;
+    int bonusReward = (int) (baseReward * bonusMultiplier);
+    
+    String bonusMessage = switch (activeContract.getFaction()) {
+        case GUILD -> "💰 Bônus da Guilda: +{bonus} ouro pela cooperação comercial!";
+        case EMPIRE -> "⚔️ Bônus Imperial: +{bonus} ouro por servir o Império!";
+        case BROTHERHOOD -> "🏴‍☠️ Bônus da Irmandade: +{bonus} ouro pela lealdade!";
+        case REVOLUTIONARY -> "🗽 Bônus Revolucionário: +{bonus} ouro pela liberdade!";
+    };
+}
+```
+
+#### **Detecção Inteligente de Combate vs Narrativo**
+```java
+public boolean isCombatEncounter(SeaEncounterType type) {
+    return switch (type) {
+        case MERCHANT_SHIP, PIRATE_VESSEL, NAVY_PATROL,
+             GUILD_CONVOY, IMPERIAL_ESCORT, REBEL_SABOTEURS,
+             SMUGGLER_MEET, PIRATE_ALLIANCE, FREEDOM_FIGHTERS -> true;
+             
+        case MYSTERIOUS_WRECK, TRADE_DISPUTE, MERCHANT_DISTRESS,
+             IMPERIAL_OPPRESSION, UNDERGROUND_NETWORK -> false;
+    };
+}
+```
+
+### Impacto no Gameplay
+
+#### **Narrativa Coesa**
+- **Missões com Propósito**: Cada viagem faz sentido no contexto do contrato
+- **Imersão Aprofundada**: Jogador sente estar cumprindo uma missão real
+- **Consequências Reais**: Escolhas de contrato impactam a experiência de viagem
+
+#### **Incentivos Estratégicos**
+- **Recompensas por Lealdade**: 25% bônus por ajudar facção do contrato ativo
+- **Decisões Informadas**: Jogadores podem prever tipos de encontros baseados no contrato
+- **Variedade Mantida**: 30% de encontros aleatórios preservam surpresas
+
+#### **Experiência Personalizada**
+- **Diferentes Narrativas**: Cada facção oferece experiência única
+- **Rejogar Incentivado**: Diferentes contratos = diferentes aventuras
+- **Progressão Natural**: Sistema se integra naturalmente ao gameplay existente
+
+### Exemplos de Funcionamento
+
+#### **Cenário: Contrato da Guilda Ativo**
+```
+Jogador aceita "Transporte de Especiarias" da Guilda
+↓
+Próxima viagem tem 70% chance de encontrar:
+- Comboio da Guilda precisando de escolta (+25% ouro de bônus)
+- Disputa comercial entre mercadores (mediação narrativa)
+- Mercador da Guilda em apuros (missão de resgate)
+```
+
+#### **Cenário: Contrato da Irmandade Ativo**
+```
+Jogador aceita "Contrabando Discreto" da Irmandade
+↓
+Encontros prováveis:
+- Encontro secreto com contrabandistas (informações valiosas)
+- Fuga de perseguição imperial (combate tenso)
+- Proposta de aliança pirata (decisão estratégica)
+```
+
+### Status:
+✅ **Concluído** - Sistema completo de encontros orientados por contratos implementado com sucesso.
+
+**O Freedom Tide agora oferece uma experiência narrativa coesa onde contratos realmente importam, transformando cada viagem em parte de uma missão maior e recompensando a lealdade às facções com bônus tangíveis.**
+
+## Próxima Tarefa: v1.30 - Sistema de Níveis do Capitão
+
+**Versão do Jogo:** 1.30
+**Foco:** Implementar sistema de progressão pessoal do capitão com habilidades desbloqueáveis e benefícios estratégicos.
+
+### Justificativa
+
+Enquanto a tripulação agora possui um sistema completo de progressão, o próprio capitão (jogador) permanece estático. Para completar o ciclo de gamificação, precisamos implementar um sistema onde o capitão também evolui, desbloqueando habilidades que alteram fundamentalmente o gameplay e oferecem novas estratégias.
+
+### Conceito do Sistema
+
+#### **Filosofia de Design**
+- **Progressão Horizontal**: Diferentes caminhos de especialização ao invés de simples power creep
+- **Escolhas Significativas**: Cada nível oferece opções que definem o estilo de jogo
+- **Impacto Estratégico**: Habilidades que alteram mecânicas fundamentais do jogo
+
+#### **Estrutura de Níveis (1-20)**
+```
+Níveis 1-5:   Fundamentos (Navegação, Combate Básico, Comércio)
+Níveis 6-10:  Especialização (Escolha de Caminho Principal)
+Níveis 11-15: Maestria (Habilidades Avançadas)
+Níveis 16-20: Lenda (Habilidades Únicas e Raras)
+```
+
+#### **Três Caminhos de Especialização**
+
+**🗺️ Explorador (Navigator's Path)**
+- **Filosofia**: Descoberta, eficiência de viagem, conhecimento de mundo
+- **Habilidades Exemplo**:
+  - **Cartógrafo** (Nível 6): Revela informações extras sobre portos no mapa
+  - **Navegação Intuitiva** (Nível 8): 25% menos tempo de viagem
+  - **Olho do Marinheiro** (Nível 12): Previsão de condições meteorológicas
+  - **Lenda dos Mares** (Nível 18): Acesso a rotas secretas e portos ocultos
+
+**⚔️ Corsário (Warrior's Path)**
+- **Filosofia**: Combate, intimidação, domínio através da força
+- **Habilidades Exemplo**:
+  - **Tática Naval** (Nível 6): +15% dano em combate naval
+  - **Reputação Temida** (Nível 8): Inimigos menores podem fugir sem luta
+  - **Mestre das Armas** (Nível 12): Acesso a equipamentos exclusivos
+  - **Terror dos Mares** (Nível 18): Habilidade de intimidar portos inteiros
+
+**💰 Mercador (Merchant's Path)**
+- **Filosofia**: Economia, diplomacia, influência através de riqueza
+- **Habilidades Exemplo**:
+  - **Olho para Negócios** (Nível 6): +20% lucro em transações comerciais
+  - **Rede de Contatos** (Nível 8): Acesso a contratos exclusivos
+  - **Magnata** (Nível 12): Pode investir em melhorias de portos
+  - **Barão dos Mares** (Nível 18): Influência política em decisões de porto
+
+### Implementação Técnica
+
+#### **Backend - Estrutura de Dados**
+```java
+@Entity
+public class Captain {
+    private Long id;
+    private Integer level = 1;
+    private Integer experience = 0;
+    private CaptainPath specialization;
+    private Set<CaptainSkill> unlockedSkills;
+    
+    // Métodos para cálculo de XP e progressão
+}
+
+public enum CaptainPath {
+    EXPLORER("🗺️", "Explorador"),
+    CORSAIR("⚔️", "Corsário"), 
+    MERCHANT("💰", "Mercador");
+}
+
+@Entity 
+public class CaptainSkill {
+    private String name;
+    private String description;
+    private Integer requiredLevel;
+    private CaptainPath requiredPath;
+    private SkillEffect effect;
+}
+```
+
+#### **Sistema de XP do Capitão**
+```java
+@Service
+public class CaptainProgressionService {
+    
+    public void awardExperience(Captain captain, ExperienceSource source, int amount) {
+        // Diferentes fontes de XP com multiplicadores por caminho
+        // Exploradores ganham mais XP de viagens
+        // Corsários ganham mais XP de combates
+        // Mercadores ganham mais XP de comércio
+    }
+    
+    public List<CaptainSkill> getAvailableSkills(Captain captain) {
+        // Retorna habilidades disponíveis baseadas em nível e caminho
+    }
+}
+```
+
+#### **Frontend - Interface de Progressão**
+```jsx
+const CaptainProgressionView = () => {
+    return (
+        <div className="captain-progression">
+            <div className="captain-level-display">
+                <h2>Capitão Nível {captain.level}</h2>
+                <XPBar current={captain.experience} 
+                       next={calculateNextLevelXP(captain.level)} />
+            </div>
+            
+            <div className="specialization-paths">
+                {paths.map(path => (
+                    <SpecializationPath 
+                        path={path}
+                        selected={captain.specialization === path}
+                        availableSkills={getAvailableSkills(path)}
+                    />
+                ))}
+            </div>
+            
+            <div className="skill-tree">
+                <SkillTree captain={captain} />
+            </div>
+        </div>
+    );
+};
+```
+
+### Plano de Implementação
+
+#### **Fase 1: Estrutura Base**
+1. **Modelo de Dados**: Entidades Captain, CaptainSkill, sistema de XP
+2. **Serviços Core**: CaptainProgressionService, SkillEffectService
+3. **Integração**: Conectar com sistema existente de Game
+
+#### **Fase 2: Sistema de XP**
+1. **Fontes de Experiência**: Integrar com ações existentes do jogo
+2. **Cálculos de Nível**: Implementar curva de progressão balanceada
+3. **Persistência**: Salvar progresso do capitão no banco de dados
+
+#### **Fase 3: Árvore de Habilidades**
+1. **Definição de Skills**: Criar 15-20 habilidades únicas
+2. **Efeitos de Gameplay**: Implementar modificadores de jogo
+3. **Balanceamento**: Ajustar impacto das habilidades
+
+#### **Fase 4: Interface Visual**
+1. **Tela de Progressão**: Componente dedicado para evolução do capitão
+2. **Skill Tree Visual**: Interface intuitiva para seleção de habilidades
+3. **Indicadores**: Mostrar progresso e efeitos ativos na UI principal
+
+### Benefícios Esperados
+
+#### **Replayability**
+- **Diferentes Builds**: Três caminhos distintos incentivam múltiplas jogatinas
+- **Experimentação**: Jogadores podem testar diferentes estratégias
+
+#### **Progressão Pessoal**
+- **Investimento Emocional**: Capitão cresce junto com o jogador
+- **Recompensas Tangíveis**: Habilidades alteram mecânicas de jogo
+
+#### **Estratégia Profunda**
+- **Planejamento de Build**: Decisões de longo prazo sobre especialização
+- **Adaptação Tática**: Habilidades permitem diferentes abordagens para desafios
+
+### Status:
+🔄 **Em Planejamento** - Próxima grande funcionalidade a ser implementada.
+
+**O sistema de níveis do capitão completará o ciclo de gamificação do Freedom Tide, oferecendo progressão pessoal significativa e escolhas estratégicas que alteram fundamentalmente a experiência de jogo.**
+
+## v1.30 - Sistema Tutorial Finalizado (Concluído)
+
+**Versão do Jogo:** 1.30  
+**Foco:** Correção completa dos bugs de progressão do tutorial e otimização visual para melhor experiência do usuário.
+
+### Problemas Resolvidos
+
+#### **Progressão Interrompida**
+- **Problema**: Tutorial ficava travado na fase JOURNEY_MECHANICS após resolver encontros marítimos
+- **Solução**: Implementado sistema flexível de progressão que aceita múltiplas ações (ENCOUNTER_RESOLUTION, CONTINUE, UNDERSTOOD)
+- **Resultado**: Fluxo natural entre fases independente do tipo de ação do jogador
+
+#### **Checklist Regressivo**  
+- **Problema**: Checklist de progresso perdia estado quando navio sofria dano durante viagem
+- **Solução**: Sistema de checklist persistente usando campos específicos no banco (tutorialCrewCompleted, tutorialShipCompleted, tutorialSuppliesCompleted)
+- **Resultado**: Progresso mantido independente de mudanças no estado do jogo
+
+#### **Comunicação Frontend-Backend**
+- **Problema**: Ações CONTINUE/UNDERSTOOD não notificavam o backend para progressão
+- **Solução**: Correção no handleTutorialAction para incluir chamadas de notifyTutorialProgress
+- **Resultado**: Todas as ações do tutorial sincronizam corretamente com o backend
+
+### Melhorias Visuais Implementadas
+
+#### **Tema de Pergaminho Antigo**
+- **Background**: Gradientes radiais simulando textura de papel envelhecido
+- **Header**: Gradiente diagonal metálico com efeitos de desgaste
+- **Seções**: Fundos temáticos diferenciados (objetivos: creme/dourado, checklist: bege, dicas: amarelo pálido)
+- **Botões**: Efeitos 3D com gradientes e sombras para aparência de botões antigos
+
+#### **Otimização de Tamanho**
+- **Largura**: Reduzida de 350px → 280px (normal) e 240px (minimizado)
+- **Altura**: Limitada a 70vh com scroll automático para evitar overflow
+- **Layout**: Removido sistema de horizontalização, mantido layout vertical consistente para todas as fases
+
+#### **Tipografia Melhorada**
+- **Texto Principal**: 12px → 14px com line-height otimizado (1.4 → 1.5)
+- **Títulos**: Padronizados em 15px para consistência visual
+- **Botões**: 13px → 14px com padding aumentado para melhor clicabilidade
+- **Listas**: 12px → 13px para melhor legibilidade de textos longos
+
+### Arquitetura Técnica
+
+#### **Backend (Spring Boot)**
+- **TutorialServiceImpl**: Lógica flexível de progressão com validação robusta
+- **Game Model**: Campos persistentes para checklist independente do estado do jogo
+- **GameService**: Integração completa com notificações de progresso tutorial
+
+#### **Frontend (React)**
+- **TutorialOverlay**: Componente simplificado com layout vertical unificado
+- **TutorialOverlay.css**: Sistema de estilização temática completo
+- **App.jsx**: Comunicação corrigida entre frontend e backend
+
+### Impacto na Experiência do Usuário
+
+#### **Onboarding Confiável**
+- Tutorial funciona consistentemente em todos os cenários de jogo
+- Progressão previsível elimina confusão para novos jogadores
+- Checklist persistente fornece orientação clara
+
+#### **Interface Polida**
+- Visual profissional com tema coerente ao jogo
+- Legibilidade excelente para instruções complexas
+- Tamanho otimizado não interfere na jogabilidade
+
+#### **Manutenibilidade**
+- Código simplificado facilita futuras expansões
+- Sistema de debug robusto para identificação rápida de problemas
+- Arquitetura flexível suporta novos tipos de tutorial
+
+### Status:
+✅ **Concluído** - Sistema tutorial completamente funcional e visualmente polido.
+
+**O tutorial agora oferece uma introdução perfeita ao Freedom Tide, guiando novos jogadores através de todas as mecânicas essenciais com interface elegante e progressão confiável.**

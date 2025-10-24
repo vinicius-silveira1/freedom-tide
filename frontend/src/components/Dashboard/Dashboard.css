@@ -91,8 +91,8 @@
 }
 
 .prop-coins {
-  top: 350px; /* Moved up */
-  right: 100px;
+  top: 300px; /* Moved up */
+  right: 260px;
   width: 150px;
-  z-index: 2;
+  z-index: 1;
 }

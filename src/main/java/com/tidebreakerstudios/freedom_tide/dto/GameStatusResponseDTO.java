@@ -7,6 +7,7 @@ import lombok.Data;
 @Builder
 public class GameStatusResponseDTO {
     private Long id;
+    private String captainName;
     private CaptainCompassDTO captainCompass;
     private ShipSummaryDTO ship;
     private CrewSummaryDTO crew;

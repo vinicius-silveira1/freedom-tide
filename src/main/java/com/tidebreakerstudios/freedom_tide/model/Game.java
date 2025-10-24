@@ -26,6 +26,12 @@ public class Game {
     private Long id;
 
     /**
+     * O nome do capitão (jogador).
+     */
+    @Column(name = "captain_name")
+    private String captainName;
+
+    /**
      * A quantidade de ouro (dinheiro) que o jogador possui.
      */
     @Builder.Default
@@ -90,6 +96,19 @@ public class Game {
     @Column(name = "tutorial_completed")
     @Builder.Default
     private boolean tutorialCompleted = false;
+
+    // Tutorial checklist progress (persistent)
+    @Column(name = "tutorial_crew_completed")
+    @Builder.Default
+    private boolean tutorialCrewCompleted = false;
+
+    @Column(name = "tutorial_ship_completed")
+    @Builder.Default
+    private boolean tutorialShipCompleted = false;
+
+    @Column(name = "tutorial_supplies_completed")
+    @Builder.Default
+    private boolean tutorialSuppliesCompleted = false;
 
     // Game Over fields
     @Column(name = "game_over")

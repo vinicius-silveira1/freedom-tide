@@ -29,7 +29,6 @@ function GameOver({ gameOverReason, onNewGame, onMainMenu }) {
               src="/assets/icons/game-over/skull.png" 
               alt="Caveira" 
               className="skull-icon"
-              onError={(e) => { e.target.outerHTML = '💀'; }}
             />
           </div>
           
@@ -51,53 +50,14 @@ function GameOver({ gameOverReason, onNewGame, onMainMenu }) {
               onClick={onNewGame} 
               className="action-button new-game-button"
             >
-              <img 
-                src="/assets/icons/game-over/sail.png" 
-                alt="Vela" 
-                className="button-icon"
-                onError={(e) => { e.target.outerHTML = '🚢'; }}
-              />
               Nova Jornada
             </button>
             <button 
               onClick={onMainMenu} 
               className="action-button main-menu-button"
             >
-              <img 
-                src="/assets/icons/game-over/hook.png" 
-                alt="Gancho" 
-                className="button-icon"
-                onError={(e) => { e.target.outerHTML = '⚓'; }}
-              />
               Menu Principal
             </button>
-          </div>
-        </div>
-        
-        <div className="waves-decoration">
-          <div className="wave wave-1">
-            <img 
-              src="/assets/icons/game-over/pirate_flag.png" 
-              alt="Bandeira Pirata" 
-              className="wave-icon"
-              onError={(e) => { e.target.outerHTML = '🌊'; }}
-            />
-          </div>
-          <div className="wave wave-2">
-            <img 
-              src="/assets/icons/game-over/pirate_flag.png" 
-              alt="Bandeira Pirata" 
-              className="wave-icon"
-              onError={(e) => { e.target.outerHTML = '🌊'; }}
-            />
-          </div>
-          <div className="wave wave-3">
-            <img 
-              src="/assets/icons/game-over/pirate_flag.png" 
-              alt="Bandeira Pirata" 
-              className="wave-icon"
-              onError={(e) => { e.target.outerHTML = '🌊'; }}
-            />
           </div>
         </div>
       </div>

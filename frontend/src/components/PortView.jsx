@@ -10,6 +10,7 @@ const PortView = ({ actions, onActionClick }) => {
     GO_TO_SHIPYARD: { name: 'Estaleiro', className: 'shipyard-link' },
     VIEW_CONTRACTS: { name: 'Contratos', className: 'contracts-link' },
     TRAVEL: { name: 'Viajar', className: 'travel-link' },
+    RESOLVE_CONTRACT: { name: '✅ Resolver Contrato', className: 'resolve-contract-link' },
   };
 
   const handleActionClick = (action) => {

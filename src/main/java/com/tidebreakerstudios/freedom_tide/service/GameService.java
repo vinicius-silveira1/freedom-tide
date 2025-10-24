@@ -6,8 +6,10 @@ import com.tidebreakerstudios.freedom_tide.model.*;
 import com.tidebreakerstudios.freedom_tide.model.enums.IntroChoice;
 import com.tidebreakerstudios.freedom_tide.model.enums.CrewProfession;
 import com.tidebreakerstudios.freedom_tide.model.enums.CrewRank;
+import com.tidebreakerstudios.freedom_tide.model.enums.TutorialPhase;
 import com.tidebreakerstudios.freedom_tide.repository.*;
 import com.tidebreakerstudios.freedom_tide.service.tutorial.TutorialMetricsService;
+import com.tidebreakerstudios.freedom_tide.dto.tutorial.TutorialProgressRequestDTO;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -35,6 +37,8 @@ public class GameService {
     private final GameMapper gameMapper;
     private final ContractService contractService;
     private final TutorialMetricsService tutorialMetricsService;
+    private final ContractEncounterService contractEncounterService;
+    private final TutorialService tutorialService;
 
     // Constantes de Moral
     private static final int INSUBORDINATION_THRESHOLD = 30;
@@ -57,6 +61,11 @@ public class GameService {
     
     @Transactional
     public Game createNewGame() {
+        return createNewGame("Capitão Anônimo");
+    }
+
+    @Transactional
+    public Game createNewGame(String captainName) {
         Port startingPort = portRepository.findByName("Porto Real")
                 .orElseThrow(() -> new IllegalStateException("Porto inicial 'Porto Real' não encontrado. O DataSeeder falhou?"));
 
@@ -68,14 +77,15 @@ public class GameService {
                 .crew(new ArrayList<>())
                 .maxHullIntegrity(initialShipType.getMaxHull())
                 .hullIntegrity(initialShipType.getMaxHull() - 20) // Navio começa com 20 de dano
-                .foodRations(30) // Começa com poucos suprimentos para o tutorial
-                .rumRations(15)  // Começa com poucos suprimentos para o tutorial
+                .foodRations(30) // Suficiente para ~6 viagens (mais confortável)
+                .rumRations(12)  // Suficiente para ~6 viagens (mais confortável)
                 .build();
 
         Game newGame = Game.builder()
+                .captainName(captainName)
                 .ship(newShip)
                 .currentPort(startingPort)
-                .gold(1000) // Ouro inicial suficiente para o tutorial
+                .gold(1200) // Aumentado de 1000 para 1200 devido aos custos de viagem
                 .build();
 
         newShip.setGame(newGame);
@@ -142,11 +152,20 @@ public class GameService {
         game.setCurrentPort(null);
         game.setDestinationPort(destinationPort);
 
-        SeaEncounter encounter = generateRandomEncounter();
+        // Aplicar custos de viagem
+        List<String> travelCosts = applyTravelCosts(game);
+
+        SeaEncounter encounter = generateRandomEncounter(game);
         game.setCurrentEncounter(encounter);
 
         // O SeaEncounter é salvo em cascata a partir do Game
         Game savedGame = gameRepository.save(game);
+
+        // Notificar tutorial sobre a viagem (se em tutorial)
+        if (!savedGame.isTutorialCompleted() && savedGame.getTutorialPhase() == TutorialPhase.JOURNEY_START) {
+            tutorialService.progressTutorial(savedGame.getId(), 
+                TutorialProgressRequestDTO.builder().action("TRAVEL").build());
+        }
 
         // Conceder XP de navegação para navegadores
         List<String> progressMessages = crewProgressionService.awardNavigationXP(savedGame);
@@ -156,6 +175,13 @@ public class GameService {
         
         List<String> eventLog = new ArrayList<>();
         eventLog.add(departureMessage);
+        
+        // Adicionar explicação na primeira viagem
+        if (game.getGold() >= 1180) { // Detecta se é próximo da primeira viagem
+            eventLog.add("💡 LEMBRETE: Viagens consomem suprimentos e desgastam o navio. Gerencie seus recursos!");
+        }
+        
+        eventLog.addAll(travelCosts); // Adicionar custos de viagem ao log
         eventLog.add(encounterMessage);
         eventLog.addAll(progressMessages);
 
@@ -168,13 +194,14 @@ public class GameService {
                 .build();
     }
 
-    private SeaEncounter generateRandomEncounter() {
-        SeaEncounterType[] encounterTypes = SeaEncounterType.values();
-        SeaEncounterType randomType = encounterTypes[new Random().nextInt(encounterTypes.length)];
+    private SeaEncounter generateRandomEncounter(Game game) {
+        // Usa o novo serviço para determinar o tipo baseado no contrato ativo
+        SeaEncounterType encounterType = contractEncounterService.generateEncounterType(game);
+        
+        SeaEncounter.SeaEncounterBuilder encounterBuilder = SeaEncounter.builder().type(encounterType);
 
-        SeaEncounter.SeaEncounterBuilder encounterBuilder = SeaEncounter.builder().type(randomType);
-
-        switch (randomType) {
+        switch (encounterType) {
+            // Encontros básicos originais
             case MERCHANT_SHIP -> {
                 encounterBuilder
                     .description("No horizonte, você avista as velas de um navio mercante solitário, navegando lentamente com sua carga.")
@@ -199,6 +226,98 @@ public class GameService {
             case MYSTERIOUS_WRECK -> {
                 encounterBuilder
                     .description("Os destroços de um naufrágio aparecem à deriva, mastros quebrados apontando para o céu como dedos esqueléticos.")
+                    .hull(0)
+                    .cannons(0)
+                    .sails(0);
+            }
+            
+            // Encontros relacionados a contratos da GUILD
+            case GUILD_CONVOY -> {
+                encounterBuilder
+                    .description("Um comboio da Guilda Mercante navega pesadamente, escoltado por navios de guerra. Suas cargas podem ser valiosas...")
+                    .hull(75)
+                    .cannons(6)
+                    .sails(5);
+            }
+            case TRADE_DISPUTE -> {
+                encounterBuilder
+                    .description("Dois navios mercantes estão parados, aparentemente em uma disputa comercial acalorada. Eles podem precisar de mediação.")
+                    .hull(0)
+                    .cannons(0)
+                    .sails(0);
+            }
+            case MERCHANT_DISTRESS -> {
+                encounterBuilder
+                    .description("Um navio da Guilda está enviando sinais de socorro. Fumaça sobe de seus compartimentos de carga.")
+                    .hull(0)
+                    .cannons(0)
+                    .sails(0);
+            }
+            
+            // Encontros relacionados a contratos do EMPIRE
+            case IMPERIAL_ESCORT -> {
+                encounterBuilder
+                    .description("Uma frota de escolta imperial transporta algo de grande valor. Seus navios estão em formação de combate.")
+                    .hull(100)
+                    .cannons(10)
+                    .sails(6);
+            }
+            case REBEL_SABOTEURS -> {
+                encounterBuilder
+                    .description("Navios disfarçados de mercadores revelam suas verdadeiras intenções - são sabotadores rebeldes!")
+                    .hull(60)
+                    .cannons(6)
+                    .sails(8);
+            }
+            case TAX_COLLECTORS -> {
+                encounterBuilder
+                    .description("Coletores de impostos imperiais abordam navios para inspeções 'de rotina'. Sua autoridade é absoluta.")
+                    .hull(90)
+                    .cannons(8)
+                    .sails(6);
+            }
+            
+            // Encontros relacionados a contratos da BROTHERHOOD
+            case SMUGGLER_MEET -> {
+                encounterBuilder
+                    .description("Um navio sem bandeira se aproxima discretamente. O capitão sussurra sobre 'negócios especiais'.")
+                    .hull(65)
+                    .cannons(4)
+                    .sails(9);
+            }
+            case IMPERIAL_PURSUIT -> {
+                encounterBuilder
+                    .description("Navios imperiais em perseguição quente! Eles procuram contrabandistas e qualquer um pode ser suspeito.")
+                    .hull(110)
+                    .cannons(10)
+                    .sails(7);
+            }
+            case PIRATE_ALLIANCE -> {
+                encounterBuilder
+                    .description("Um capitão pirata respeitado oferece uma proposta de aliança. Suas intenções podem ser honestas... ou não.")
+                    .hull(85)
+                    .cannons(8)
+                    .sails(7);
+            }
+            
+            // Encontros relacionados a contratos REVOLUTIONARY
+            case FREEDOM_FIGHTERS -> {
+                encounterBuilder
+                    .description("Lutadores pela liberdade em navios improvisados pedem sua ajuda contra a opressão imperial.")
+                    .hull(45)
+                    .cannons(3)
+                    .sails(6);
+            }
+            case IMPERIAL_OPPRESSION -> {
+                encounterBuilder
+                    .description("Você testemunha um ato de brutalidade imperial contra civis. A justiça clama por ação.")
+                    .hull(0)
+                    .cannons(0)
+                    .sails(0);
+            }
+            case UNDERGROUND_NETWORK -> {
+                encounterBuilder
+                    .description("Um contato da rede clandestina se aproxima com informações valiosas sobre movimentos imperiais.")
                     .hull(0)
                     .cannons(0)
                     .sails(0);
@@ -252,6 +371,17 @@ public class GameService {
                 "/api/games/" + gameId + "/port/tavern"
         ));
 
+        // Adicionar ação de resolver contrato se estiver no porto correto
+        Contract activeContract = game.getActiveContract();
+        if (activeContract != null && activeContract.getDestinationPort().equals(game.getCurrentPort())) {
+            actions.add(new PortActionDTO(
+                    PortActionType.RESOLVE_CONTRACT,
+                    "✅ Resolver Contrato",
+                    String.format("Completar o contrato '%s' e receber as recompensas.", activeContract.getTitle()),
+                    "/api/games/" + gameId + "/contracts/resolve"
+            ));
+        }
+
         return actions;
     }
 
@@ -267,18 +397,44 @@ public class GameService {
         List<EncounterActionDTO> actions = new ArrayList<>();
         String basePath = "/api/games/" + gameId + "/encounter/";
 
-        switch (encounter.getType()) {
-            case MERCHANT_SHIP, PIRATE_VESSEL, NAVY_PATROL -> {
-                actions.add(new EncounterActionDTO(EncounterActionType.ATTACK, "Atacar", "Iniciar combate naval.", basePath + "attack"));
-                actions.add(new EncounterActionDTO(EncounterActionType.BOARD, "Abordar", "Tentar uma abordagem para capturar o navio.", basePath + "board"));
-                actions.add(new EncounterActionDTO(EncounterActionType.FLEE, "Fugir", "Tentar escapar do encontro.", basePath + "flee"));
+        // Usar o serviço para determinar se é encontro de combate ou narrativo
+        boolean isCombatEncounter = contractEncounterService.isCombatEncounter(encounter.getType());
+        
+        if (isCombatEncounter) {
+            // Ações padrão de combate
+            actions.add(new EncounterActionDTO(EncounterActionType.ATTACK, "Atacar", "Iniciar combate naval.", basePath + "attack"));
+            actions.add(new EncounterActionDTO(EncounterActionType.BOARD, "Abordar", "Tentar uma abordagem para capturar o navio.", basePath + "board"));
+            actions.add(new EncounterActionDTO(EncounterActionType.FLEE, "Fugir", "Tentar escapar do encontro.", basePath + "flee"));
+            
+            // Ações específicas por tipo
+            switch (encounter.getType()) {
+                case MERCHANT_SHIP, GUILD_CONVOY, MERCHANT_DISTRESS -> {
+                    actions.add(new EncounterActionDTO(EncounterActionType.NEGOTIATE, "Negociar", "Tentar uma abordagem diplomática ou comercial.", basePath + "negotiate"));
+                }
+                case SMUGGLER_MEET, PIRATE_ALLIANCE -> {
+                    actions.add(new EncounterActionDTO(EncounterActionType.NEGOTIATE, "Negociar", "Discutir termos de cooperação.", basePath + "negotiate"));
+                }
+                case FREEDOM_FIGHTERS -> {
+                    actions.add(new EncounterActionDTO(EncounterActionType.NEGOTIATE, "Apoiar", "Oferecer apoio à causa da liberdade.", basePath + "negotiate"));
+                }
             }
-            case MYSTERIOUS_WRECK -> {
-                actions.add(new EncounterActionDTO(EncounterActionType.INVESTIGATE, "Investigar", "Explorar os destroços em busca de recursos ou sobreviventes.", basePath + "investigate"));
+        } else {
+            // Encontros narrativos específicos
+            switch (encounter.getType()) {
+                case MYSTERIOUS_WRECK -> {
+                    actions.add(new EncounterActionDTO(EncounterActionType.INVESTIGATE, "Investigar", "Explorar os destroços em busca de recursos ou sobreviventes.", basePath + "investigate"));
+                }
+                case TRADE_DISPUTE -> {
+                    actions.add(new EncounterActionDTO(EncounterActionType.INVESTIGATE, "Mediar", "Tentar resolver a disputa comercial.", basePath + "investigate"));
+                }
+                case IMPERIAL_OPPRESSION -> {
+                    actions.add(new EncounterActionDTO(EncounterActionType.INVESTIGATE, "Intervir", "Tentar intervir contra a injustiça.", basePath + "investigate"));
+                    actions.add(new EncounterActionDTO(EncounterActionType.FLEE, "Ignorar", "Seguir viagem sem se envolver.", basePath + "flee"));
+                }
+                case UNDERGROUND_NETWORK -> {
+                    actions.add(new EncounterActionDTO(EncounterActionType.INVESTIGATE, "Escutar", "Ouvir as informações oferecidas.", basePath + "investigate"));
+                }
             }
-        }
-        if (encounter.getType() == SeaEncounterType.MERCHANT_SHIP) {
-            actions.add(new EncounterActionDTO(EncounterActionType.NEGOTIATE, "Negociar", "Tentar uma abordagem diplomática ou comercial.", basePath + "negotiate"));
         }
 
         return actions;
@@ -566,6 +722,15 @@ public class GameService {
             eventLog.add("Você chegou ao seu destino: " + destination.getName());
 
             endTurnCycle(game, eventLog);
+
+            // Notificar tutorial sobre a chegada ao destino (se em tutorial)
+            if (!game.isTutorialCompleted() && game.getTutorialPhase() == TutorialPhase.JOURNEY_EVENT) {
+                System.out.println("DEBUG: GameService fleeEncounter - Enviando notificação ARRIVE_DESTINATION para tutorial do game " + game.getId());
+                tutorialService.progressTutorial(game.getId(), 
+                    TutorialProgressRequestDTO.builder().action("ARRIVE_DESTINATION").build());
+            } else {
+                System.out.println("DEBUG: GameService fleeEncounter - Não enviando notificação. TutorialCompleted: " + game.isTutorialCompleted() + ", Fase: " + game.getTutorialPhase());
+            }
         } else {
             int hullDamage = 5;
             ship.setHullIntegrity(ship.getHullIntegrity() - hullDamage);
@@ -590,8 +755,8 @@ public class GameService {
         List<String> eventLog = new ArrayList<>();
 
         SeaEncounter encounter = game.getCurrentEncounter();
-        if (encounter == null || encounter.getType() != SeaEncounterType.MYSTERIOUS_WRECK) {
-            throw new IllegalStateException("A ação 'Investigar' só pode ser usada em destroços misteriosos.");
+        if (encounter == null || contractEncounterService.isCombatEncounter(encounter.getType())) {
+            throw new IllegalStateException("A ação 'Investigar' só pode ser usada em encontros narrativos.");
         }
 
         Port destination = game.getDestinationPort();
@@ -599,62 +764,33 @@ public class GameService {
             throw new IllegalStateException("Não há um destino definido para o qual viajar após a investigação.");
         }
 
-        eventLog.add("Você ordena que a tripulação investigue os destroços...");
+        // Processar o encontro específico baseado no tipo
+        processNarrativeEncounter(game, encounter, eventLog);
 
-        if (ThreadLocalRandom.current().nextDouble() < 0.15) {
-            int hullDamage = ThreadLocalRandom.current().nextInt(3, 8);
-            ship.setHullIntegrity(ship.getHullIntegrity() - hullDamage);
-            eventLog.add(String.format("RISCO: Ao se aproximar, destroços ocultos arranham o casco, causando %d de dano!", hullDamage));
-            
-            // Verificar se o navio foi destruído
-            if (ship.getHullIntegrity() <= 0) {
-                ship.setHullIntegrity(0);
-                eventLog.add("💀 CATÁSTROFE! O dano foi crítico!");
-                eventLog.add("Os destroços perfuraram completamente o casco. Água jorra para dentro do navio.");
-                eventLog.add("Não há tempo para reparos... o navio está perdido!");
-                eventLog.add("🌊 SEU NAVIO AFUNDOU - FIM DE JOGO 🌊");
-                
-                game.setGameOver(true);
-                game.setGameOverReason("Navio destruído por destroços durante investigação");
-                
-                Game savedGame = gameRepository.save(game);
-                return GameActionResponseDTO.builder()
-                        .gameStatus(gameMapper.toGameStatusResponseDTO(savedGame))
-                        .eventLog(eventLog)
-                        .gameOver(true)
-                        .build();
-            }
-        }
-
-        int crewIntelligence = ship.getCrew().stream().mapToInt(CrewMember::getIntelligence).sum();
-        int difficulty = 15;
-        int randomFactor = ThreadLocalRandom.current().nextInt(1, 21);
-        boolean success = crewIntelligence + randomFactor > difficulty;
-
-        if (success) {
-            int goldFound = ThreadLocalRandom.current().nextInt(100, 251);
-            int partsFound = ThreadLocalRandom.current().nextInt(5, 11);
-            game.setGold(game.getGold() + goldFound);
-            ship.setRepairParts(ship.getRepairParts() + partsFound);
-            eventLog.add(String.format(
-                "SUCESSO: A tripulação (Inteligência %d + rolagem %d) superou a dificuldade (%d)! Eles encontram um compartimento secreto contendo %d de ouro e %d peças de reparo.",
-                crewIntelligence, randomFactor, difficulty, goldFound, partsFound
-            ));
-        } else {
-            int goldFound = ThreadLocalRandom.current().nextInt(20, 51);
-            game.setGold(game.getGold() + goldFound);
-            eventLog.add(String.format(
-                "FALHA: A tripulação (Inteligência %d + rolagem %d) não superou a dificuldade (%d). Após muita busca, encontram apenas %d de ouro nos bolsos de um esqueleto.",
-                crewIntelligence, randomFactor, difficulty, goldFound
-            ));
+        // Verificar se o jogo terminou durante o processamento
+        if (game.isGameOver()) {
+            Game savedGame = gameRepository.save(game);
+            return GameActionResponseDTO.builder()
+                    .gameStatus(gameMapper.toGameStatusResponseDTO(savedGame))
+                    .eventLog(eventLog)
+                    .gameOver(true)
+                    .build();
         }
 
         game.setCurrentPort(destination);
         game.setCurrentEncounter(null);
         game.setDestinationPort(null);
-        eventLog.add("Com os destroços vasculhados, você continua sua viagem e chega a " + destination.getName() + ".");
 
         endTurnCycle(game, eventLog);
+
+        // Notificar tutorial sobre a chegada ao destino (se em tutorial)
+        if (!game.isTutorialCompleted() && game.getTutorialPhase() == TutorialPhase.JOURNEY_EVENT) {
+            System.out.println("DEBUG: GameService investigateEncounter - Enviando notificação ARRIVE_DESTINATION para tutorial do game " + game.getId());
+            tutorialService.progressTutorial(game.getId(), 
+                TutorialProgressRequestDTO.builder().action("ARRIVE_DESTINATION").build());
+        } else {
+            System.out.println("DEBUG: GameService investigateEncounter - Não enviando notificação. TutorialCompleted: " + game.isTutorialCompleted() + ", Fase: " + game.getTutorialPhase());
+        }
 
         Game savedGame = gameRepository.save(game);
         List<PortActionDTO> portActions = getAvailablePortActions(savedGame.getId());
@@ -673,7 +809,7 @@ public class GameService {
         SeaEncounter encounter = game.getCurrentEncounter();
         List<String> eventLog = new ArrayList<>();
 
-        if (encounter == null || encounter.getType() == SeaEncounterType.MYSTERIOUS_WRECK) {
+        if (encounter == null || !contractEncounterService.isCombatEncounter(encounter.getType())) {
             throw new IllegalStateException("Não há um alvo válido para atacar.");
         }
 
@@ -703,7 +839,10 @@ public class GameService {
                     eventLog.add(String.format("Apesar de encontrar apenas %d de ouro, derrotar a patrulha inspira os oprimidos. Sua Aliança cresce.", goldReward));
                 }
             }
-            game.setGold(game.getGold() + goldReward);
+            
+            // Aplicar bônus de contrato se aplicável
+            int finalGoldReward = applyContractBonus(game, encounter.getType(), goldReward, eventLog);
+            game.setGold(game.getGold() + finalGoldReward);
 
             // Conceder XP de combate para a tripulação (vitória)
             List<String> progressMessages = crewProgressionService.awardCombatXP(game, true, false);
@@ -715,6 +854,12 @@ public class GameService {
             game.setDestinationPort(null);
             eventLog.add("Com a batalha terminada, você continua sua viagem e chega a " + destination.getName() + ".");
             endTurnCycle(game, eventLog);
+
+            // Notificar tutorial sobre a chegada ao destino (se em tutorial)
+            if (!game.isTutorialCompleted() && game.getTutorialPhase() == TutorialPhase.JOURNEY_EVENT) {
+                tutorialService.progressTutorial(game.getId(), 
+                    TutorialProgressRequestDTO.builder().action("ARRIVE_DESTINATION").build());
+            }
 
         } else {
             // Conceder XP de combate para a tripulação (participação, sem vitória)
@@ -762,7 +907,7 @@ public class GameService {
         SeaEncounter encounter = game.getCurrentEncounter();
         List<String> eventLog = new ArrayList<>();
 
-        if (encounter == null || encounter.getType() == SeaEncounterType.MYSTERIOUS_WRECK) {
+        if (encounter == null || !contractEncounterService.isCombatEncounter(encounter.getType())) {
             throw new IllegalStateException("Não há um alvo válido para abordar.");
         }
 
@@ -811,6 +956,12 @@ public class GameService {
             game.setDestinationPort(null);
             eventLog.add("Com o navio inimigo capturado, você continua sua viagem e chega a " + destination.getName() + ".");
             endTurnCycle(game, eventLog);
+
+            // Notificar tutorial sobre a chegada ao destino (se em tutorial)
+            if (!game.isTutorialCompleted() && game.getTutorialPhase() == TutorialPhase.JOURNEY_EVENT) {
+                tutorialService.progressTutorial(game.getId(), 
+                    TutorialProgressRequestDTO.builder().action("ARRIVE_DESTINATION").build());
+            }
 
         } else {
             int hullDamage = ThreadLocalRandom.current().nextInt(10, 21);
@@ -1261,6 +1412,22 @@ public class GameService {
         // Definir a escolha inicial para personalizar o tutorial
         game.setIntroChoice(introChoiceEnum);
         
+        // Aceitar automaticamente o contrato correspondente à escolha inicial
+        try {
+            Contract introContract = findIntroContract(game, introChoiceEnum);
+            if (introContract != null) {
+                game.setActiveContract(introContract);
+                introContract.setGame(game);
+                introContract.setStatus(ContractStatus.IN_PROGRESS);
+                contractRepository.save(introContract);
+                
+                eventMessages.add(String.format("Contrato ativo: %s", introContract.getTitle()));
+            }
+        } catch (Exception e) {
+            // Se não conseguir aceitar o contrato, continua sem ele
+            eventMessages.add("Aviso: Não foi possível ativar o contrato inicial automaticamente.");
+        }
+        
         gameRepository.save(game);
         
         // Iniciar rastreamento de métricas do tutorial
@@ -1399,5 +1566,301 @@ public class GameService {
                 .totalNavigations(member.getJourneysCompleted())
                 .totalContracts(0) // Campo não existe ainda no modelo
                 .build();
+    }
+    
+    /**
+     * Processa encontros narrativos específicos com lógica personalizada para cada tipo.
+     */
+    private void processNarrativeEncounter(Game game, SeaEncounter encounter, List<String> eventLog) {
+        Ship ship = game.getShip();
+        
+        switch (encounter.getType()) {
+            case MYSTERIOUS_WRECK -> processMysteruousWreck(game, eventLog);
+            case TRADE_DISPUTE -> processTradeDispute(game, eventLog);
+            case MERCHANT_DISTRESS -> processMerchantDistress(game, eventLog);
+            case IMPERIAL_OPPRESSION -> processImperialOppression(game, eventLog);
+            case UNDERGROUND_NETWORK -> processUndergroundNetwork(game, eventLog);
+            default -> {
+                // Fallback para encontros não implementados
+                eventLog.add("Você observa a situação cuidadosamente, mas decide não se envolver.");
+                eventLog.add("Às vezes, a prudência é a melhor política no mar.");
+            }
+        }
+    }
+    
+    private void processMysteruousWreck(Game game, List<String> eventLog) {
+        Ship ship = game.getShip();
+        eventLog.add("Você ordena que a tripulação investigue os destroços...");
+
+        // Risco de dano no navio
+        if (ThreadLocalRandom.current().nextDouble() < 0.15) {
+            int hullDamage = ThreadLocalRandom.current().nextInt(3, 8);
+            ship.setHullIntegrity(ship.getHullIntegrity() - hullDamage);
+            eventLog.add(String.format("RISCO: Ao se aproximar, destroços ocultos arranham o casco, causando %d de dano!", hullDamage));
+            
+            if (ship.getHullIntegrity() <= 0) {
+                ship.setHullIntegrity(0);
+                eventLog.add("💀 CATÁSTROFE! O dano foi crítico!");
+                eventLog.add("Os destroços perfuraram completamente o casco. Água jorra para dentro do navio.");
+                eventLog.add("Não há tempo para reparos... o navio está perdido!");
+                eventLog.add("🌊 SEU NAVIO AFUNDOU - FIM DE JOGO 🌊");
+                game.setGameOver(true);
+                game.setGameOverReason("Navio destruído por destroços durante investigação");
+                return;
+            }
+        }
+
+        // Teste de inteligência para encontrar tesouros
+        int crewIntelligence = ship.getCrew().stream().mapToInt(CrewMember::getIntelligence).sum();
+        int difficulty = 15;
+        int randomFactor = ThreadLocalRandom.current().nextInt(1, 21);
+        boolean success = crewIntelligence + randomFactor > difficulty;
+
+        if (success) {
+            int goldFound = ThreadLocalRandom.current().nextInt(100, 251);
+            int partsFound = ThreadLocalRandom.current().nextInt(5, 11);
+            game.setGold(game.getGold() + goldFound);
+            ship.setRepairParts(ship.getRepairParts() + partsFound);
+            eventLog.add(String.format(
+                "SUCESSO: A tripulação (Inteligência %d + rolagem %d) superou a dificuldade (%d)! Eles encontram um compartimento secreto contendo %d de ouro e %d peças de reparo.",
+                crewIntelligence, randomFactor, difficulty, goldFound, partsFound
+            ));
+        } else {
+            int goldFound = ThreadLocalRandom.current().nextInt(20, 51);
+            game.setGold(game.getGold() + goldFound);
+            eventLog.add(String.format(
+                "FALHA: A tripulação (Inteligência %d + rolagem %d) não superou a dificuldade (%d). Após muita busca, encontram apenas %d de ouro nos bolsos de um esqueleto.",
+                crewIntelligence, randomFactor, difficulty, goldFound
+            ));
+        }
+        
+        Port destination = game.getDestinationPort();
+        eventLog.add("Com os destroços vasculhados, você continua sua viagem e chega a " + destination.getName() + ".");
+    }
+    
+    private void processTradeDispute(Game game, List<String> eventLog) {
+        eventLog.add("Você se aproxima dos navios mercantes em disputa e oferece mediação...");
+        
+        // Teste de reputação para mediar com sucesso
+        int reputation = game.getReputation();
+        boolean success = reputation >= 50 || ThreadLocalRandom.current().nextDouble() < 0.6;
+        
+        if (success) {
+            int goldReward = ThreadLocalRandom.current().nextInt(50, 101);
+            game.setGold(game.getGold() + goldReward);
+            game.setReputation(Math.min(1000, game.getReputation() + 10));
+            eventLog.add("MEDIAÇÃO BEM-SUCEDIDA! Sua intervenção resolve o conflito pacificamente.");
+            eventLog.add(String.format("Os mercadores agradecem com %d de ouro e sua reputação cresce.", goldReward));
+        } else {
+            eventLog.add("MEDIAÇÃO FALHOU! Os mercadores se recusam a ouvir um capitão desconhecido.");
+            eventLog.add("Você continua sua viagem sem conseguir ajudar, mas pelo menos tentou fazer o certo.");
+        }
+        
+        Port destination = game.getDestinationPort();
+        eventLog.add("Deixando os mercadores para trás, você continua em direção a " + destination.getName() + ".");
+    }
+    
+    private void processMerchantDistress(Game game, List<String> eventLog) {
+        eventLog.add("Você responde aos sinais de socorro do mercador da Guilda...");
+        
+        // Decisão baseada no tipo de ajuda oferecida
+        boolean hasSupplies = game.getShip().getFoodRations() >= 5;
+        
+        if (hasSupplies) {
+            // Dar suprimentos
+            game.getShip().setFoodRations(game.getShip().getFoodRations() - 5);
+            int goldReward = ThreadLocalRandom.current().nextInt(75, 151);
+            game.setGold(game.getGold() + goldReward);
+            game.setReputation(Math.min(1000, game.getReputation() + 15));
+            game.setAlliance(Math.min(1000, game.getAlliance() + 5));
+            eventLog.add("AJUDA PRESTADA! Você compartilha 5 rações de comida com o navio em apuros.");
+            eventLog.add(String.format("O capitão agradecido lhe oferece %d de ouro como recompensa.", goldReward));
+            eventLog.add("Sua reputação e influência entre comerciantes cresce.");
+        } else {
+            // Só pode oferecer escolta
+            int goldReward = ThreadLocalRandom.current().nextInt(30, 61);
+            game.setGold(game.getGold() + goldReward);
+            game.setReputation(Math.min(1000, game.getReputation() + 5));
+            eventLog.add("ESCOLTA OFERECIDA! Sem suprimentos para compartilhar, você oferece escolta até o próximo porto.");
+            eventLog.add(String.format("O mercador lhe paga %d de ouro pela proteção.", goldReward));
+        }
+        
+        Port destination = game.getDestinationPort();
+        eventLog.add("Com a situação resolvida, você continua sua jornada para " + destination.getName() + ".");
+    }
+    
+    private void processImperialOppression(Game game, List<String> eventLog) {
+        eventLog.add("Você testemunha soldados imperiais abusando de civis indefesos...");
+        
+        // A ação "Intervir" vs "Ignorar" foi escolhida, assumindo intervenção por estar aqui
+        eventLog.add("INTERVENÇÃO CORAJOSA! Você decide agir contra a injustiça.");
+        
+        // Consequências da intervenção
+        int crewCombat = game.getShip().getCrew().stream().mapToInt(CrewMember::getCombat).sum();
+        boolean success = crewCombat >= 15 || ThreadLocalRandom.current().nextDouble() < 0.7;
+        
+        if (success) {
+            game.setAlliance(Math.min(1000, game.getAlliance() + 25));
+            game.setReputation(Math.max(0, game.getReputation() - 10));
+            game.setInfamy(Math.min(1000, game.getInfamy() + 5));
+            int goldReward = ThreadLocalRandom.current().nextInt(20, 51);
+            game.setGold(game.getGold() + goldReward);
+            eventLog.add("SUCESSO! Sua intervenção força os soldados a recuar.");
+            eventLog.add(String.format("Os civis gratos compartilham %d de ouro, pouco que têm.", goldReward));
+            eventLog.add("Sua aliança com os oprimidos cresce, mas você se tornou inimigo do Império.");
+        } else {
+            int hullDamage = ThreadLocalRandom.current().nextInt(5, 11);
+            game.getShip().setHullIntegrity(game.getShip().getHullIntegrity() - hullDamage);
+            game.setAlliance(Math.min(1000, game.getAlliance() + 10));
+            game.setReputation(Math.max(0, game.getReputation() - 5));
+            eventLog.add("RESISTÊNCIA FEROZ! Os soldados contra-atacam seu navio.");
+            eventLog.add(String.format("Seu navio sofre %d de dano, mas você salvou vidas inocentes.", hullDamage));
+            eventLog.add("Mesmo ferido, você ganhou respeito entre os oprimidos.");
+        }
+        
+        Port destination = game.getDestinationPort();
+        eventLog.add("Com a consciência mais leve, você segue para " + destination.getName() + ".");
+    }
+    
+    private void processUndergroundNetwork(Game game, List<String> eventLog) {
+        eventLog.add("Você escuta atentamente as informações oferecidas pelo contato clandestino...");
+        
+        // Informações valiosas da rede revolucionária
+        game.setAlliance(Math.min(1000, game.getAlliance() + 15));
+        
+        // Chance de informações extras baseado em aliança atual
+        boolean extraInfo = game.getAlliance() >= 50 || ThreadLocalRandom.current().nextDouble() < 0.4;
+        
+        if (extraInfo) {
+            int goldReward = ThreadLocalRandom.current().nextInt(40, 81);
+            game.setGold(game.getGold() + goldReward);
+            eventLog.add("INFORMAÇÕES VALIOSAS! O contato revela a localização de um esconderijo imperial.");
+            eventLog.add(String.format("Ele lhe entrega %d de ouro como 'fundo de guerra' para a causa.", goldReward));
+            eventLog.add("Sua conexão com a rede revolucionária se fortalece significativamente.");
+        } else {
+            eventLog.add("INFORMAÇÕES BÁSICAS: O contato compartilha movimentos imperiais na região.");
+            eventLog.add("Embora úteis, as informações são limitadas - você ainda precisa provar sua lealdade.");
+            eventLog.add("Sua influência na rede clandestina cresce lentamente.");
+        }
+        
+        Port destination = game.getDestinationPort();
+        eventLog.add("Com novos conhecimentos sobre o Império, você navega em direção a " + destination.getName() + ".");
+    }
+
+    /**
+     * Aplica bônus de contrato às recompensas quando o encontro está relacionado ao contrato ativo.
+     * Isso incentiva os jogadores a aceitar contratos e torna as missões mais rewarding.
+     */
+    private int applyContractBonus(Game game, SeaEncounterType encounterType, int baseReward, List<String> eventLog) {
+        Contract activeContract = game.getActiveContract();
+        
+        // Se não há contrato ativo ou o encontro não oferece bônus, retorna a recompensa base
+        if (activeContract == null || !contractEncounterService.offersContractBonus(encounterType, activeContract)) {
+            return baseReward;
+        }
+        
+        // Calcular bônus baseado na facção do contrato (25% de bônus)
+        double bonusMultiplier = 1.25;
+        int bonusReward = (int) (baseReward * bonusMultiplier);
+        int bonusAmount = bonusReward - baseReward;
+        
+        // Mensagem específica por facção
+        String bonusMessage = switch (activeContract.getFaction()) {
+            case GUILD -> String.format("💰 Bônus da Guilda: +%d ouro pela cooperação comercial!", bonusAmount);
+            case EMPIRE -> String.format("⚔️ Bônus Imperial: +%d ouro por servir o Império!", bonusAmount);
+            case BROTHERHOOD -> String.format("🏴‍☠️ Bônus da Irmandade: +%d ouro pela lealdade aos irmãos!", bonusAmount);
+            case REVOLUTIONARY -> String.format("🗽 Bônus Revolucionário: +%d ouro pela causa da liberdade!", bonusAmount);
+        };
+        
+        eventLog.add(bonusMessage);
+        
+        return bonusReward;
+    }
+    
+    /**
+     * Aplica custos de viagem: consumo de suprimentos e desgaste do navio.
+     * Adiciona tensão econômica e realismo às viagens.
+     */
+    private List<String> applyTravelCosts(Game game) {
+        List<String> costMessages = new ArrayList<>();
+        Ship ship = game.getShip();
+        
+        // Constantes de custo de viagem
+        final int FOOD_CONSUMPTION = 5;  // 5 de comida por viagem
+        final int RUM_CONSUMPTION = 2;   // 2 de rum por viagem
+        final int MIN_HULL_DAMAGE = 3;   // Dano mínimo por viagem
+        final int MAX_HULL_DAMAGE = 8;   // Dano máximo por viagem (sem encontros)
+        
+        // 1. Consumo de suprimentos
+        if (ship.getFoodRations() >= FOOD_CONSUMPTION) {
+            ship.setFoodRations(ship.getFoodRations() - FOOD_CONSUMPTION);
+            costMessages.add(String.format("⚓ Viagem consome %d unidades de comida.", FOOD_CONSUMPTION));
+        } else {
+            costMessages.add("⚠️ AVISO: Comida insuficiente! A tripulação está passando fome.");
+            // Penalidade por falta de comida: reduz moral da tripulação
+            ship.getCrew().forEach(crewMember -> {
+                int moralPenalty = 10;
+                crewMember.setMoral(Math.max(0, crewMember.getMoral() - moralPenalty));
+            });
+        }
+        
+        if (ship.getRumRations() >= RUM_CONSUMPTION) {
+            ship.setRumRations(ship.getRumRations() - RUM_CONSUMPTION);
+            costMessages.add(String.format("🍺 Viagem consome %d unidades de rum.", RUM_CONSUMPTION));
+        } else {
+            costMessages.add("⚠️ AVISO: Rum insuficiente! A moral da tripulação está baixa.");
+            // Penalidade por falta de rum: reduz moral da tripulação
+            ship.getCrew().forEach(crewMember -> {
+                int moralPenalty = 5;
+                crewMember.setMoral(Math.max(0, crewMember.getMoral() - moralPenalty));
+            });
+        }
+        
+        // 2. Desgaste natural do navio
+        int hullDamage = ThreadLocalRandom.current().nextInt(MIN_HULL_DAMAGE, MAX_HULL_DAMAGE + 1);
+        int currentHull = ship.getHullIntegrity();
+        int newHull = Math.max(1, currentHull - hullDamage); // Hull nunca fica 0 (navio não afunda)
+        ship.setHullIntegrity(newHull);
+        
+        costMessages.add(String.format("🔧 Desgaste da viagem: -%d pontos de hull (%d → %d).", 
+                hullDamage, currentHull, newHull));
+        
+        // Avisos de estado do hull
+        double hullPercentage = (double) newHull / ship.getMaxHullIntegrity();
+        if (hullPercentage <= 0.3) {
+            costMessages.add("🚨 CASCO CRÍTICO! Procure reparos urgentemente antes da próxima viagem!");
+        } else if (hullPercentage <= 0.5) {
+            costMessages.add("⚠️ Casco danificado. Considere reparos em breve.");
+        }
+        
+        return costMessages;
+    }
+    
+    /**
+     * Encontra o contrato correspondente à escolha inicial do jogador.
+     * Busca pelos títulos específicos dos contratos de introdução.
+     */
+    private Contract findIntroContract(Game game, IntroChoice introChoice) {
+        Port currentPort = game.getCurrentPort();
+        if (currentPort == null) {
+            return null;
+        }
+        
+        String contractTitle = switch (introChoice) {
+            case COOPERATE -> "Transporte de Especiarias";
+            case NEUTRAL -> "Contrabando Médico";
+            case RESIST -> "Saque ao Esperança Dourada";
+        };
+        
+        return contractRepository.findByStatusAndOriginPortAndRequiredReputationLessThanEqualAndRequiredInfamyLessThanEqualAndRequiredAllianceLessThanEqual(
+                ContractStatus.AVAILABLE,
+                currentPort,
+                game.getReputation(),
+                game.getInfamy(),
+                game.getAlliance()
+        ).stream()
+         .filter(contract -> contract.getTitle().equals(contractTitle))
+         .findFirst()
+         .orElse(null);
     }
 }

@@ -39,6 +39,13 @@ public class GameController {
         return ResponseEntity.status(HttpStatus.CREATED).body(gameMapper.toGameStatusResponseDTO(newGame, actions));
     }
 
+    @PostMapping("/create")
+    public ResponseEntity<GameStatusResponseDTO> createNewGameWithCaptain(@Valid @RequestBody CreateGameRequestDTO request) {
+        Game newGame = gameService.createNewGame(request.getCaptainName());
+        List<PortActionDTO> actions = gameService.getAvailablePortActions(newGame.getId());
+        return ResponseEntity.status(HttpStatus.CREATED).body(gameMapper.toGameStatusResponseDTO(newGame, actions));
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<GameStatusResponseDTO> getGameById(@PathVariable Long id) {
         GameStatusResponseDTO gameStatus = gameService.getGameStatusDTO(id);
@@ -198,7 +205,9 @@ public class GameController {
             @PathVariable Long gameId,
             @PathVariable Long contractId) {
         Game updatedGame = gameService.acceptContract(gameId, contractId);
-        return ResponseEntity.ok(gameMapper.toGameStatusResponseDTO(updatedGame));
+        List<PortActionDTO> portActions = gameService.getAvailablePortActions(gameId);
+        List<EncounterActionDTO> encounterActions = gameService.getAvailableEncounterActions(gameId);
+        return ResponseEntity.ok(gameMapper.toGameStatusResponseDTO(updatedGame, portActions, encounterActions));
     }
 
     @PostMapping("/{gameId}/contracts/resolve")

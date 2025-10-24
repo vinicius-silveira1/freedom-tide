@@ -1,0 +1,381 @@
+/* NarrativeEncounter.css */
+
+.narrative-encounter {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  z-index: 1000;
+  
+  /* Filtro escuro para dar atmosfera noturna */
+  filter: brightness(0.8) contrast(1.1);
+  
+  /* Animação suave de balanço */
+  animation: oceanSway 12s ease-in-out infinite;
+}
+
+.narrative-encounter.error {
+  background: #000;
+  color: #fff;
+  text-align: center;
+  font-size: 1.5rem;
+}
+
+.narrative-panel {
+  position: relative;
+  width: 90%;
+  max-width: 600px;
+  
+  /* Estilo de pergaminho/documento náutico */
+  background: 
+    /* Manchas de água salgada e deterioração */
+    radial-gradient(ellipse at 20% 25%, rgba(120, 60, 40, 0.2) 0%, transparent 35%),
+    radial-gradient(ellipse at 85% 15%, rgba(100, 80, 60, 0.15) 0%, transparent 30%),
+    radial-gradient(circle at 70% 80%, rgba(90, 50, 30, 0.18) 0%, transparent 25%),
+    radial-gradient(circle at 30% 70%, rgba(110, 70, 50, 0.12) 0%, transparent 20%),
+    
+    /* Vincos e dobras */
+    linear-gradient(105deg, transparent 0%, rgba(150, 120, 90, 0.1) 25%, transparent 26%),
+    linear-gradient(75deg, transparent 0%, rgba(140, 110, 80, 0.08) 45%, transparent 46%),
+    
+    /* Base pergaminho envelhecido */
+    radial-gradient(ellipse at center, #f8f4e6 20%, #f0e6d3 40%, #e8dcc8 70%, #d4c4a8 90%, #c8b896 100%);
+  
+  border: 3px solid #8b7355;
+  border-radius: 12px 18px 15px 20px / 18px 12px 20px 15px;
+  
+  box-shadow: 
+    0 0 40px rgba(0, 0, 0, 0.9),
+    0 0 80px rgba(0, 0, 0, 0.6),
+    inset -4px -4px 8px rgba(100, 70, 50, 0.3),
+    inset 4px 4px 8px rgba(255, 248, 230, 0.7),
+    inset 0 0 0 1px rgba(139, 115, 85, 0.5);
+  
+  padding: 35px 30px;
+  text-align: center;
+  
+  /* Rotação sutil */
+  transform: rotate(-1deg);
+  
+  /* Efeito flutuante */
+  animation: documentFloat 8s ease-in-out infinite;
+}
+
+.narrative-header {
+  margin-bottom: 25px;
+  border-bottom: 2px solid rgba(139, 115, 85, 0.3);
+  padding-bottom: 20px;
+}
+
+.encounter-icon {
+  font-size: 4rem;
+  margin-bottom: 15px;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+  animation: iconPulse 4s ease-in-out infinite;
+}
+
+.encounter-icon-img {
+  width: 80px;
+  height: 80px;
+  display: block;
+  image-rendering: pixelated;
+  image-rendering: -moz-crisp-edges;
+  image-rendering: crisp-edges;
+  margin: 0 auto;
+  filter: drop-shadow(3px 3px 6px rgba(0, 0, 0, 0.6));
+}
+
+.encounter-title {
+  font-family: var(--font-pixel);
+  font-size: 2.2rem;
+  color: var(--color-text-darker);
+  margin: 0 0 12px 0;
+  text-shadow: 2px 2px 0px rgba(0, 0, 0, 0.3);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.encounter-atmosphere {
+  font-size: 1rem;
+  color: var(--color-text-darker);
+  font-style: italic;
+  margin: 0;
+  font-family: 'Times New Roman', serif;
+  opacity: 0.8;
+}
+
+.narrative-content {
+  text-align: left;
+}
+
+.loading-narrative {
+  text-align: center;
+  padding: 40px 20px;
+}
+
+.loading-text {
+  font-family: var(--font-pixel);
+  font-size: 1.2rem;
+  color: var(--color-text-darker);
+  margin-bottom: 15px;
+  font-style: italic;
+}
+
+.loading-dots {
+  font-size: 2rem;
+  color: var(--color-text-darker);
+}
+
+.loading-dots span {
+  display: inline-block;
+  animation: loadingDot 1.5s ease-in-out infinite;
+}
+
+.loading-dots span:nth-child(2) {
+  animation-delay: 0.3s;
+}
+
+.loading-dots span:nth-child(3) {
+  animation-delay: 0.6s;
+}
+
+.encounter-description {
+  margin-bottom: 25px;
+  padding: 20px;
+  background: rgba(139, 115, 85, 0.08);
+  border-left: 4px solid rgba(139, 115, 85, 0.3);
+  border-radius: 0 8px 8px 0;
+}
+
+.description-text {
+  font-size: 1.1rem;
+  color: var(--color-text-darker);
+  line-height: 1.6;
+  margin: 0;
+  font-family: 'Times New Roman', serif;
+  font-weight: 500;
+}
+
+.encounter-actions {
+  margin-top: 20px;
+}
+
+.encounter-actions h3 {
+  font-family: var(--font-pixel);
+  font-size: 1.3rem;
+  color: var(--color-text-darker);
+  margin: 0 0 15px 0;
+  text-transform: uppercase;
+  text-align: center;
+}
+
+.actions-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.narrative-action-btn {
+  padding: 15px 20px;
+  background: rgba(255, 248, 230, 0.9);
+  border: 2px solid var(--color-border);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  
+  box-shadow: 
+    2px 2px 0px 0px var(--color-border),
+    inset 1px 1px 3px rgba(255, 255, 255, 0.3);
+}
+
+.narrative-action-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 
+    3px 3px 0px 0px var(--color-border),
+    inset 1px 1px 3px rgba(255, 255, 255, 0.3),
+    0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.narrative-action-btn:active {
+  transform: translateY(1px);
+  box-shadow: 
+    1px 1px 0px 0px var(--color-border),
+    inset -1px -1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.narrative-action-btn.investigate {
+  border-color: var(--color-alliance);
+  background: linear-gradient(145deg, rgba(142, 185, 136, 0.1), rgba(255, 248, 230, 0.9));
+}
+
+.narrative-action-btn.negotiate {
+  border-color: var(--color-reputation);
+  background: linear-gradient(145deg, rgba(74, 144, 226, 0.1), rgba(255, 248, 230, 0.9));
+}
+
+.narrative-action-btn.flee {
+  border-color: var(--color-infamy);
+  background: linear-gradient(145deg, rgba(226, 74, 74, 0.1), rgba(255, 248, 230, 0.9));
+}
+
+.action-content {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.action-icon {
+  font-size: 1.8rem;
+  min-width: 40px;
+  text-align: center;
+}
+
+.action-text {
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+}
+
+.action-name {
+  font-family: var(--font-pixel);
+  font-size: 1.1rem;
+  color: var(--color-text-darker);
+  font-weight: bold;
+  margin-bottom: 4px;
+}
+
+.action-description {
+  font-size: 0.95rem;
+  color: var(--color-text-darker);
+  font-style: italic;
+  opacity: 0.8;
+  font-family: 'Times New Roman', serif;
+}
+
+/* Efeitos Atmosféricos */
+.atmospheric-effects {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.mist {
+  position: absolute;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 50%;
+  opacity: 0.6;
+  animation: mistFloat 15s ease-in-out infinite;
+}
+
+.mist-1 {
+  width: 200px;
+  height: 80px;
+  top: 20%;
+  left: -50px;
+  animation-duration: 20s;
+  animation-delay: 0s;
+}
+
+.mist-2 {
+  width: 150px;
+  height: 60px;
+  top: 60%;
+  right: -30px;
+  animation-duration: 18s;
+  animation-delay: -5s;
+}
+
+.mist-3 {
+  width: 180px;
+  height: 70px;
+  top: 40%;
+  left: 20%;
+  animation-duration: 25s;
+  animation-delay: -10s;
+}
+
+/* Animações */
+@keyframes oceanSway {
+  0%, 100% { transform: rotate(0deg); }
+  25% { transform: rotate(0.3deg); }
+  50% { transform: rotate(0deg); }
+  75% { transform: rotate(-0.3deg); }
+}
+
+@keyframes documentFloat {
+  0%, 100% { transform: rotate(-1deg) translateY(0px); }
+  50% { transform: rotate(-1deg) translateY(-5px); }
+}
+
+@keyframes iconPulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+
+@keyframes loadingDot {
+  0%, 60%, 100% { 
+    transform: translateY(0); 
+    opacity: 0.4; 
+  }
+  30% { 
+    transform: translateY(-10px); 
+    opacity: 1; 
+  }
+}
+
+@keyframes mistFloat {
+  0%, 100% {
+    transform: translateX(0px) translateY(0px);
+    opacity: 0.3;
+  }
+  25% {
+    transform: translateX(50px) translateY(-20px);
+    opacity: 0.6;
+  }
+  50% {
+    transform: translateX(100px) translateY(0px);
+    opacity: 0.4;
+  }
+  75% {
+    transform: translateX(150px) translateY(15px);
+    opacity: 0.5;
+  }
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+  .narrative-panel {
+    width: 95%;
+    padding: 25px 20px;
+  }
+  
+  .encounter-title {
+    font-size: 1.8rem;
+  }
+  
+  .encounter-icon {
+    font-size: 3rem;
+  }
+  
+  .action-content {
+    flex-direction: column;
+    text-align: center;
+    gap: 10px;
+  }
+  
+  .action-text {
+    text-align: center;
+  }
+}
