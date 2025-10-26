@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import './CaptainNameSelector.css';
+import '../styles/ancient-documents.css';
 import audioService from '../utils/AudioService';
 
 const CaptainNameSelector = ({ onConfirm, onBack }) => {
@@ -52,7 +53,7 @@ const CaptainNameSelector = ({ onConfirm, onBack }) => {
 
   return (
     <div className="captain-name-selector">
-      <div className="captain-name-panel">
+      <div className="captain-name-panel military-order">
         <div className="captain-name-header">
           <div className="compass-decoration">
             <img 
@@ -61,8 +62,8 @@ const CaptainNameSelector = ({ onConfirm, onBack }) => {
               className="compass-icon"
             />
           </div>
-          <h1>Carta de Nomeação</h1>
-          <p className="subtitle">Como sereis conhecido pelos Sete Mares?</p>
+          <h1 className="pixel-heading">Carta de Nomeação</h1>
+          <p className="subtitle pixel-text">Como sereis conhecido pelos Sete Mares?</p>
         </div>
 
         <form onSubmit={handleSubmit} className="captain-name-form">
@@ -88,14 +89,14 @@ const CaptainNameSelector = ({ onConfirm, onBack }) => {
           <div className="form-actions">
             <button 
               type="button" 
-              className="action-button back-button"
+              className="action-button back-button ancient-button"
               onClick={handleBack}
             >
               Voltar
             </button>
             <button 
               type="submit" 
-              className="action-button confirm-button"
+              className="action-button confirm-button ancient-button"
               disabled={!captainName.trim()}
             >
               Assinar e Zarpar
@@ -103,8 +104,8 @@ const CaptainNameSelector = ({ onConfirm, onBack }) => {
           </div>
         </form>
         
-        <div className="flavor-text">
-          <p><em>"Que vosso nome seja lembrado nas tavernas e temido nos mares."</em></p>
+        <div className="flavor-text small-tag">
+          <p className="pixel-text"><em>"Que vosso nome seja lembrado nas tavernas e temido nos mares."</em></p>
         </div>
       </div>
     </div>

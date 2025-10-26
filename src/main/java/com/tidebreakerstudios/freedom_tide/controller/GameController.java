@@ -110,6 +110,12 @@ public class GameController {
         return ResponseEntity.ok(response);
     }
 
+    @PostMapping("/{gameId}/encounter/heal")
+    public ResponseEntity<GameActionResponseDTO> healCrew(@PathVariable Long gameId) {
+        GameActionResponseDTO response = gameService.healCrew(gameId);
+        return ResponseEntity.ok(response);
+    }
+
     // --- Endpoints de Porto ---
 
     @GetMapping("/{gameId}/port/shipyard")
@@ -159,9 +165,9 @@ public class GameController {
     // --- Endpoints de Taverna ---
 
     @GetMapping("/{gameId}/port/tavern")
-    public ResponseEntity<List<TavernRecruitDTO>> getTavernRecruits(@PathVariable Long gameId) {
-        List<TavernRecruitDTO> recruits = gameService.getTavernRecruits(gameId);
-        return ResponseEntity.ok(recruits);
+    public ResponseEntity<TavernInfoDTO> getTavernInfo(@PathVariable Long gameId) {
+        TavernInfoDTO tavernInfo = gameService.getTavernInfo(gameId);
+        return ResponseEntity.ok(tavernInfo);
     }
 
     @PostMapping("/{gameId}/crew/recruit")

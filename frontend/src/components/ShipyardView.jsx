@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import './ShipyardView.css';
+import '../styles/ancient-documents.css';
 
 function ShipyardView({ gameId, onRepair, onPurchaseUpgrade, onBack }) {
   const [shipyard, setShipyard] = useState(null);
@@ -39,10 +40,14 @@ function ShipyardView({ gameId, onRepair, onPurchaseUpgrade, onBack }) {
   };
 
   return (
-    <div className="shipyard-view status-panel">
+    <div className="shipyard-view ancient-document">
       <div className="shipyard-header">
-        <h2>Estaleiro "Carvalho & Casco"</h2>
-        <button onClick={onBack} className="action-button back-button">Voltar ao Porto</button>
+        <div className="shipyard-title">
+          <div className="shipyard-decoration ancient-hammer"></div>
+          <h2>Estaleiro "Carvalho & Casco"</h2>
+          <div className="shipyard-decoration ancient-gear"></div>
+        </div>
+        <button onClick={onBack} className="action-button back-button authentic-anchor">Voltar ao Porto</button>
       </div>
 
       {loading && <p>O mestre do estaleiro está inspecionando seu navio...</p>}
@@ -57,7 +62,7 @@ function ShipyardView({ gameId, onRepair, onPurchaseUpgrade, onBack }) {
             {shipyard.repairCost > 0 && (
               <div className="repair-action">
                 <p>Custo do Reparo: {shipyard.repairCost} Ouro</p>
-                <button onClick={handleRepair} className="action-button repair-button">
+                <button onClick={handleRepair} className="action-button repair-button authentic-anchor">
                   Reparar Navio
                 </button>
               </div>
@@ -71,13 +76,13 @@ function ShipyardView({ gameId, onRepair, onPurchaseUpgrade, onBack }) {
             ) : (
               <div className="upgrades-list">
                 {shipyard.availableUpgrades.map(upgrade => (
-                  <div key={upgrade.id} className="upgrade-card">
+                  <div key={upgrade.id} className="upgrade-card small-tag">
                     <h4>{upgrade.name}</h4>
                     <p>{upgrade.description}</p>
                     <p>Efeito: +{upgrade.modifier} {upgrade.type}</p>
                     <div className="upgrade-action">
                       <span>Custo: {upgrade.cost} Ouro</span>
-                      <button onClick={() => handlePurchase(upgrade.id)} className="action-button hire-button">
+                      <button onClick={() => handlePurchase(upgrade.id)} className="action-button hire-button authentic-anchor">
                         Comprar
                       </button>
                     </div>

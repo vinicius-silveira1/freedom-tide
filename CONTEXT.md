@@ -749,6 +749,144 @@ const checkGameOver = (response) => {
 
 **O Freedom Tide agora oferece uma experiência de gameplay com tensão real e consequências definitivas, mantendo o equilíbrio entre desafio e diversão.**
 
+---
+
+## v1.28 - Sistema de Progressão do Capitão & Revisão Narrativa (Concluído)
+
+**Versão do Jogo:** 1.28  
+**Foco:** Implementar sistema completo de progressão do capitão com XP e habilidades, além de revisar a sequência de introdução para melhor crítica social.
+
+### Contexto
+Com o sistema de jogo amadurecido, tornou-se essencial implementar progressão do personagem e refinar a narrativa introdutória para capturar melhor a crítica social do projeto.
+
+### Implementações
+
+#### **Sistema de Progressão do Capitão**
+
+**Backend - Modelo de Dados (`Game.java`):**
+- ✅ **Campos de Progressão**: `captainLevel`, `captainXP`, `captainSkillPoints`
+- ✅ **Três Árvores de Habilidades**:
+  - **Combate**: `skillCombatProwess`, `skillNavalTactics`, `skillCrewInspiration`, `skillArtilleryMaster`
+  - **Comércio**: `skillMerchantEye`, `skillDiplomacy`, `skillResourceManagement`, `skillTradeNetworks`
+  - **Exploração**: `skillWeatherReading`, `skillNavigationMaster`, `skillSurvivalInstinct`, `skillTreasureHunting`
+
+**Enums de Habilidades (`CaptainSkill.java` & `CaptainSkillTree.java`):**
+- ✅ **Sistema Estruturado**: Enums organizados por árvore com bônus específicos
+- ✅ **Cálculos de Bônus**: Métodos para determinar modificadores baseados no nível das habilidades
+- ✅ **Balanceamento**: Progressão linear com marcos de desbloqueio
+
+**Serviço de Progressão (`CaptainProgressionService.java`):**
+- ✅ **Sistema de XP**: Ganho baseado em ações (viagem, combate, comércio, contratos)
+- ✅ **Level Up**: Cálculo automático e concessão de skill points
+- ✅ **Investimento**: Sistema para alocar pontos nas árvores de habilidades
+- ✅ **Integração**: Bônus aplicados automaticamente em todas as mecânicas relevantes
+
+**API REST (`CaptainController.java`):**
+```java
+GET  /api/games/{id}/captain/progression  // Status completo da progressão
+POST /api/games/{id}/captain/invest       // Investir skill points
+```
+
+**Frontend - Interface de Progressão (`CaptainProgression.jsx`):**
+- ✅ **Três Árvores Visuais**: Interface organizada por especialização
+- ✅ **Investimento Interativo**: Clique para alocar pontos com confirmação
+- ✅ **Feedback Visual**: Indicadores de nível, bônus e progresso para próximo nível
+- ✅ **Estética Náutica**: Mantém identidade visual do jogo com pergaminhos antigos
+
+#### **Integração com Gameplay Existente**
+
+**Sistema de XP Automático:**
+- ✅ **Viagens**: +50 XP por destino alcançado
+- ✅ **Combates**: +100 XP por vitória naval
+- ✅ **Comércio**: +25 XP por transação no mercado
+- ✅ **Contratos**: XP proporcional à recompensa do contrato
+
+**Bônus Aplicados Automaticamente:**
+- ✅ **GameService**: Integração em combate, comércio, navegação
+- ✅ **Cálculos Dinâmicos**: Modificadores baseados nas habilidades do capitão
+- ✅ **Transparência**: Bônus visíveis nos logs de ação
+
+#### **Revisão da Sequência de Introdução**
+
+**Problema Identificado:**
+A versão anterior havia perdido parte da crítica social essencial do jogo ao focar demais em "oportunidade" em vez de "opressão".
+
+**Solução - Narrativa Híbrida:**
+- ✅ **Tom Corrigido**: Mantém imersão histórica mas restaura crítica social
+- ✅ **Contexto de Classe**: Protagonista é ex-trabalhador das plantações com dívida artificial
+- ✅ **Linguagem Corporativa**: Eufemismos reveladores da exploração sistêmica
+- ✅ **Escolhas Morais Pesadas**: Cada opção com implicações éticas claras
+
+**Documentos Redesenhados (`IntroSequence.jsx`):**
+
+**Documento 1 - "Notificação de Transição":**
+- Revela origem como trabalhador endividado pelo sistema
+- Dívida acumulada através de custos obrigatórios (alojamento, comida, ferramentas)
+- Alternativa aos trabalhos forçados nas minas
+
+**Documento 2 - "Contrato de Quitação":**
+- Termos de "liberdade" controlada sob supervisão da Guilda
+- Obrigações permanentes disfarçadas de taxas de serviço
+- Cláusula 847: Retorno ao trabalho forçado em caso de inadimplência
+
+**Documento 3 - "Certificado do Navio":**
+- Descrição realista alinhada com mecânicas do jogo
+- Navio funcional mas precário, necessitando cuidados
+- Contextualização histórica da Era da Vela
+
+**Escolhas Finais Reformuladas:**
+1. **"Aceitar o Sistema"**: Cooperação que perpetua exploração
+   - Transportar "produtos de produtividade" (drogas para trabalhadores)
+   - Segurança através da cumplicidade
+
+2. **"Quebrar as Correntes"**: Resistência individual violenta
+   - Saquear luxos da elite enquanto trabalhadores sofrem
+   - Força contra opressão, mas criando ciclo de violência
+
+3. **"Buscar Alternativas"**: Construção de resistência organizada
+   - Contrabandear medicamentos proibidos para forçar dependência
+   - Mudança sistêmica através da solidariedade
+
+#### **Melhorias de Estilo e UX**
+
+**CSS Aprimorado (`IntroSequence.css`):**
+- ✅ **Elementos Temáticos**: Selo da Guilda (âncora), separadores náuticos
+- ✅ **Animações Suaves**: Entrada de documentos, balanço marítimo
+- ✅ **Destacamento Visual**: Bordas coloridas por árvore de habilidade
+- ✅ **Névoa Marítima**: Efeito de fundo para maior imersão
+
+**Integração com Progressão:**
+- ✅ **Conexão Clara**: Escolhas iniciais conectadas às árvores de habilidades
+- ✅ **Preview de Progressão**: Cada caminho mostra desenvolvimento futuro
+- ✅ **Ícones Temáticos**: Símbolos visuais para cada especialização
+
+### Resultados
+
+#### **Progressão Orgânica do Personagem:**
+- Sistema de XP incentiva gameplay ativo e diversificado
+- Três especializações oferecem builds distintos e viáveis
+- Progressão visível e impactante nas mecânicas de jogo
+
+#### **Narrativa Socialmente Consciente:**
+- Crítica ao capitalismo exploratório restaurada e refinada
+- Contexto histórico mantém imersão sem comprometer mensagem
+- Escolhas morais com peso real e consequências claras
+
+#### **Experiência de Usuário Aprimorada:**
+- Interface de progressão intuitiva e visualmente atraente
+- Introdução mais envolvente e tematicamente consistente
+- Feedback constante sobre desenvolvimento do capitão
+
+### Compatibilidade
+- ✅ **Retrocompatibilidade**: Jogos existentes recebem campos de progressão automaticamente
+- ✅ **Migração Suave**: Valores padrão aplicados a saves antigos
+- ✅ **Performance**: Sistema otimizado sem impacto na responsividade
+
+### Status:
+✅ **Concluído** - Sistema de progressão do capitão implementado com integração completa ao gameplay existente, e narrativa introdutória revisada para melhor impacto social.
+
+**O Freedom Tide agora oferece progressão significativa do personagem e uma introdução que captura efetivamente sua crítica social, mantendo alta qualidade narrativa e técnica.**
+
 ## v1.28 - Sistema Completo de Progressão da Tripulação (Concluído)
 
 **Versão do Jogo:** 1.28
@@ -1232,3 +1370,153 @@ const CaptainProgressionView = () => {
 ✅ **Concluído** - Sistema tutorial completamente funcional e visualmente polido.
 
 **O tutorial agora oferece uma introdução perfeita ao Freedom Tide, guiando novos jogadores através de todas as mecânicas essenciais com interface elegante e progressão confiável.**
+
+## v1.24 - Sistema de Gerenciamento de Tripulação Aprimorado (Concluído e Verificado)
+
+**Versão do Jogo:** 1.24
+**Foco:** Implementar sistema completo de gerenciamento de tripulação com capacidade limitada, prevenção de duplicatas, tooltips informativos e melhorias na experiência do usuário.
+
+### Principais Funcionalidades Implementadas
+
+#### **1. Sistema de Capacidade da Tripulação Baseado em Habilidade**
+- **Skill de Liderança**: Nova habilidade do capitão que determina o tamanho máximo da tripulação
+- **Capacidade Escalável**: Base de 3 tripulantes + 1 por nível de Liderança
+- **Validação de Contratação**: Prevenção automática de contratação quando capacidade máxima é atingida
+- **Feedback Visual**: Display claro de tripulação atual vs. máxima (ex: "2/4 tripulantes")
+
+#### **2. Sistema de Prevenção de Contratação Duplicada**
+- **Geração Determinística**: Tripulantes gerados usando seed baseada em `gameId + portId + crewSize`
+- **Consistência Temporal**: Mesmos 3 personagens sempre aparecem na taverna até contratar alguém
+- **Renovação Automática**: Lista de tripulantes se renova automaticamente após cada contratação
+- **Eliminação de Duplicatas**: Impossível contratar o mesmo personagem duas vezes
+
+#### **3. Sistema de Tooltips Informativos**
+- **Descrições de Personalidades**: Tooltips explicativos para cada personalidade de tripulante
+- **Comportamentos Detalhados**: Explicações de como cada personalidade afeta o gameplay
+- **Integração Visual**: Tooltips estilizados seguindo tema náutico do jogo
+- **Posicionamento Inteligente**: Sistema de posicionamento que evita overflow da tela
+
+#### **4. Melhorias na Interface da Taverna**
+- **Badges de Personalidade**: Indicadores visuais coloridos para cada personalidade
+- **Informações de Capacidade**: Display sempre visível do status da tripulação
+- **Mensagens Contextuais**: Feedback específico sobre limitações e possibilidades
+- **Estilização Aprimorada**: CSS polido para badges, tooltips e elementos visuais
+
+#### **5. Sistema de Personalidades Baseado em Escolhas**
+- **Influência da Intro**: Personalidades dos tripulantes refletem escolha moral inicial
+- **Variedade Temática**: Mix apropriado de personalidades por escolha (Cooperar, Resistir, Neutro)
+- **Consistência Narrativa**: Tripulação alinhada com filosofia escolhida pelo jogador
+
+### Implementações Técnicas
+
+#### **Backend (Java/Spring Boot)**
+- **CaptainProgressionService**: 
+  - Adicionada skill LEADERSHIP com sistema de progressão
+  - Método `getMaxCrewCapacity()` para cálculo dinâmico de capacidade
+- **UniqueCharacterService**: 
+  - Métodos `generateTavernCharactersWithSeed()` para geração consistente
+  - Sistema de seed determinística baseado em estado do jogo
+  - Integração com IntroChoice para personalidades temáticas
+- **GameService**: 
+  - Validação de capacidade em `recruitCrewMember()`
+  - Cálculo de seed em `getTavernInfo()` 
+  - Mensagens contextuais sobre status da tripulação
+
+#### **Frontend (React)**
+- **TavernView**: 
+  - Integração de tooltips com componente reutilizável
+  - Display de capacidade e status da tripulação
+  - Badges visuais para personalidades
+- **Tooltip Component**: 
+  - Componente genérico e reutilizável
+  - Sistema de posicionamento inteligente
+  - Estilização temática náutica
+- **CSS Aprimorado**: 
+  - Estilos para badges de personalidade
+  - Animações e transições suaves
+  - Posicionamento responsivo de tooltips
+
+### Melhorias na Experiência do Usuário
+
+#### **Progressão Clara**
+- Jogadores entendem como aumentar capacidade da tripulação (skill Liderança)
+- Feedback imediato sobre limitações e possibilidades
+- Progressão visual clara através de níveis de habilidade
+
+#### **Prevenção de Frustração**
+- Eliminação completa de contratações duplicadas
+- Tripulantes sempre renovam após contratação
+- Validações impedem ações impossíveis
+
+#### **Informação Acessível**
+- Tooltips explicam todas as personalidades disponíveis
+- Impacto no gameplay claramente comunicado
+- Interface intuitiva sem sobrecarga de informação
+
+#### **Consistência Temática**
+- Tripulação reflete escolhas narrativas do jogador
+- Personalidades variadas mantêm interesse
+- Sistema coerente com lore e mecânicas existentes
+
+### Arquivos Modificados
+- `CaptainProgressionService.java`: Sistema de progressão de Liderança
+- `UniqueCharacterService.java`: Geração determinística com seed
+- `GameService.java`: Validação de capacidade e feedback
+- `TavernView.jsx`: Interface aprimorada com tooltips
+- `Tooltip.jsx`: Componente reutilizável criado
+- `Tooltip.css`: Estilização temática completa
+- `TavernView.css`: Badges de personalidade e melhorias visuais
+
+### Status:
+✅ **Concluído e Verificado** - Sistema de gerenciamento de tripulação completamente implementado e funcional.
+
+**O sistema agora oferece uma experiência de gerenciamento de tripulação rica e balanceada, com progressão clara, prevenção de problemas comuns, e interface polida que mantém os jogadores informados e engajados.**
+
+## v1.24 - Reformulação Visual Completa (Concluído e Verificado)
+
+**Versão do Jogo:** 1.24
+**Foco:** Completar a transformação visual do jogo com sistema de documentos antigos unificado e otimização de contraste.
+
+### Implementações Realizadas
+
+**Sistema de Documentos Antigos Unificado:**
+✅ **9 Componentes Modernizados**: PortView, IntroSequence (4 subcomponentes), MapView, ShipyardView, MarketView, TavernView, CaptainProgression, CrewManagementView, TutorialOverlay
+✅ **Classes CSS Unificadas**: `.ancient-document`, `.nautical-chart`, `.military-order`, `.small-tag`, `.ancient-button`
+✅ **Efeitos Avançados**: Bordas orgânicas com `clip-path`, texturas de pergaminho, manchas de tinta, linhas de escrita
+✅ **Sistema de Animações**: Aparecer sequencial, efeitos de flutuação, transições suaves
+
+**CaptainCompass Simplificado:**
+✅ **Remoção da Imagem da Bússola**: Interface limpa focada na informação
+✅ **Layout Simplificado**: Nome do capitão + status numéricos (Reputação, Infâmia, Aliança)
+✅ **Integração Visual**: Uso do sistema `small-tag` para consistência
+
+**Otimização de Contraste e Fundo:**
+✅ **App-Container**: Fundo oceânico escuro com textura de madeira naval
+✅ **App-Header**: Design náutico autêntico removido da mesa do capitão
+✅ **Dashboard**: Mesa do capitão com madeira escura para máximo contraste
+✅ **Overlay de Contraste**: Camada semi-transparente sobre backgrounds para legibilidade
+
+**TutorialOverlay Corrigido:**
+✅ **Classes de Botão**: Correção de `authentic-anchor` para `ancient-button`
+✅ **Barra de Rolagem**: Estilização náutica personalizada
+✅ **Animações Tutorial**: Sistema específico de aparição e transições
+
+### Resultado Final
+- **Identidade Visual Coesa**: Todos os componentes seguem o tema náutico autêntico
+- **Contraste Otimizado**: Documentos antigos se destacam claramente sobre fundos escuros
+- **UX Aprimorada**: Navegação mais limpa, informações organizadas, feedback visual claro
+- **Performance**: Animações fluidas sem comprometer responsividade
+- **Consistência**: Sistema de design unificado em toda a aplicação
+
+### Arquivos Principais Modificados
+- `ancient-documents.css`: Sistema CSS unificado
+- `CaptainCompass.jsx/css`: Simplificação e modernização
+- `App.css`: Fundo náutico e header otimizado
+- `Dashboard.css`: Mesa escura para contraste
+- `TutorialOverlay.jsx/css`: Correções e melhorias
+- Todos os 9 componentes principais: Classes e estilos unificados
+
+### Status:
+✅ **Concluído e Verificado** - Reformulação visual completa implementada com sucesso.
+
+**O jogo agora apresenta uma identidade visual náutica autêntica e coesa, com contraste otimizado, interface simplificada e experiência de usuário aprimorada em todos os aspectos.**

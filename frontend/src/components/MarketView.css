@@ -1,9 +1,6 @@
+/* Container principal agora usa ancient-document */
 .market-view {
     padding: 20px;
-    background-color: var(--color-panel-bg);
-    border: 4px solid var(--color-border);
-    box-shadow: inset 0 0 0 4px var(--color-accent);
-    color: var(--color-text-darker);
 }
 
 .market-header {
@@ -15,6 +12,37 @@
     margin-bottom: 20px;
 }
 
+.market-title {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.market-decoration {
+    width: 32px;
+    height: 32px;
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    filter: sepia(0.4) saturate(0.8) brightness(0.9);
+    animation: commerceFloat 3s ease-in-out infinite alternate;
+}
+
+.ancient-scales {
+    background-image: url('/assets/icons/decorative/scales.png');
+    animation-delay: 0s;
+}
+
+.ancient-coins {
+    background-image: url('/assets/icons/decorative/coins.png');
+    animation-delay: 1.5s;
+}
+
+@keyframes commerceFloat {
+    0% { transform: translateY(0px) rotate(-1deg); }
+    100% { transform: translateY(-4px) rotate(1deg); }
+}
+
 .market-header h2 {
     margin: 0;
     color: var(--color-text-darker);
@@ -23,8 +51,9 @@
     text-transform: uppercase;
 }
 
+/* Painel de ouro agora usa small-tag */
 .player-gold {
-    text-align: right;
+    text-align: center;
     font-size: 1.2em;
     font-weight: bold;
     margin-bottom: 20px;
@@ -38,16 +67,40 @@
     gap: 15px;
 }
 
+.resources-list .resource-row:nth-child(1) { animation-delay: 0.1s; }
+.resources-list .resource-row:nth-child(2) { animation-delay: 0.2s; }
+.resources-list .resource-row:nth-child(3) { animation-delay: 0.3s; }
+.resources-list .resource-row:nth-child(4) { animation-delay: 0.4s; }
+
+@keyframes ledgerAppear {
+    0% {
+        opacity: 0;
+        transform: translateX(-20px) rotate(-1deg);
+    }
+    100% {
+        opacity: 1;
+        transform: translateX(0) rotate(0deg);
+    }
+}
+
+/* Linha de recurso agora usa small-tag */
 .resource-row {
     display: grid;
     grid-template-columns: 1fr 1fr 1fr 2fr;
     align-items: center;
     gap: 15px;
-    padding: 15px;
-    background-color: var(--color-panel-bg);
-    border: 1px solid var(--color-border);
-    border-radius: 5px;
-    color: var(--color-text-darker);
+    margin-bottom: 10px;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    animation: ledgerAppear 0.5s ease-out;
+}
+
+.resource-row:hover {
+    transform: translateY(-2px);
+    box-shadow: 
+        6px 6px 15px rgba(0, 0, 0, 0.25),
+        3px 3px 8px rgba(101, 67, 33, 0.2),
+        inset 2px 2px 6px rgba(255, 255, 255, 0.6),
+        inset -2px -2px 6px rgba(139, 90, 43, 0.15);
 }
 
 .resource-name {
@@ -65,8 +118,8 @@
 .quantity-input {
     width: 70px;
     padding: 8px;
-    background-color: var(--color-panel-bg);
-    border: 1px solid var(--color-border);
+    background: linear-gradient(135deg, #f8f5f0 0%, #f0e8d8 100%);
+    border: 2px solid rgba(101, 67, 33, 0.4);
     color: var(--color-text-darker);
     border-radius: 4px;
     text-align: center;
@@ -74,12 +127,19 @@
     font-size: 1em;
     font-weight: bold;
     transition: all 0.2s ease;
+    box-shadow: 
+        inset 1px 1px 3px rgba(139, 90, 43, 0.2),
+        1px 1px 2px rgba(0, 0, 0, 0.1);
 }
 
 .quantity-input:focus {
     outline: none;
     border-color: var(--color-accent);
-    box-shadow: 0 0 0 2px rgba(200, 155, 60, 0.3);
+    box-shadow: 
+        inset 1px 1px 3px rgba(139, 90, 43, 0.2),
+        0 0 0 3px rgba(200, 155, 60, 0.3),
+        2px 2px 4px rgba(0, 0, 0, 0.15);
+    transform: translateY(-1px);
 }
 
 .quantity-input::placeholder {
@@ -89,52 +149,15 @@
 
 /* Removido - definido nos estilos globais de botões abaixo */
 
-/* Estilos para botões seguindo padrão dos contratos */
-.market-view button {
-    font-family: var(--font-pixel);
-    font-size: 1.2em;
-    padding: 15px 20px;
-    border: 2px solid var(--color-border);
-    cursor: pointer;
-    transition: all 0.1s ease-in-out;
-    text-align: center;
-    text-transform: uppercase;
-    box-shadow: 4px 4px 0px 0px var(--color-border);
-}
-
-.market-view button:hover {
-    transform: translate(2px, 2px);
-    box-shadow: 2px 2px 0px 0px var(--color-border);
-}
-
-.market-view button:active {
-    transform: translate(4px, 4px);
-    box-shadow: 0px 0px 0px 0px var(--color-border);
-}
-
+/* Botões agora usam authentic-anchor com personalizações de cor */
 .buy-button {
-    background-color: var(--color-button-primary);
-    color: var(--color-text-darker);
-}
-
-.buy-button:hover {
-    background-color: var(--color-button-primary-hover);
+    background: linear-gradient(135deg, var(--color-button-primary) 0%, #228B22 100%);
 }
 
 .sell-button {
-    background-color: var(--color-button-danger);
-    color: var(--color-panel-bg);
+    background: linear-gradient(135deg, var(--color-button-danger) 0%, #B22222 100%);
 }
 
-.sell-button:hover {
-    background-color: var(--color-button-danger-hover);
-}
-
-.market-view .back-button {
-    background-color: var(--color-button-danger) !important;
-    color: var(--color-panel-bg) !important;
-}
-
-.market-view .back-button:hover {
-    background-color: var(--color-button-danger-hover) !important;
+.back-button {
+    background: linear-gradient(135deg, var(--color-button-danger) 0%, #B22222 100%);
 }

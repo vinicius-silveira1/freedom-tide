@@ -20,36 +20,98 @@
   transform-origin: center bottom;
 }
 
-/* Arena principal - estilo pergaminho de mapa de batalha */
+/* Mapa de Batalha Naval - Carta Náutica Histórica */
 .battle-arena {
   position: absolute;
-  top: 35%;
+  top: 30%;
   left: 50%;
-  transform: translate(-50%, -50%) rotate(-0.5deg);
-  width: 70%;
-  height: 50%;
+  transform: translate(-50%, -50%) rotate(-0.3deg);
+  width: 72%;
+  height: 52%;
 
-  /* Estilo pergaminho envelhecido */
+  /* Base de carta náutica envelhecida */
   background: 
-    /* Manchas de água salgada e respingos */
-    radial-gradient(ellipse at 25% 30%, rgba(100, 120, 140, 0.15) 0%, transparent 25%),
-    radial-gradient(ellipse at 75% 70%, rgba(120, 100, 80, 0.12) 0%, transparent 30%),
-    radial-gradient(circle at 15% 80%, rgba(90, 110, 130, 0.1) 0%, transparent 20%),
+    /* Manchas de água salgada e respingos do mar */
+    radial-gradient(ellipse at 20% 25%, rgba(65, 105, 225, 0.08) 0%, transparent 20%),
+    radial-gradient(ellipse at 80% 75%, rgba(100, 149, 237, 0.06) 0%, transparent 25%),
     
-    /* Manchas de tinta de navegação */
-    radial-gradient(circle at 85% 15%, rgba(70, 50, 30, 0.08) 0%, transparent 15%),
-    radial-gradient(circle at 60% 20%, rgba(80, 60, 40, 0.06) 0%, transparent 12%),
+    /* Manchas de tinta de navegação e anotações */
+    radial-gradient(circle at 85% 10%, rgba(25, 25, 112, 0.12) 0%, transparent 15%),
+    radial-gradient(circle at 15% 85%, rgba(139, 69, 19, 0.1) 0%, transparent 18%),
+    radial-gradient(circle at 60% 30%, rgba(160, 82, 45, 0.08) 0%, transparent 12%),
     
-    /* Base de pergaminho */
-    #f4e8d4;
+    /* Desgaste nas bordas */
+    radial-gradient(ellipse at 0% 50%, rgba(101, 67, 33, 0.15) 0%, transparent 40%),
+    radial-gradient(ellipse at 100% 50%, rgba(101, 67, 33, 0.15) 0%, transparent 40%),
+    
+    /* Grade de navegação sutil */
+    linear-gradient(0deg, rgba(139, 69, 19, 0.03) 0%, transparent 2%, transparent 98%, rgba(139, 69, 19, 0.03) 100%),
+    linear-gradient(90deg, rgba(139, 69, 19, 0.03) 0%, transparent 2%, transparent 98%, rgba(139, 69, 19, 0.03) 100%),
+    
+    /* Base de pergaminho náutico */
+    linear-gradient(135deg, #f6ead6 0%, #e8d5b7 50%, #f4e8d4 100%);
 
-  border: 4px solid var(--color-border);
-  border-radius: 12px 18px 15px 20px / 15px 12px 18px 14px;
+  /* Sem bordas regulares - usaremos clip-path */
+  border: 0;
+  border-radius: 0;
+  
+  /* Bordas irregulares de mapa antigo com desgaste */
+  clip-path: polygon(
+    1% 2%, 15% 0%, 30% 1%, 45% 0%, 60% 2%, 75% 0%, 90% 1%, 98% 3%,
+    100% 15%, 99% 30%, 100% 45%, 98% 60%, 100% 75%, 99% 90%, 97% 98%,
+    85% 100%, 70% 99%, 55% 100%, 40% 98%, 25% 100%, 10% 99%, 2% 97%,
+    0% 85%, 1% 70%, 0% 55%, 2% 40%, 0% 25%, 1% 10%
+  );
   
   box-shadow: 
-    6px 6px 0px 0px var(--color-border),
+    /* Bordas pintadas à mão */
+    inset 0 0 0 2px #8B4513,
+    inset 0 0 0 4px rgba(139, 69, 19, 0.3),
+    
+    /* Sombra dramática de mapa sobre mesa de capitão */
+    12px 15px 30px rgba(0, 0, 0, 0.4),
+    20px 25px 50px rgba(139, 69, 19, 0.2),
+    
+    /* Sombra interna de envelhecimento */
+    inset 0 0 30px rgba(101, 67, 33, 0.1),
     inset -2px -2px 5px rgba(80, 50, 30, 0.15),
     inset 3px 3px 5px rgba(250, 240, 220, 0.5);
+}
+
+/* Pseudo-elementos para linha de costa e rosa dos ventos */
+.battle-arena::before {
+  content: '';
+  position: absolute;
+  top: 10px;
+  right: 15px;
+  width: 60px;
+  height: 60px;
+  background: 
+    conic-gradient(from 0deg, 
+      rgba(139, 69, 19, 0.3) 0deg, transparent 45deg,
+      rgba(139, 69, 19, 0.3) 90deg, transparent 135deg,
+      rgba(139, 69, 19, 0.3) 180deg, transparent 225deg,
+      rgba(139, 69, 19, 0.3) 270deg, transparent 315deg
+    );
+  border-radius: 50%;
+  opacity: 0.4;
+}
+
+.battle-arena::after {
+  content: '';
+  position: absolute;
+  bottom: 15px;
+  left: 20px;
+  width: 80px;
+  height: 2px;
+  background: linear-gradient(90deg, 
+    transparent 0%, 
+    rgba(139, 69, 19, 0.4) 20%, 
+    rgba(139, 69, 19, 0.6) 50%, 
+    rgba(139, 69, 19, 0.4) 80%, 
+    transparent 100%
+  );
+  transform: rotate(-5deg);
 }
 
 /* Águas da batalha - área oceânica no pergaminho */
@@ -103,24 +165,99 @@
   }
 }
 
-/* Navios - estilo desenho em pergaminho */
+/* Navios - Ilustrações Náuticas em Pergaminho Antigo */
 .ship {
   display: flex;
   flex-direction: column;
   align-items: center;
   position: relative;
-  padding: 15px;
+  padding: 25px;
+  min-width: 180px;
   
-  /* Estilo papel antigo para status do navio */
-  background: #f8f2e6;
-  border: 2px solid var(--color-border);
-  border-radius: 8px 12px 6px 10px / 10px 8px 12px 6px;
+  /* Base de pergaminho com ilustração naval */
+  background: 
+    /* Manchas de tinta de desenho técnico */
+    radial-gradient(ellipse at 20% 30%, rgba(25, 25, 112, 0.08) 0%, transparent 25%),
+    radial-gradient(ellipse at 80% 70%, rgba(139, 69, 19, 0.12) 0%, transparent 30%),
+    
+    /* Respingos de água salgada no pergaminho */
+    radial-gradient(circle at 15% 85%, rgba(65, 105, 225, 0.06) 0%, transparent 15%),
+    radial-gradient(circle at 85% 15%, rgba(100, 149, 237, 0.05) 0%, transparent 12%),
+    
+    /* Base envelhecida de ilustração naval */
+    linear-gradient(135deg, #f8f2e6 0%, #ede1c9 50%, #f4e8d4 100%);
+  
+  /* Bordas orgânicas de desenho antigo */
+  border: 0;
+  border-radius: 0;
+  
+  /* Clip-path para bordas de ilustração manual */
+  clip-path: polygon(
+    3% 5%, 20% 2%, 40% 0%, 60% 2%, 80% 0%, 95% 4%, 98% 20%,
+    100% 40%, 98% 60%, 100% 80%, 96% 95%, 80% 98%, 60% 100%,
+    40% 98%, 20% 100%, 5% 96%, 2% 80%, 0% 60%, 2% 40%, 0% 20%
+  );
+  
+  /* Bordas pintadas à mão e sombras */
   box-shadow: 
-    3px 3px 0px 0px var(--color-border),
-    inset -1px -1px 3px rgba(80, 50, 30, 0.1);
+    /* Borda de tinta */
+    inset 0 0 0 2px rgba(139, 69, 19, 0.6),
+    inset 0 0 0 4px rgba(139, 69, 19, 0.2),
+    
+    /* Sombra de papel sobre mesa */
+    8px 12px 25px rgba(0, 0, 0, 0.3),
+    15px 20px 40px rgba(139, 69, 19, 0.15),
+    
+    /* Relevo de papel grosso */
+    inset -2px -2px 5px rgba(101, 67, 33, 0.1),
+    inset 2px 2px 5px rgba(255, 255, 255, 0.3);
   
   transform-origin: center bottom;
   transition: all 0.4s ease;
+}
+
+/* Efeitos de tinta e anotações nos navios */
+.ship::before {
+  content: '';
+  position: absolute;
+  top: 8px;
+  right: 12px;
+  width: 20px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(25, 25, 112, 0.4), transparent);
+  transform: rotate(45deg);
+}
+
+.ship::after {
+  content: '';
+  position: absolute;
+  bottom: 10px;
+  left: 15px;
+  width: 25px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(139, 69, 19, 0.3), transparent);
+  transform: rotate(-30deg);
+}
+
+.ship:hover {
+  transform: scale(1.08) translateY(-8px);
+  
+  /* Iluminação de quem examina a ilustração */
+  box-shadow: 
+    /* Borda destacada */
+    inset 0 0 0 3px rgba(139, 69, 19, 0.8),
+    inset 0 0 0 5px rgba(255, 215, 0, 0.3),
+    
+    /* Sombra elevada */
+    12px 18px 35px rgba(0, 0, 0, 0.4),
+    20px 25px 50px rgba(139, 69, 19, 0.2),
+    
+    /* Brilho dourado do pergaminho */
+    inset -3px -3px 8px rgba(101, 67, 33, 0.15),
+    inset 3px 3px 8px rgba(255, 248, 220, 0.5);
+  
+  /* Filtro dourado quando examinado */
+  filter: brightness(1.1) contrast(1.05);
 }
 
 .player-ship {
@@ -131,28 +268,88 @@
   transform: rotate(1.5deg);
 }
 
-/* Hull do navio - estilo pergaminho interno */
+/* Hull do navio - Centro de comando naval */
 .ship-hull {
   text-align: center;
-  width: 120px;
-  background: transparent;
-  border: none;
-  padding: 10px;
+  width: 160px;
+  background: rgba(244, 232, 212, 0.8);
+  border: 2px solid var(--color-border);
+  border-radius: 8px;
+  padding: 15px;
+  box-shadow: inset 2px 2px 0px rgba(139, 105, 70, 0.2);
 }
 
 .ship-icon {
-  font-size: 2.5rem;
-  margin-bottom: 5px;
-  filter: sepia(0.3) hue-rotate(15deg);
+  /* Ilustração naval histórica */
+  font-family: 'Segoe UI Emoji', sans-serif;
+  font-size: 3.5rem;
+  font-weight: normal;
+  color: rgba(25, 25, 112, 0.9);
+  margin-bottom: 12px;
+  text-align: center;
+  
+  /* Efeito de desenho à tinta */
+  text-shadow: 
+    1px 1px 2px rgba(139, 69, 19, 0.6),
+    2px 2px 4px rgba(0, 0, 0, 0.4),
+    0 0 6px rgba(25, 25, 112, 0.3);
+  
+  /* Filtros para aparência de ilustração antiga */
+  filter: 
+    sepia(10%) 
+    brightness(0.95) 
+    contrast(1.1)
+    drop-shadow(1px 1px 2px rgba(139, 69, 19, 0.4));
+  
+  /* Transformação sutil */
+  transform: rotate(-1deg);
+  
+  /* Fundo circular sutil */
+  background: radial-gradient(
+    circle, 
+    rgba(139, 69, 19, 0.08) 0%, 
+    rgba(139, 69, 19, 0.05) 40%, 
+    transparent 50%
+  );
+  
+  padding: 8px;
+  border-radius: 50%;
+  
+  /* Animação sutil de balanço do navio */
+  animation: shipRock 3s ease-in-out infinite;
+}
+
+@keyframes shipRock {
+  0%, 100% { transform: rotate(-1deg); }
+  50% { transform: rotate(1deg); }
 }
 
 .ship-name {
+  /* Pixel art naval */
   font-family: var(--font-pixel);
-  font-size: 0.9rem;
+  font-size: 1.2rem;
   font-weight: bold;
   color: var(--color-text-darker);
+  
+  /* Espaçamento pixel */
+  letter-spacing: 1px;
   margin-bottom: 8px;
+  text-align: center;
   text-transform: uppercase;
+  
+
+}
+
+.ship-name::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 80%;
+  height: 2px;
+  background: var(--color-border);
+  box-shadow: 1px 1px 0px rgba(139, 69, 19, 0.8);
 }
 
 /* Estados de dano - cores mais sutis */
@@ -256,19 +453,27 @@
   top: -20px;
   left: 50%;
   transform: translateX(-50%);
-  font-size: 1.5rem;
+  font-family: var(--font-pixel);
+  font-size: 0.8rem;
+  font-weight: bold;
+  color: #696969;
+  text-shadow: 1px 1px 0px #444444;
   opacity: 0.7;
   animation: smokeRise 2s ease-in-out infinite;
+  text-transform: uppercase;
+  letter-spacing: 1px;
 }
 
 .smoke-level-2 {
-  font-size: 2rem;
+  font-size: 1rem;
   opacity: 0.8;
+  color: #555555;
 }
 
 .smoke-level-3 {
-  font-size: 2.5rem;
+  font-size: 1.2rem;
   opacity: 0.9;
+  color: #333333;
   animation: smokeRise 1s ease-in-out infinite, smokeFlicker 0.5s ease-in-out infinite;
 }
 
@@ -292,10 +497,63 @@
 }
 
 .versus-text {
-  font-size: 3rem;
-  color: var(--color-accent);
-  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
-  animation: pulseVersus 2s ease-in-out infinite;
+  /* Título majestoso de documento naval histórico */
+  font-family: 'Times New Roman', serif;
+  font-size: 4.2rem;
+  font-weight: 900;
+  font-variant: small-caps;
+  color: rgba(25, 25, 112, 0.95);
+  text-transform: uppercase;
+  letter-spacing: 8px;
+  
+  /* Efeito de tinta dourada sobre pergaminho */
+  text-shadow: 
+    2px 2px 0px rgba(139, 69, 19, 0.8),
+    4px 4px 8px rgba(0, 0, 0, 0.6),
+    0 0 15px rgba(255, 215, 0, 0.4),
+    0 0 25px rgba(25, 25, 112, 0.3);
+  
+  /* Animação sutil de documento importante */
+  animation: documentGlow 3s ease-in-out infinite;
+  
+  /* Fundo de pergaminho com selo */
+  background: 
+    /* Selo central */
+    radial-gradient(circle at center, rgba(178, 34, 34, 0.9) 0%, rgba(178, 34, 34, 0.6) 30%, transparent 35%),
+    /* Base envelhecida */
+    radial-gradient(ellipse, rgba(139, 69, 19, 0.15) 0%, transparent 80%);
+  
+  padding: 20px 35px;
+  border: 0;
+  border-radius: 0;
+  
+  /* Clip-path para bordas irregulares de documento */
+  clip-path: polygon(
+    8% 5%, 25% 2%, 45% 0%, 55% 0%, 75% 2%, 92% 5%, 95% 25%,
+    100% 45%, 98% 55%, 100% 75%, 95% 92%, 75% 95%, 55% 100%,
+    45% 100%, 25% 95%, 8% 92%, 5% 75%, 2% 55%, 0% 45%, 5% 25%
+  );
+  
+  /* Sombras de documento oficial importante */
+  box-shadow: 
+    inset 0 0 0 3px rgba(139, 69, 19, 0.6),
+    inset 0 0 0 6px rgba(139, 69, 19, 0.2),
+    8px 12px 25px rgba(0, 0, 0, 0.4),
+    15px 20px 40px rgba(139, 69, 19, 0.3);
+  
+  /* Stroke dourado */
+  -webkit-text-stroke: 1px rgba(255, 215, 0, 0.5);
+}
+
+@keyframes documentGlow {
+  0%, 100% { 
+    transform: scale(1) rotate(0deg);
+    filter: brightness(1) contrast(1);
+  }
+  50% { 
+    transform: scale(1.02) rotate(0.2deg);
+    filter: brightness(1.05) contrast(1.1);
+  }
 }
 
 @keyframes pulseVersus {
@@ -304,11 +562,65 @@
 }
 
 .battle-distance {
+  /* Anotação pixel art */
   font-family: var(--font-pixel);
-  font-size: 0.9rem;
-  color: var(--color-text-light);
-  margin-top: 10px;
-  opacity: 0.8;
+  font-size: 1rem;
+  font-weight: bold;
+  color: var(--color-text-darker);
+  
+  /* Espaçamento pixel */
+  letter-spacing: 1px;
+  margin-top: 12px;
+  padding: 10px 15px;
+  text-transform: uppercase;
+  
+  /* Fundo de etiqueta náutica */
+  background: 
+    /* Manchas de tinta */
+    radial-gradient(circle at 85% 20%, rgba(25, 25, 112, 0.08) 0%, transparent 25%),
+    radial-gradient(circle at 15% 80%, rgba(139, 69, 19, 0.06) 0%, transparent 20%),
+    
+    /* Base de papel */
+    linear-gradient(135deg, #f8f2e6 0%, #ede1c9 100%);
+  
+  /* Bordas de etiqueta manuscrita */
+  border: 0;
+  border-radius: 0;
+  
+  /* Clip-path para etiqueta irregular */
+  clip-path: polygon(
+    5% 10%, 20% 5%, 40% 0%, 60% 0%, 80% 5%, 95% 10%, 100% 30%,
+    95% 50%, 100% 70%, 95% 90%, 80% 95%, 60% 100%, 40% 100%,
+    20% 95%, 5% 90%, 0% 70%, 5% 50%, 0% 30%
+  );
+  
+  /* Efeito pixel shadow */
+  text-shadow: 
+    2px 2px 0px rgba(139, 69, 19, 0.8),
+    1px 1px 0px rgba(255, 255, 255, 0.5);
+  
+  /* Sombras de etiqueta colada */
+  box-shadow: 
+    inset 0 0 0 1px rgba(139, 69, 19, 0.4),
+    inset 0 0 0 2px rgba(139, 69, 19, 0.1),
+    4px 6px 12px rgba(0, 0, 0, 0.3),
+    8px 10px 20px rgba(139, 69, 19, 0.15);
+  
+  /* Posição relativa para pseudo-elementos */
+  position: relative;
+}
+
+/* Sublinhado pixel */
+.battle-distance::after {
+  content: '';
+  position: absolute;
+  bottom: 3px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 70%;
+  height: 2px;
+  background: var(--color-border);
+  box-shadow: 1px 1px 0px rgba(139, 69, 19, 0.8);
 }
 
 /* Efeitos de Batalha */
@@ -322,14 +634,26 @@
 }
 
 .cannonfire {
-  font-size: 4rem;
+  font-family: var(--font-pixel);
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #d4af37;
+  text-shadow: 2px 2px 0px #8b4513, 0 0 10px rgba(212, 175, 55, 0.5);
   animation: cannonBlast 1.5s ease-out;
+  text-transform: uppercase;
+  letter-spacing: 2px;
 }
 
 .splash {
-  font-size: 3rem;
+  font-family: var(--font-pixel);
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: #4169e1;
+  text-shadow: 1px 1px 0px #2c4a8c, 0 0 8px rgba(65, 105, 225, 0.4);
   animation: waterSplash 1.5s ease-out 0.2s;
   opacity: 0;
+  text-transform: uppercase;
+  letter-spacing: 1px;
 }
 
 @keyframes cannonBlast {
@@ -362,59 +686,183 @@
   }
 }
 
-/* Narrativa de Combate - pergaminho de relatório */
+/* Relatório de Combate Naval - Pergaminho Militar Antigo */
 .combat-narrative {
   position: absolute;
-  top: 20px;
+  bottom: 90px;
   left: 20px;
-  width: 280px;
-  transform: rotate(-1deg);
+  width: 450px;
+  height: 1000px;
+  transform: rotate(-0.5deg);
   
-  /* Estilo pergaminho de relatório de combate */
+  /* Base de pergaminho envelhecido */
   background: 
-    radial-gradient(circle at 80% 20%, rgba(100, 70, 50, 0.08) 0%, transparent 20%),
-    radial-gradient(circle at 20% 80%, rgba(80, 60, 40, 0.06) 0%, transparent 15%),
-    #f6ead6;
+    /* Manchas de tinta e água salgada */
+    radial-gradient(ellipse at 15% 20%, rgba(101, 67, 33, 0.15) 0%, transparent 25%),
+    radial-gradient(ellipse at 85% 80%, rgba(139, 69, 19, 0.12) 0%, transparent 30%),
+    radial-gradient(circle at 60% 40%, rgba(160, 82, 45, 0.08) 0%, transparent 20%),
     
-  border: 3px solid var(--color-border);
-  border-radius: 8px 12px 10px 8px / 10px 8px 12px 10px;
+    /* Manchas de cera de lacre */
+    radial-gradient(circle at 90% 15%, rgba(180, 0, 0, 0.1) 0%, transparent 8%),
+    
+    /* Base envelhecida */
+    linear-gradient(135deg, #f4e8d4 0%, #e6d5b8 100%);
   
+  /* Bordas muito irregulares de documento antigo */
+  border: 0;
+  border-radius: 0;
+  
+  /* Simulação de bordas rasgadas usando box-shadow múltiplas */
   box-shadow: 
-    4px 4px 0px 0px var(--color-border),
-    inset -1px -1px 3px rgba(80, 50, 30, 0.1);
+    /* Borda principal irregular */
+    inset 3px 0 0 #8B4513,
+    inset -3px 0 0 #8B4513,
+    inset 0 3px 0 #8B4513,
+    inset 0 -3px 0 #8B4513,
+    
+    /* Bordas secundárias irregulares */
+    inset 6px 2px 0 rgba(139, 69, 19, 0.3),
+    inset -6px -2px 0 rgba(139, 69, 19, 0.3),
+    inset 2px 6px 0 rgba(139, 69, 19, 0.3),
+    inset -2px -6px 0 rgba(139, 69, 19, 0.3),
+    
+    /* Sombra de documento sobre mesa */
+    8px 12px 25px rgba(0, 0, 0, 0.4),
+    15px 20px 40px rgba(139, 69, 19, 0.2);
   
-  padding: 15px 18px;
-  max-height: 120px;
+  padding: 30px 25px;
+  max-height: 180px;
   overflow-y: auto;
+  
+  /* Clip-path para bordas orgânicas irregulares */
+  clip-path: polygon(
+    2% 0%, 98% 3%, 97% 15%, 99% 25%, 98% 40%, 100% 55%, 
+    98% 70%, 99% 85%, 97% 97%, 85% 98%, 70% 100%, 55% 98%, 
+    40% 99%, 25% 97%, 15% 99%, 3% 97%, 0% 85%, 2% 70%, 
+    0% 55%, 2% 40%, 0% 25%, 3% 15%
+  );
 }
 
-.narrative-content {
+/* Pseudo-elementos para efeitos de dobras e vincos */
+.combat-narrative::before {
+  content: '';
+  position: absolute;
+  top: 10px;
+  right: 15px;
+  width: 30px;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, rgba(139, 69, 19, 0.3), transparent);
+  transform: rotate(45deg);
+}
+
+.combat-narrative::after {
+  content: '';
+  position: absolute;
+  bottom: 20px;
+  left: 20px;
+  width: 40px;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, rgba(139, 69, 19, 0.2), transparent);
+  transform: rotate(-30deg);
+}
+
+.narrative-content,
+.naval-report-content {
   font-family: var(--font-pixel);
-  font-size: 0.9rem;
+  font-size: 1rem;
   line-height: 1.3;
   color: var(--color-text-darker);
 }
 
-.action-feedback {
-  color: #1a1a1a;
+.naval-report-content h4 {
+  font-family: var(--font-pixel);
+  font-size: 1.4rem;
   font-weight: bold;
+  color: var(--color-text-darker);
+  margin-bottom: 10px;
+  text-align: center;
   text-transform: uppercase;
-  font-size: 1.1rem;
-  text-shadow: 
-    2px 2px 0px #ffffff,
-    -1px -1px 0px #ffffff,
-    1px -1px 0px #ffffff,
-    -1px 1px 0px #ffffff;
-  background: linear-gradient(135deg, 
-    rgba(255, 255, 255, 0.95) 0%,
-    rgba(246, 234, 214, 0.95) 50%,
-    rgba(255, 255, 255, 0.95) 100%);
-  padding: 6px 12px;
-  border-radius: 6px;
-  border: 3px solid var(--color-border);
+  letter-spacing: 1px;
+  
+  /* Sublinhado pixel */
+  border-bottom: 2px solid var(--color-border);
+  padding-bottom: 6px;
+}
+
+.battle-stats,
+.combat-details {
+  margin-top: 8px;
+  font-size: 1rem;
+  font-style: normal;
+}
+
+.battle-stats p,
+.combat-details p {
+  margin: 4px 0;
+  color: var(--color-text-darker);
+  font-weight: bold;
+}
+
+.action-feedback {
+  /* Relatório de ação pixel */
+  font-family: var(--font-pixel);
+  font-size: 1.5rem;
+  font-weight: bold;
+  font-style: normal;
+  color: var(--color-text-darker);
+  
+  /* Espaçamento pixel */
+  letter-spacing: 1px;
+  line-height: 1.2;
+  text-transform: uppercase;
+  
+
+  /* Fundo de nota urgente */
+  background: 
+    /* Manchas de tinta urgente */
+    radial-gradient(circle at 90% 10%, rgba(178, 34, 34, 0.1) 0%, transparent 20%),
+    radial-gradient(circle at 10% 90%, rgba(25, 25, 112, 0.08) 0%, transparent 25%),
+    
+    /* Base de papel urgente */
+    linear-gradient(130deg, #f8f2e6 0%, #ede1c9 100%);
+  
+  padding: 12px 18px;
+  border: 0;
+  border-radius: 0;
+  
+  /* Clip-path para nota irregular */
+  clip-path: polygon(
+    2% 8%, 18% 3%, 35% 0%, 65% 0%, 82% 3%, 98% 8%, 100% 25%,
+    97% 45%, 100% 65%, 98% 85%, 85% 97%, 65% 100%, 35% 100%,
+    15% 97%, 2% 85%, 0% 65%, 3% 45%, 0% 25%
+  );
+  
+  /* Sombras de papel sobre mesa */
   box-shadow: 
-    3px 3px 0px 0px var(--color-border),
-    inset -1px -1px 2px rgba(80, 50, 30, 0.2);
+    inset 0 0 0 1px rgba(139, 69, 19, 0.3),
+    inset 0 0 0 2px rgba(139, 69, 19, 0.1),
+    6px 8px 20px rgba(0, 0, 0, 0.3),
+    10px 12px 30px rgba(139, 69, 19, 0.2);
+  
+  /* Posição para pseudo-elementos */
+  position: relative;
+}
+
+/* Sublinhado de urgência */
+.action-feedback::after {
+  content: '';
+  position: absolute;
+  bottom: 4px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60%;
+  height: 2px;
+  background: linear-gradient(
+    90deg, 
+    transparent, 
+    rgba(178, 34, 34, 0.6) 50%, 
+    transparent
+  );
 }
 
 .action-feedback.animating {
@@ -426,45 +874,118 @@
   50% { opacity: 0.7; }
 }
 
-/* Painéis de Ações - estilo pergaminho da mesa do capitão */
+/* Painéis de Ações - Ordem Militar Histórica */
 .combat-actions {
   position: absolute;
   bottom: 20px;
   left: 50%;
-  transform: translateX(-50%) rotate(0.3deg);
-  width: 90%;
-  max-width: 700px;
+  transform: translateX(-50%) rotate(0.2deg);
+  width: 80%;
+  max-width: 580px;
   
-  /* Estilo pergaminho de ordens de combate */
+  /* Documento oficial de ordens de combate */
   background: 
-    /* Manchas de tinta e respingos */
-    radial-gradient(ellipse at 20% 30%, rgba(80, 60, 40, 0.12) 0%, transparent 25%),
-    radial-gradient(circle at 80% 20%, rgba(100, 70, 50, 0.08) 0%, transparent 20%),
-    radial-gradient(circle at 60% 80%, rgba(90, 65, 45, 0.1) 0%, transparent 15%),
+    /* Selo de cera */
+    radial-gradient(circle at 88% 15%, rgba(178, 34, 34, 0.8) 0%, rgba(178, 34, 34, 0.6) 40%, transparent 42%),
     
-    /* Base de pergaminho */
-    #f6ead6;
+    /* Manchas de tinta oficial */
+    radial-gradient(ellipse at 12% 25%, rgba(25, 25, 112, 0.1) 0%, transparent 20%),
+    radial-gradient(ellipse at 85% 75%, rgba(139, 69, 19, 0.08) 0%, transparent 25%),
+    
+    /* Respingos de cera de lacre */
+    radial-gradient(circle at 90% 12%, rgba(220, 20, 60, 0.4) 0%, transparent 8%),
+    radial-gradient(circle at 86% 18%, rgba(139, 0, 0, 0.3) 0%, transparent 5%),
+    
+    /* Dobras do documento */
+    linear-gradient(85deg, transparent 48%, rgba(139, 69, 19, 0.1) 49%, rgba(139, 69, 19, 0.1) 51%, transparent 52%),
+    
+    /* Base envelhecida de documento oficial */
+    linear-gradient(140deg, #f8f2e6 0%, #ede1c9 40%, #f4e8d4 70%, #f0e6d2 100%);
   
-  border: 3px solid var(--color-border);
-  border-radius: 10px 15px 8px 12px / 12px 10px 15px 8px;
+  /* Bordas irregulares de documento militar */
+  border: 0;
+  border-radius: 0;
   
+  clip-path: polygon(
+    2% 3%, 15% 1%, 35% 0%, 55% 2%, 75% 0%, 92% 2%, 98% 12%,
+    100% 35%, 98% 55%, 100% 75%, 97% 92%, 85% 98%, 65% 100%,
+    45% 98%, 25% 100%, 8% 97%, 2% 85%, 0% 65%, 2% 45%, 0% 25%
+  );
+  
+  /* Sombras de documento oficial */
   box-shadow: 
-    4px 4px 0px 0px var(--color-border),
-    inset -2px -2px 4px rgba(80, 50, 30, 0.12),
-    inset 2px 2px 4px rgba(250, 240, 220, 0.5);
+    /* Borda de lacre */
+    inset 0 0 0 3px rgba(139, 69, 19, 0.4),
+    inset 0 0 0 6px rgba(139, 69, 19, 0.15),
+    
+    /* Sombra sobre mesa */
+    8px 12px 30px rgba(0, 0, 0, 0.35),
+    15px 20px 50px rgba(139, 69, 19, 0.2),
+    
+    /* Relevo de papel grosso oficial */
+    inset -3px -3px 8px rgba(101, 67, 33, 0.12),
+    inset 3px 3px 8px rgba(255, 248, 220, 0.4);
   
-  padding: 15px 20px;
+  padding: 20px 25px;
+}
+
+/* Carimbo oficial no canto */
+.combat-actions::before {
+  content: '★';
+  position: absolute;
+  top: 12px;
+  right: 45px;
+  font-size: 14px;
+  color: rgba(178, 34, 34, 0.7);
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+  transform: rotate(15deg);
+}
+
+/* Rubrica do comandante */
+.combat-actions::after {
+  content: '';
+  position: absolute;
+  bottom: 15px;
+  right: 25px;
+  width: 40px;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, rgba(25, 25, 112, 0.6), transparent);
+  transform: rotate(-5deg);
 }
 
 .combat-actions h3 {
+  /* Cabeçalho pixel art */
   font-family: var(--font-pixel);
-  color: var(--color-text-darker);
-  margin-bottom: 15px;
-  text-align: center;
   font-size: 1.1rem;
+  font-weight: bold;
+  color: var(--color-text-darker);
+  
+  /* Espaçamento e centralização */
+  text-align: center;
   text-transform: uppercase;
-  border-bottom: 2px solid var(--color-border);
+  letter-spacing: 2px;
+  margin-bottom: 15px;
+  
+  /* Efeito pixel shadow */
+  text-shadow: 
+    2px 2px 0px rgba(139, 69, 19, 0.8),
+    1px 1px 0px rgba(255, 255, 255, 0.5);
+  
+  /* Sublinhado pixel */
+  position: relative;
   padding-bottom: 8px;
+}
+
+.combat-actions h3::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60%;
+  height: 2px;
+  background: var(--color-border);
+  box-shadow: 1px 1px 0px rgba(139, 69, 19, 0.8);
 }
 
 .actions-grid {
@@ -473,46 +994,119 @@
   gap: 12px;
 }
 
-/* Botões de ação - estilo botões da mesa do capitão */
+/* Botões de Ação - Ordens Táticas Históricas */
 .combat-action-btn {
-  background: var(--color-panel-bg);
-  border: 2px solid var(--color-border);
-  border-radius: 6px;
-  padding: 12px 15px;
-  color: var(--color-text-darker);
+  /* Fundo de pergaminho limpo */
+  background: 
+    /* Manchas de tinta sutis */
+    radial-gradient(ellipse at 20% 80%, rgba(25, 25, 112, 0.06) 0%, transparent 25%),
+    radial-gradient(ellipse at 80% 20%, rgba(139, 69, 19, 0.04) 0%, transparent 20%),
+    
+    /* Base envelhecida */
+    linear-gradient(125deg, #f8f2e6 0%, #ede1c9 100%);
+  
+  /* Bordas irregulares */
+  border: 0;
+  border-radius: 0;
+  
+  clip-path: polygon(
+    5% 8%, 20% 4%, 40% 0%, 60% 0%, 80% 4%, 95% 8%, 98% 25%,
+    100% 45%, 98% 65%, 100% 80%, 95% 92%, 80% 96%, 60% 100%,
+    40% 100%, 20% 96%, 5% 92%, 2% 80%, 0% 65%, 2% 45%, 0% 25%
+  );
+  
+  padding: 15px 18px;
+  color: rgba(25, 25, 112, 0.9);
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.3s ease;
   display: flex;
   flex-direction: column;
   align-items: center;
   text-align: center;
-  min-height: 80px;
+  min-height: 85px;
   justify-content: center;
   
+  /* Typography pixel art */
   font-family: var(--font-pixel);
-  font-size: 0.9rem;
+  font-size: 0.8rem;
+  font-weight: bold;
   
-  box-shadow: 3px 3px 0px 0px var(--color-border);
+  /* Sombras de documento sobre mesa */
+  box-shadow: 
+    inset 0 0 0 1px rgba(139, 69, 19, 0.4),
+    inset 0 0 0 2px rgba(139, 69, 19, 0.15),
+    4px 6px 15px rgba(0, 0, 0, 0.3),
+    8px 10px 25px rgba(139, 69, 19, 0.2);
   
-  transform: rotate(0deg);
+  /* Rotação sutil */
+  transform: rotate(-0.5deg);
   transform-origin: center;
+  
+  /* Posição para pseudo-elementos */
+  position: relative;
+}
+
+/* Pequeno carimbo no canto */
+.combat-action-btn::before {
+  content: '⚔';
+  position: absolute;
+  top: 8px;
+  right: 12px;
+  font-size: 10px;
+  color: rgba(25, 25, 112, 0.4);
+  transform: rotate(20deg);
 }
 
 .combat-action-btn:hover {
-  background: var(--color-reputation);
-  transform: translate(1px, 1px);
-  box-shadow: 2px 2px 0px 0px var(--color-border);
+  /* Iluminação de exame */
+  background: 
+    radial-gradient(ellipse at 20% 80%, rgba(25, 25, 112, 0.1) 0%, transparent 25%),
+    radial-gradient(ellipse at 80% 20%, rgba(139, 69, 19, 0.08) 0%, transparent 20%),
+    linear-gradient(125deg, #faf4e8 0%, #f0e4cd 100%);
+  
+  transform: rotate(0deg) scale(1.02);
+  
+  /* Brilho dourado */
+  box-shadow: 
+    inset 0 0 0 2px rgba(255, 215, 0, 0.4),
+    inset 0 0 0 3px rgba(139, 69, 19, 0.3),
+    6px 8px 20px rgba(0, 0, 0, 0.4),
+    10px 12px 30px rgba(255, 215, 0, 0.2);
+  
+  filter: brightness(1.05);
 }
 
 .combat-action-btn:active {
-  transform: translate(3px, 3px);
-  box-shadow: 0px 0px 0px 0px var(--color-border);
+  transform: rotate(0.5deg) scale(0.98);
+  
+  /* Pressão sobre mesa */
+  box-shadow: 
+    inset 0 0 0 1px rgba(139, 69, 19, 0.6),
+    inset 0 0 0 2px rgba(139, 69, 19, 0.2),
+    2px 3px 8px rgba(0, 0, 0, 0.4);
 }
 
 .combat-action-btn:disabled {
-  opacity: 0.5;
+  /* Documento ilegível/danificado */
+  opacity: 0.6;
   cursor: not-allowed;
-  background: #e8dcc6;
+  
+  background: 
+    /* Manchas de água */
+    radial-gradient(ellipse at 30% 30%, rgba(100, 100, 100, 0.15) 0%, transparent 40%),
+    radial-gradient(ellipse at 70% 70%, rgba(120, 120, 120, 0.1) 0%, transparent 30%),
+    /* Base desbotada */
+    linear-gradient(125deg, #e8dcc6 0%, #d4c4a8 100%);
+  
+  color: rgba(80, 80, 80, 0.7);
+  
+  /* Filtro de documento danificado */
+  filter: 
+    sepia(20%) 
+    brightness(0.8) 
+    contrast(0.7);
+  
+  transform: rotate(-1deg);
 }
 
 /* Ícones e texto dos botões */
@@ -532,7 +1126,7 @@
 
 .action-description {
   font-family: var(--font-pixel);
-  font-size: 0.7rem;
+  font-size: 0.8rem;
   opacity: 0.8;
   text-align: center;
   line-height: 1.2;
@@ -544,43 +1138,108 @@
   line-height: 1.2;
 }
 
-/* Status da Tripulação em Combate - pergaminho de tripulação */
+/* Registro de Serviço Naval - Documento Histórico Oficial */
 .combat-crew-status {
   position: absolute;
-  bottom: 20px;
-  right: 50px;
-  width: 280px;
-  transform: rotate(1deg);
+  bottom: 30px;
+  right: 60px;
+  width: 290px;
+  transform: rotate(0.6deg);
   
-  /* Estilo pergaminho de lista de tripulação */
+  /* Documento de registro naval antigo */
   background: 
-    /* Manchas de suor e sujeira da tripulação */
-    radial-gradient(circle at 70% 30%, rgba(100, 80, 60, 0.08) 0%, transparent 20%),
-    radial-gradient(circle at 30% 70%, rgba(90, 70, 50, 0.06) 0%, transparent 15%),
-    radial-gradient(circle at 85% 80%, rgba(80, 60, 40, 0.05) 0%, transparent 12%),
+    /* Carimbo oficial no cabeçalho */
+    radial-gradient(circle at 85% 18%, rgba(178, 34, 34, 0.7) 0%, rgba(178, 34, 34, 0.4) 35%, transparent 37%),
     
-    /* Base de pergaminho */
-    #f6ead6;
+    /* Manchas de tinta de registro */
+    radial-gradient(ellipse at 15% 80%, rgba(25, 25, 112, 0.08) 0%, transparent 25%),
+    radial-gradient(ellipse at 90% 70%, rgba(139, 69, 19, 0.06) 0%, transparent 20%),
+    
+    /* Respingos de cera */
+    radial-gradient(circle at 87% 15%, rgba(220, 20, 60, 0.3) 0%, transparent 6%),
+    
+    /* Linha oficial de dobra */
+    linear-gradient(92deg, transparent 30%, rgba(139, 69, 19, 0.08) 31%, rgba(139, 69, 19, 0.08) 33%, transparent 34%),
+    
+    /* Base de pergaminho oficial */
+    linear-gradient(125deg, #f8f2e6 0%, #ede1c9 45%, #f4e8d4 80%, #f0e6d2 100%);
   
-  border: 3px solid var(--color-border);
-  border-radius: 8px 12px 10px 8px / 10px 8px 12px 10px;
+  /* Bordas irregulares de documento oficial */
+  border: 0;
+  border-radius: 0;
   
+  clip-path: polygon(
+    4% 2%, 20% 0%, 40% 1%, 60% 0%, 80% 2%, 96% 4%, 98% 20%,
+    100% 40%, 98% 60%, 100% 80%, 96% 96%, 80% 98%, 60% 100%,
+    40% 99%, 20% 100%, 4% 96%, 2% 80%, 0% 60%, 2% 40%, 0% 20%
+  );
+  
+  /* Sombras de documento importante */
   box-shadow: 
-    4px 4px 0px 0px var(--color-border),
-    inset -1px -1px 3px rgba(80, 50, 30, 0.1);
+    /* Borda oficial */
+    inset 0 0 0 2px rgba(139, 69, 19, 0.5),
+    inset 0 0 0 4px rgba(139, 69, 19, 0.15),
+    
+    /* Sombra sobre mesa */
+    8px 12px 25px rgba(0, 0, 0, 0.4),
+    15px 20px 45px rgba(139, 69, 19, 0.2),
+    
+    /* Relevo de papel oficial */
+    inset -2px -2px 6px rgba(101, 67, 33, 0.15),
+    inset 2px 2px 6px rgba(255, 248, 220, 0.4);
   
-  padding: 15px;
+  padding: 20px;
+}
+
+/* Selo naval no canto */
+.combat-crew-status::before {
+  content: '⚓';
+  position: absolute;
+  top: 12px;
+  right: 20px;
+  font-size: 12px;
+  color: rgba(178, 34, 34, 0.8);
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+  transform: rotate(20deg);
+}
+
+/* Linha de assinatura */
+.combat-crew-status::after {
+  content: '';
+  position: absolute;
+  bottom: 12px;
+  right: 20px;
+  width: 35px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(25, 25, 112, 0.5), transparent);
+  transform: rotate(-8deg);
 }
 
 .combat-crew-status h4 {
+  /* Cabeçalho pixel art */
   font-family: var(--font-pixel);
+  font-size: 1.2rem;
+  font-weight: bold;
   color: var(--color-text-darker);
-  margin-bottom: 12px;
+  
+  /* Formatação pixel */
   text-align: center;
-  font-size: 0.9rem;
   text-transform: uppercase;
-  border-bottom: 2px solid var(--color-border);
-  padding-bottom: 6px;
+  letter-spacing: 1px;
+  
+ 
+}
+
+.combat-crew-status h4::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 70%;
+  height: 2px;
+  background: var(--color-border);
+  box-shadow: 1px 1px 0px rgba(139, 69, 19, 0.8);
 }
 
 .crew-combat-grid {
@@ -593,22 +1252,54 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 8px;
-  background: #f0e4d1;
-  border: 2px solid var(--color-border);
-  border-radius: 4px;
-  box-shadow: 2px 2px 0px 0px var(--color-border);
+  padding: 10px;
+  
+  /* Fundo de pergaminho individual */
+  background: 
+    /* Manchas de tinta sutis */
+    radial-gradient(ellipse at 25% 75%, rgba(25, 25, 112, 0.04) 0%, transparent 25%),
+    radial-gradient(ellipse at 75% 25%, rgba(139, 69, 19, 0.03) 0%, transparent 20%),
+    
+    /* Base envelhecida */
+    linear-gradient(130deg, #f8f2e6 0%, #ede1c9 100%);
+  
+  /* Bordas irregulares */
+  border: 0;
+  border-radius: 0;
+  
+  clip-path: polygon(
+    8% 5%, 25% 2%, 45% 0%, 55% 0%, 75% 2%, 92% 5%, 95% 25%,
+    100% 45%, 98% 55%, 100% 75%, 95% 92%, 75% 95%, 55% 100%,
+    45% 100%, 25% 95%, 8% 92%, 5% 75%, 2% 55%, 0% 45%, 5% 25%
+  );
+  
+  /* Sombras de documento pequeno */
+  box-shadow: 
+    inset 0 0 0 1px rgba(139, 69, 19, 0.3),
+    inset 0 0 0 2px rgba(139, 69, 19, 0.1),
+    3px 4px 8px rgba(0, 0, 0, 0.2),
+    5px 6px 12px rgba(139, 69, 19, 0.15);
 }
 
 .stat-icon {
-  font-size: 1.2rem;
+  font-family: var(--font-pixel);
+  font-size: 0.6rem;
+  font-weight: bold;
+  color: var(--color-border);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
   margin-bottom: 3px;
-  filter: sepia(0.3) hue-rotate(15deg);
+  padding: 2px 4px;
+  background: rgba(139, 105, 70, 0.08);
+  border: 1px solid var(--color-border-light);
+  border-radius: 3px;
+  text-align: center;
+  width: fit-content;
 }
 
 .stat-name {
   font-family: var(--font-pixel);
-  font-size: 0.7rem;
+  font-size: 1rem;
   margin-bottom: 2px;
   color: var(--color-text-darker);
   text-transform: uppercase;
@@ -648,18 +1339,21 @@
   }
   
   .combat-actions {
-    width: 95%;
-    left: 2.5%;
-    transform: rotate(0.3deg);
+    width: 90%;
+    left: 5%;
+    transform: translateX(0) rotate(0.3deg);
+    max-width: none;
   }
   
   .combat-narrative {
-    width: 95%;
+    width: 45%;
     left: 2.5%;
+    bottom: 140px;
+    height: auto;
   }
   
   .combat-crew-status {
-    width: 95%;
+    width: 45%;
     right: 2.5%;
     bottom: 140px;
   }

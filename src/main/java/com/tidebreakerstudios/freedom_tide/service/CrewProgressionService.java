@@ -23,6 +23,7 @@ import java.util.List;
 public class CrewProgressionService {
 
     private final CrewMemberRepository crewMemberRepository;
+    private final CaptainProgressionService captainProgressionService;
 
     // Constantes de XP por ação
     private static final int XP_NAVIGATION = 15;
@@ -46,12 +47,14 @@ public class CrewProgressionService {
 
     /**
      * Concede XP para navegadores quando o navio viaja.
+     * Também concede XP para o capitão.
      */
     @Transactional
     public List<String> awardNavigationXP(Game game) {
         List<String> progressMessages = new ArrayList<>();
         List<CrewMember> navigators = getCrewByProfession(game, CrewProfession.NAVIGATOR, CrewProfession.EXPLORER);
         
+        // XP para a tripulação
         for (CrewMember navigator : navigators) {
             boolean rankedUp = navigator.gainExperience(XP_NAVIGATION);
             navigator.setJourneysCompleted(navigator.getJourneysCompleted() + 1);
@@ -67,11 +70,17 @@ public class CrewProgressionService {
             crewMemberRepository.saveAll(navigators);
         }
         
+        // XP para o capitão (navegação bem-sucedida)
+        List<String> captainMessages = captainProgressionService.awardCaptainXP(
+            game, XP_NAVIGATION / 2, "navegação bem-sucedida");
+        progressMessages.addAll(captainMessages);
+        
         return progressMessages;
     }
 
     /**
      * Concede XP para artilheiros em combate naval.
+     * Também concede XP para o capitão baseado no resultado.
      */
     @Transactional
     public List<String> awardCombatXP(Game game, boolean victory, boolean criticalHit) {
@@ -79,6 +88,7 @@ public class CrewProgressionService {
         List<CrewMember> combatCrew = getCrewByProfession(game, 
             CrewProfession.GUNNER, CrewProfession.FIGHTER, CrewProfession.CORSAIR);
         
+        // XP para a tripulação
         for (CrewMember member : combatCrew) {
             int xpGained = XP_NAVAL_COMBAT;
             if (victory) xpGained += XP_WIN_COMBAT;
@@ -101,17 +111,37 @@ public class CrewProgressionService {
             crewMemberRepository.saveAll(combatCrew);
         }
         
+        // XP para o capitão baseado no resultado do combate
+        int captainXP = XP_NAVAL_COMBAT / 2;
+        String combatSource = "participação em combate";
+        
+        if (victory) {
+            captainXP += XP_WIN_COMBAT / 2;
+            combatSource = "vitória em combate";
+        }
+        
+        if (criticalHit) {
+            captainXP += XP_CRITICAL_HIT / 3;
+            combatSource = "combate com acerto crítico";
+        }
+        
+        List<String> captainMessages = captainProgressionService.awardCaptainXP(
+            game, captainXP, combatSource);
+        progressMessages.addAll(captainMessages);
+        
         return progressMessages;
     }
 
     /**
      * Concede XP para médicos quando curam a tripulação.
+     * Também concede XP para o capitão por liderança médica.
      */
     @Transactional
     public List<String> awardMedicalXP(Game game, boolean savedLife) {
         List<String> progressMessages = new ArrayList<>();
         List<CrewMember> medics = getCrewByProfession(game, CrewProfession.MEDIC, CrewProfession.BATTLE_MEDIC);
         
+        // XP para a tripulação
         for (CrewMember medic : medics) {
             int xpGained = savedLife ? XP_SAVE_LIFE : XP_HEAL_CREW;
             boolean rankedUp = medic.gainExperience(xpGained);
@@ -128,17 +158,27 @@ public class CrewProgressionService {
             crewMemberRepository.saveAll(medics);
         }
         
+        // XP para o capitão por liderança médica
+        int captainXP = savedLife ? XP_SAVE_LIFE / 3 : XP_HEAL_CREW / 3;
+        String medicalSource = savedLife ? "salvar vida da tripulação" : "cuidar da tripulação";
+        
+        List<String> captainMessages = captainProgressionService.awardCaptainXP(
+            game, captainXP, medicalSource);
+        progressMessages.addAll(captainMessages);
+        
         return progressMessages;
     }
 
     /**
      * Concede XP para carpinteiros quando reparam o navio.
+     * Também concede XP para o capitão por gestão de manutenção.
      */
     @Transactional
     public List<String> awardRepairXP(Game game, boolean emergencyRepair) {
         List<String> progressMessages = new ArrayList<>();
         List<CrewMember> carpenters = getCrewByProfession(game, CrewProfession.CARPENTER);
         
+        // XP para a tripulação
         for (CrewMember carpenter : carpenters) {
             int xpGained = emergencyRepair ? XP_SURVIVE_LOW_HULL : XP_REPAIR_SHIP;
             boolean rankedUp = carpenter.gainExperience(xpGained);
@@ -154,6 +194,45 @@ public class CrewProgressionService {
         if (!carpenters.isEmpty()) {
             crewMemberRepository.saveAll(carpenters);
         }
+        
+        // XP para o capitão por gestão de manutenção
+        int captainXP = emergencyRepair ? XP_SURVIVE_LOW_HULL / 2 : XP_REPAIR_SHIP / 3;
+        String repairSource = emergencyRepair ? "sobreviver com casco crítico" : "manutenção do navio";
+        
+        List<String> captainMessages = captainProgressionService.awardCaptainXP(
+            game, captainXP, repairSource);
+        progressMessages.addAll(captainMessages);
+        
+        return progressMessages;
+    }
+    
+    /**
+     * Concede XP para o capitão quando realiza comércio bem-sucedido.
+     */
+    @Transactional
+    public List<String> awardTradeXP(Game game, int profit) {
+        List<String> progressMessages = new ArrayList<>();
+        
+        // XP baseado no lucro obtido (escala logarítmica para evitar exploits)
+        int captainXP = Math.min(50, (int) Math.ceil(Math.log(Math.max(1, profit)) * 5));
+        
+        List<String> captainMessages = captainProgressionService.awardCaptainXP(
+            game, captainXP, "comércio lucrativo");
+        progressMessages.addAll(captainMessages);
+        
+        return progressMessages;
+    }
+    
+    /**
+     * Concede XP para o capitão quando completa um contrato.
+     */
+    @Transactional
+    public List<String> awardContractXP(Game game) {
+        List<String> progressMessages = new ArrayList<>();
+        
+        List<String> captainMessages = captainProgressionService.awardCaptainXP(
+            game, XP_COMPLETE_CONTRACT, "completar contrato");
+        progressMessages.addAll(captainMessages);
         
         return progressMessages;
     }

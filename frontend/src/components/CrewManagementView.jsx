@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import './CrewManagementView.css';
+import '../styles/ancient-documents.css';
 
 function CrewManagementView({ gameId, onBack }) {
   const [crewData, setCrewData] = useState(null);
@@ -46,21 +47,25 @@ function CrewManagementView({ gameId, onBack }) {
     );
   };
 
-  if (loading) return <div className="crew-management status-panel">Carregando informações da tripulação...</div>;
-  if (error) return <div className="crew-management status-panel error-message">{error}</div>;
-  if (!crewData) return <div className="crew-management status-panel">Nenhum dado encontrado</div>;
+  if (loading) return <div className="crew-management ancient-document">Carregando informações da tripulação...</div>;
+  if (error) return <div className="crew-management ancient-document error-message">{error}</div>;
+  if (!crewData) return <div className="crew-management ancient-document">Nenhum dado encontrado</div>;
 
   return (
-    <div className="crew-management status-panel">
+    <div className="crew-management ancient-document">
       <div className="crew-management-header">
-        <h2>Gerenciamento da Tripulação</h2>
-        <button onClick={onBack} className="action-button back-button">
+        <div className="crew-title">
+          <div className="crew-decoration ancient-ship-wheel"></div>
+          <h2>Gerenciamento da Tripulação</h2>
+          <div className="crew-decoration ancient-logbook"></div>
+        </div>
+        <button onClick={onBack} className="action-button back-button authentic-anchor">
           Voltar aos Aposentos
         </button>
       </div>
 
       {/* Estatísticas Gerais */}
-      <div className="crew-statistics">
+      <div className="crew-statistics small-tag">
         <h3>Estatísticas Gerais</h3>
         <div className="stats-grid">
           <div className="stat-item">
@@ -87,7 +92,7 @@ function CrewManagementView({ gameId, onBack }) {
         <h3>Resumo por Profissão</h3>
         <div className="profession-grid">
           {crewData.professionSummaries.map((summary, index) => (
-            <div key={index} className="profession-summary" style={{ borderLeftColor: summary.professionColor }}>
+            <div key={index} className="profession-summary small-tag" style={{ borderLeftColor: summary.professionColor }}>
               <div className="profession-summary-header">
                 <img 
                   src={`/assets/icons/professions/${summary.professionIcon}`} 
@@ -112,7 +117,7 @@ function CrewManagementView({ gameId, onBack }) {
       <div className="crew-members-list">
         <h3>Tripulação Detalhada</h3>
         {crewData.crewMembers.map((member) => (
-          <div key={member.id} className="crew-member-detail">
+          <div key={member.id} className="crew-member-detail small-tag">
             <div className="crew-member-header">
               <div className="crew-member-name-profession">
                 <h4>{member.name}</h4>

@@ -1,0 +1,152 @@
+.tooltip-wrapper {
+  position: relative;
+  display: inline-block;
+  cursor: help;
+}
+
+.tooltip-content {
+  position: absolute;
+  top: calc(100% + 12px);
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: rgba(0, 0, 0, 0.95);
+  color: white;
+  padding: 12px 16px;
+  border-radius: 8px;
+  font-size: 18px;
+  line-height: 1.4;
+  white-space: nowrap;
+  max-width: 300px;
+  white-space: normal;
+  text-align: left;
+  z-index: 2000;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5);
+  border: 2px solid #8B4513;
+  font-family: var(--font-body);
+  pointer-events: none;
+}
+
+.tooltip-content::after {
+  content: "";
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  margin-left: -6px;
+  border-width: 6px;
+  border-style: solid;
+  border-color: transparent transparent rgba(0, 0, 0, 0.95) transparent;
+}
+
+.tooltip-content::before {
+  content: "";
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  margin-left: -7px;
+  border-width: 7px;
+  border-style: solid;
+  border-color: transparent transparent #8B4513 transparent;
+}
+
+/* Variante para tooltip que aparece acima (quando houver espaço) */
+.tooltip-wrapper.tooltip-above .tooltip-content {
+  top: auto;
+  bottom: calc(100% + 10px);
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.tooltip-wrapper.tooltip-above .tooltip-content::after {
+  bottom: auto;
+  top: 100%;
+  border-color: rgba(0, 0, 0, 0.95) transparent transparent transparent;
+}
+
+.tooltip-wrapper.tooltip-above .tooltip-content::before {
+  bottom: auto;
+  top: 100%;
+  border-color: #8B4513 transparent transparent transparent;
+}
+
+/* Variantes de posição para tooltips laterais */
+.tooltip-wrapper.tooltip-right .tooltip-content {
+  top: auto;
+  bottom: auto;
+  left: calc(100% + 10px);
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.tooltip-wrapper.tooltip-right .tooltip-content::after {
+  top: 50%;
+  left: -6px;
+  bottom: auto;
+  margin-top: -6px;
+  margin-left: 0;
+  border-color: transparent rgba(0, 0, 0, 0.95) transparent transparent;
+}
+
+.tooltip-wrapper.tooltip-right .tooltip-content::before {
+  top: 50%;
+  left: -7px;
+  bottom: auto;
+  margin-top: -7px;
+  margin-left: 0;
+  border-color: transparent #8B4513 transparent transparent;
+}
+
+.tooltip-wrapper.tooltip-left .tooltip-content {
+  top: auto;
+  bottom: auto;
+  right: calc(100% + 10px);
+  left: auto;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.tooltip-wrapper.tooltip-left .tooltip-content::after {
+  top: 50%;
+  right: -6px;
+  bottom: auto;
+  left: auto;
+  margin-right: 0;
+  margin-top: -6px;
+  border-color: transparent transparent transparent rgba(0, 0, 0, 0.95);
+}
+
+.tooltip-wrapper.tooltip-left .tooltip-content::before {
+  top: 50%;
+  right: -7px;
+  bottom: auto;
+  left: auto;
+  margin-right: 0;
+  margin-top: -7px;
+  border-color: transparent transparent transparent #8B4513;
+}
+
+/* Estilos específicos para personalidades */
+.personality-tooltip {
+  cursor: help;
+  position: relative;
+}
+
+.personality-tooltip .personality {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.personality-tooltip:hover .personality {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.personality-tooltip.greedy {
+  color: #FFD700;
+}
+
+.personality-tooltip.bloodthirsty {
+  color: #F44336;
+}
+
+.personality-tooltip.rebel {
+  color: #9C27B0;
+}

@@ -1,5 +1,6 @@
 import React from 'react';
 import './EventLog.css';
+import '../styles/ancient-documents.css';
 
 function EventLog({ logs }) {
   if (!logs || logs.length === 0) {
@@ -7,7 +8,7 @@ function EventLog({ logs }) {
   }
 
   return (
-    <div className="status-panel log-panel">
+    <div className="ancient-document ship-logbook">
       <h2>Diário de Bordo</h2>
       <ul className="log-list">
         {logs.map((log, index) => (

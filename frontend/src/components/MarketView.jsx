@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import './MarketView.css';
+import '../styles/ancient-documents.css';
 
 const ResourceRow = ({ resourceName, price, shipQuantity, onTrade }) => {
   const [amount, setAmount] = useState('');
@@ -33,7 +34,7 @@ const ResourceRow = ({ resourceName, price, shipQuantity, onTrade }) => {
   };
 
   return (
-    <div className="resource-row">
+    <div className="resource-row small-tag">
       <span className="resource-name">{resourceName}</span>
       <span className="ship-quantity">A Bordo: {shipQuantity}</span>
       <span className="market-price">Preço: {price} Ouro</span>
@@ -48,8 +49,8 @@ const ResourceRow = ({ resourceName, price, shipQuantity, onTrade }) => {
           placeholder="1"
           className="quantity-input"
         />
-        <button onClick={() => onTrade('buy', resourceName, getAmountValue())} className="action-button buy-button">Comprar</button>
-        <button onClick={() => onTrade('sell', resourceName, getAmountValue())} className="action-button sell-button">Vender</button>
+        <button onClick={() => onTrade('buy', resourceName, getAmountValue())} className="action-button buy-button authentic-anchor">Comprar</button>
+        <button onClick={() => onTrade('sell', resourceName, getAmountValue())} className="action-button sell-button authentic-anchor">Vender</button>
       </div>
     </div>
   );
@@ -93,10 +94,14 @@ function MarketView({ gameId, onBuy, onSell, onBack }) {
   };
 
   return (
-    <div className="market-view status-panel">
+    <div className="market-view ancient-document">
       <div className="market-header">
-        <h2>Mercado Portuário</h2>
-        <button onClick={onBack} className="action-button back-button">Voltar ao Porto</button>
+        <div className="market-title">
+          <div className="market-decoration ancient-scales"></div>
+          <h2>Mercado Portuário</h2>
+          <div className="market-decoration ancient-coins"></div>
+        </div>
+        <button onClick={onBack} className="action-button back-button authentic-anchor">Voltar ao Porto</button>
       </div>
 
       {loading && <p>Avaliando os preços das mercadorias...</p>}
@@ -104,7 +109,7 @@ function MarketView({ gameId, onBuy, onSell, onBack }) {
 
       {market && (
         <div className="market-content">
-            <div className="player-gold">Seu Ouro: {market.shipGold}</div>
+            <div className="player-gold small-tag">Seu Ouro: {market.shipGold}</div>
             <div className="resources-list">
                 <ResourceRow resourceName="Food" price={market.foodPrice} shipQuantity={market.shipFood} onTrade={handleTrade} />
                 <ResourceRow resourceName="Rum" price={market.rumPrice} shipQuantity={market.shipRum} onTrade={handleTrade} />

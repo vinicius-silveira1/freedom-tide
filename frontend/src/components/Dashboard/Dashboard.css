@@ -1,6 +1,6 @@
 /*
- * Captain's Desk Layout
- * Replaces the old grid-based .status-dashboard
+ * Captain's Desk Layout - Modernizado para Contraste com Documentos Antigos
+ * Substitui o antigo sistema de grid .status-dashboard
  */
 
 .captain-desk-container {
@@ -9,17 +9,57 @@
   left: 0;
   width: 100vw;
   height: 100vh;
-  background-size: cover;
-  background-repeat: repeat;
-  /* The z-index ensures it sits under floating UI like the compass, but over the main app background */
-  z-index: 0; 
+  
+  /* Fundo de mesa de capitão com madeira escura para contraste */
+  background: 
+    /* Textura de madeira naval envelhecida */
+    repeating-linear-gradient(
+      90deg,
+      rgba(25, 15, 8, 0.4) 0px,
+      rgba(35, 25, 15, 0.4) 2px,
+      rgba(25, 15, 8, 0.4) 4px,
+      rgba(20, 10, 5, 0.4) 6px
+    ),
+    repeating-linear-gradient(
+      0deg,
+      transparent 0px,
+      transparent 8px,
+      rgba(15, 8, 3, 0.2) 9px,
+      rgba(15, 8, 3, 0.2) 10px
+    ),
+    /* Gradiente base escuro para contraste */
+    linear-gradient(
+      135deg,
+      #2c1810 0%,
+      #3d2418 25%,
+      #2a1a0f 50%,
+      #362014 75%,
+      #281f15 100%
+    );
+  
+  background-size: 6px 6px, 8px 8px, 100% 100%;
+  
+  /* Sombra interior para profundidade da mesa */
+  box-shadow: 
+    inset 0 0 80px rgba(0, 0, 0, 0.6),
+    inset 20px 20px 60px rgba(0, 0, 0, 0.3);
+  
+  /* Garante que fique sob a UI flutuante mas sobre o fundo principal */
+  z-index: 0;
 }
 
-/* Default style for any panel placed on the desk */
+/* Estilo padrão para qualquer painel colocado na mesa */
 .desk-item {
   position: absolute;
-  /* The parchment panel style is already defined in each component's CSS,
-     so we just need to handle positioning here. */
+  
+  /* Sombra mais forte para destacar documentos sobre a mesa escura */
+  filter: drop-shadow(4px 8px 16px rgba(0, 0, 0, 0.7));
+  
+  /* Garantir que elementos interativos tenham cursor de ponteiro */
+  cursor: default;
+  
+  /* Transição suave para interações */
+  transition: all 0.3s ease;
 }
 
 /*
@@ -31,12 +71,13 @@
   top: 10px; /* Moved up */
   left: 40px;
   width: 350px;
+  height: 400px;
   transform: rotate(-2deg);
 }
 
 .crew-status-on-desk {
   top: 20px;
-  right: 400px; /* Moved further left */
+  right: 400px; 
   width: 380px;
   transform: rotate(1.5deg);
 }
@@ -45,11 +86,12 @@
   top: 400px;
   left: 150px;
   width: 300px;
+  height: 300px;
   transform: rotate(1deg);
 }
 
 .event-log-on-desk {
-  top: 425px;
+  top: 380px;
   right: 50px;
   width: 500px;
   height: 300px;
@@ -58,41 +100,48 @@
 }
 
 .port-view-on-desk {
-    bottom: 40px;
-    left: 25%;
-    right: 25%;
-    width: 50%;
-    height: auto; /* Permite altura automática baseada no conteúdo */
-    min-height: 300px; /* Altura mínima para garantir espaço */
-    transform: rotate(0.5deg);
-    z-index: 1; /* Sit behind event log */
-    overflow: visible; /* Garante que o conteúdo não seja cortado */
+    bottom: 10px;
+    left: 50%;
+    transform: translateX(-50%) rotate(0.5deg);
+    width: auto;
+    height: auto; 
+    min-height: 300px; 
+    z-index: -1; 
+    overflow: visible; 
 }
 
-/* Styles for the decorative props */
+
+/* Props decorativas da mesa com melhor integração visual */
 .desk-prop {
   position: absolute;
-  pointer-events: none; /* So they don't interfere with clicks */
+  pointer-events: none;
+  
+  /* Efeito de sombra mais sutil para props */
+  filter: drop-shadow(2px 4px 8px rgba(0, 0, 0, 0.5));
+  
+  /* Opacidade reduzida para não competir com documentos */
+  opacity: 0.7;
 }
 
 .prop-map {
-  top: 1px; /* Moved up */
+  top: -40px;
   left: 250px;
-  width: 400px;
+  width: 450px;
   transform: rotate(15deg);
-  
+  z-index: -2;
 }
 
 .prop-sword {
-  bottom: 20px; /* Moved to bottom-left */
-  left: 40px;
-  width: 150px; /* Made smaller */
-  transform: rotate(5deg);
+  bottom: -80px;
+  left: -40px;
+  width: 500px;
+  transform: rotate(-3.0deg);
+  z-index: -3;
 }
 
 .prop-coins {
-  top: 300px; /* Moved up */
+  top: 300px;
   right: 260px;
   width: 150px;
-  z-index: 1;
+  z-index: -1;
 }

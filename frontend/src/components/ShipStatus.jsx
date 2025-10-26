@@ -1,12 +1,13 @@
 import React from 'react';
 import './ShipStatus.css';
+import '../styles/ancient-documents.css';
 
 function ShipStatus({ ship }) {
   if (!ship) return <div>Carregando Status do Navio...</div>;
 
   return (
-    <div className="status-panel">
-      <h2>Navio: {ship.name} ({ship.type})</h2>
+    <div className="ancient-document with-seal ship-report">
+      <h2>Relatório Naval: {ship.name} ({ship.type})</h2>
       <p>Integridade do Casco: {ship.hullIntegrity}</p>
       <p>Ouro: {ship.gold}</p>
       <h3>Recursos:</h3>

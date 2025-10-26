@@ -1,283 +1,170 @@
-/* PortView.css */
+/* PortView.css - Manifesto Portuario Autêntico */
 
-/* This is the heavily aged parchment paper background */
-.port-view-container {
-  /* Background alinhado com o sistema de design */
-  background-color: var(--color-panel-bg);
-  
-  /* Bordas usando o sistema de cores */
-  border: 4px solid var(--color-border);
-  
-  /* Border radius consistente com outros painéis */
-  border-radius: 8px;
-  
-  /* Sombra consistente com o sistema de design */
-  box-shadow: 6px 6px 0px 0px var(--color-border);
-  
-  /* Padding ajustado para caber todos os botões */
-  padding: 20px 18px 25px 20px;
-  
-  /* Tamanho otimizado para o conteúdo */
-  width: auto;
-  min-width: 180px;
-  max-width: 280px;
-  height: auto;
-  
-  /* Garantir que não seja cortado */
-  margin: 20px auto;
-  
-  /* Position for pseudo-elements */
-  position: relative;
-  
-  /* Layout flexível para os botões */
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 12px;
-  
-  /* Rotação mais sutil */
-  transform: rotate(-0.8deg);
-  
-  /* Garantir que caiba na tela */
-  box-sizing: border-box;
-  overflow: visible;
-  
-  /* Paper texture overlay */
-  background-size: 200px 200px, 150px 150px, 100px 100px;
-  
-  /* Efeito pixelado dramático para combinar com os ícones */
-  image-rendering: -moz-crisp-edges;
-  image-rendering: -webkit-crisp-edges;
-  image-rendering: pixelated;
-  image-rendering: crisp-edges;
-  
-  /* Filtros para criar efeito pixelado visível */
-  filter: 
-    contrast(1.2) 
-    saturate(1.1) 
-    brightness(0.98)
-    sepia(0.1);
-  
-  /* Texture pixelada sobreposta */
-  background-image: 
-    /* Padrão de pixels sutis */
-    repeating-conic-gradient(from 0deg at 50% 50%, 
-      transparent 0deg, 
-      rgba(0,0,0,0.02) 90deg, 
-      transparent 180deg, 
-      rgba(255,255,255,0.01) 270deg),
-    /* Mantém os gradientes existentes */
-    repeating-linear-gradient(
-      0deg,
-      transparent 0px,
-      transparent 32px,
-      rgba(150, 130, 100, 0.3) 33px,
-      rgba(150, 130, 100, 0.3) 34px,
-      transparent 35px,
-      transparent 67px
-    ),
-    radial-gradient(ellipse at 10% 20%, rgba(101, 67, 33, 0.25) 0%, transparent 30%),
-    radial-gradient(ellipse at 85% 70%, rgba(120, 80, 50, 0.2) 0%, transparent 35%),
-    radial-gradient(ellipse at 60% 10%, rgba(110, 70, 45, 0.15) 0%, transparent 40%),
-    radial-gradient(circle at 75% 85%, rgba(90, 60, 40, 0.2) 0%, transparent 20%),
-    radial-gradient(circle at 25% 75%, rgba(100, 65, 35, 0.15) 0%, transparent 25%),
-    radial-gradient(circle at 40% 30%, rgba(95, 65, 45, 0.1) 0%, transparent 30%),
-    radial-gradient(circle at 90% 15%, rgba(85, 55, 35, 0.3) 0%, transparent 12%),
-    radial-gradient(circle at 15% 90%, rgba(95, 60, 40, 0.25) 0%, transparent 10%),
-    radial-gradient(circle at 70% 40%, rgba(100, 70, 50, 0.2) 0%, transparent 15%);
-  
-  /* Tamanho dos padrões pixelados */
-  background-size: 4px 4px, auto, auto, auto, auto, auto, auto, auto, auto, auto, auto;
+.port-manifest {
+    /* Rotação sutil para parecer documento sobre mesa */
+    transform: rotate(0.7deg);
+    padding: 20px 24px 24px 20px;
+    
+    /* Layout vertical */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 10px;
+    
+    /* Dimensões */
+    width: 750px;
+    height: 450px;
+    box-sizing: border-box;
+    position: relative;
+    
+    /* Fundo com textura de papel antigo e linhas de escrita */
+    background: 
+        repeating-linear-gradient(
+            0deg,
+            transparent 0px,
+            transparent 28px,
+            rgba(139, 90, 43, 0.12) 29px,
+            rgba(139, 90, 43, 0.12) 30px,
+            transparent 31px,
+            transparent 59px
+        ),
+        radial-gradient(circle at 85% 15%, rgba(139, 69, 19, 0.15) 0%, transparent 12%),
+        radial-gradient(circle at 15% 85%, rgba(160, 82, 45, 0.1) 0%, transparent 15%),
+        linear-gradient(135deg, #f6ead6 0%, #e8d7bb 100%);
+    
+    /* Sombras realistas de documento sobre mesa de madeira */
+    box-shadow: 
+        6px 8px 20px rgba(139, 69, 19, 0.25),
+        3px 4px 12px rgba(0, 0, 0, 0.15),
+        inset 0 0 0 1px rgba(139, 69, 19, 0.15),
+        inset -2px -2px 8px rgba(139, 69, 19, 0.08),
+        inset 2px 2px 8px rgba(255, 255, 255, 0.25);
+    
+    /* Bordas irregulares como papel antigo */
+    border-radius: 2px 8px 3px 6px / 6px 2px 8px 3px;
 }
 
-/* Manchas, vincos e efeitos de papel amassado */
-.port-view-container::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  pointer-events: none;
-  
-  /* Vincos e dobras diagonais do papel amassado */
-  background: 
-    /* Vinco principal diagonal */
-    linear-gradient(45deg, 
-      transparent 0%, 
-      transparent 30%, 
-      rgba(90, 60, 40, 0.15) 31%, 
-      rgba(90, 60, 40, 0.15) 33%, 
-      transparent 34%, 
-      transparent 100%
-    ),
-    /* Vinco secundário */
-    linear-gradient(-30deg, 
-      transparent 0%, 
-      transparent 60%, 
-      rgba(70, 50, 30, 0.1) 61%, 
-      rgba(70, 50, 30, 0.1) 62%, 
-      transparent 63%, 
-      transparent 100%
-    ),
-    /* Mancha de tinta no canto superior */
-    radial-gradient(ellipse at 85% 15%, rgba(101, 67, 33, 0.6) 0%, transparent 60%);
-  
-  border-radius: inherit;
+/* Selo de cera com âncora no canto superior direito */
+.port-manifest::before {
+    content: "";
+    position: absolute;
+    top: 12px;
+    right: 15px;
+    width: 28px;
+    height: 28px;
+    background: 
+        url('/assets/icons/decorative/anchor-small.png') center/16px 16px no-repeat,
+        radial-gradient(circle, rgba(139, 69, 19, 0.6) 0%, rgba(160, 82, 45, 0.4) 60%, transparent 80%);
+    border: 2px solid rgba(139, 69, 19, 0.5);
+    border-radius: 50%;
+    z-index: 2;
 }
 
-.port-view-container::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  pointer-events: none;
-  
-  /* Mais vincos e dobras para efeito amassado */
-  background: 
-    /* Vinco horizontal sutil */
-    linear-gradient(0deg, 
-      transparent 0%, 
-      transparent 45%, 
-      rgba(110, 80, 50, 0.12) 46%, 
-      rgba(110, 80, 50, 0.12) 48%, 
-      transparent 49%, 
-      transparent 100%
-    ),
-    /* Vinco vertical sutil */
-    linear-gradient(90deg, 
-      transparent 0%, 
-      transparent 70%, 
-      rgba(80, 55, 35, 0.08) 71%, 
-      rgba(80, 55, 35, 0.08) 72%, 
-      transparent 73%, 
-      transparent 100%
-    ),
-    /* Mancha no canto inferior esquerdo */
-    radial-gradient(ellipse at 15% 85%, rgba(139, 69, 19, 0.4) 0%, transparent 50%);
-  
-  border-radius: inherit;
+/* Dobra de papel no canto inferior esquerdo */
+.port-manifest::after {
+    content: "";
+    position: absolute;
+    bottom: 8px;
+    left: 8px;
+    width: 16px;
+    height: 16px;
+    background: linear-gradient(45deg, transparent 50%, rgba(139, 69, 19, 0.15) 50%);
+    border-top: 1px solid rgba(139, 69, 19, 0.2);
+    border-right: 1px solid rgba(139, 69, 19, 0.2);
 }
 
-/* Styling for the action buttons - Old ink on aged parchment */
-.port-action-link {
-  /* Use the pixel font like the rest of the game */
-  font-family: var(--font-pixel);
-  font-size: 20px; /* Reduced to match other containers */
-  font-weight: normal;
-  
-  /* Heavy, dark ink color - almost burned into paper */
-  /*color: #2c1810; 
-  
-  /* No modern styling */
-  text-decoration: none;
-  background-color: transparent;
-  border: none;
-  cursor: pointer;
-  transition: all 0.2s ease-in-out;
-  padding: 8px 12px;
-  
-  /* Heavy ink bleeding and smudging effects */
-  text-shadow: 
-    /* Primary ink blur */
-    1px 1px 2px rgba(44, 24, 16, 0.8),
-    /* Secondary bleeding */
-    -0.5px -0.5px 1px rgba(44, 24, 16, 0.4),
-    /* Ink absorption into paper */
-    0 0 3px rgba(44, 24, 16, 0.3);
-  
-  /* Tighter spacing for pixel font */
-  letter-spacing: 1px;
-  
-  /* Position for hand-written variations */
-  position: relative;
-  
-  /* Add a subtle background stain behind each text */
-  background: radial-gradient(ellipse at center, rgba(101, 67, 33, 0.1) 0%, transparent 70%);
-  border-radius: 8px 12px 6px 10px;
+.port-manifest h2 {
+    color: #000 !important;
+    font-size: 1.4em;
+    margin-bottom: 18px;
+    text-align: center;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    border-bottom: 2px solid rgba(139, 90, 43, 0.5);
+    padding-bottom: 8px;
+    position: relative;
+    text-shadow: 0 1px 2px rgba(139, 69, 19, 0.2);
 }
 
-/* Individual positioning for natural, hand-written irregularity */
-.port-action-link:nth-child(1) { 
-  transform: rotate(0.8deg); 
-  margin-left: -3px;
-}
-.port-action-link:nth-child(2) { 
-  transform: rotate(-0.6deg); 
-  margin-left: 2px;
-}
-.port-action-link:nth-child(3) { 
-  transform: rotate(0.4deg); 
-  margin-left: -1px;
-}
-.port-action-link:nth-child(4) { 
-  transform: rotate(-0.9deg); 
-  margin-left: 3px;
-}
-.port-action-link:nth-child(5) { 
-  transform: rotate(0.5deg); 
-  margin-left: -2px;
-}
-.port-action-link:nth-child(6) { 
-  transform: rotate(-0.3deg); 
-  margin-left: 1px;
+/* Decoração de âncoras no título */
+.port-manifest h2::before {
+    content: "";
+    position: absolute;
+    left: -25px;
+    top: 2px;
+    width: 20px;
+    height: 20px;
+    background: url('/assets/icons/decorative/anchor-small.png') center/contain no-repeat;
+    opacity: 0.7;
+    filter: sepia(100%) saturate(200%) hue-rotate(25deg) brightness(0.8);
 }
 
-.port-action-link:hover {
-  /* Darker, "wet ink" effect */
-  color: #1a0f08;
-  
-  /* More intense ink bleeding on hover */
-  text-shadow: 
-    1.5px 1.5px 3px rgba(26, 15, 8, 0.9),
-    -0.8px -0.8px 2px rgba(26, 15, 8, 0.6),
-    0 0 5px rgba(26, 15, 8, 0.5);
-  
-  /* Slight enhancement but keep rotation */
-  transform: scale(1.08) rotate(var(--rotation, 0deg));
-  
-  /* Enhance background stain */
-  background: radial-gradient(ellipse at center, rgba(101, 67, 33, 0.25) 0%, transparent 70%);
+.port-manifest h2::after {
+    content: "";
+    position: absolute;
+    right: -25px;
+    top: 2px;
+    width: 20px;
+    height: 20px;
+    background: url('/assets/icons/decorative/anchor-small.png') center/contain no-repeat;
+    opacity: 0.7;
+    filter: sepia(100%) saturate(200%) hue-rotate(25deg) brightness(0.8);
+    transform: scaleX(-1);
 }
 
-/* Set individual rotations for hover state */
-.port-action-link:nth-child(1):hover { --rotation: 0.8deg; }
-.port-action-link:nth-child(2):hover { --rotation: -0.6deg; }
-.port-action-link:nth-child(3):hover { --rotation: 0.4deg; }
-.port-action-link:nth-child(4):hover { --rotation: -0.9deg; }
-.port-action-link:nth-child(5):hover { --rotation: 0.5deg; }
-.port-action-link:nth-child(6):hover { --rotation: -0.3deg; }
-
-.port-action-link:active {
-  /* Press into the paper effect */
-  transform: scale(0.95) rotate(var(--rotation, 0deg));
-  text-shadow: 
-    0.8px 0.8px 2px rgba(26, 15, 8, 1.0);
+/* Botões do manifesto com textura de papel */
+.port-manifest .ancient-button {
+    color: #000 !important;
+    font-size: 1.1em;
+    width: 100%;
+    margin: 4px 0;
+    padding: 12px 16px;
+    text-align: center;
+    display: block;
+    box-sizing: border-box;
+    position: relative;
+    
+    /* Textura de papel nos botões */
+    background: 
+        repeating-linear-gradient(
+            0deg,
+            transparent 0px,
+            transparent 18px,
+            rgba(139, 90, 43, 0.05) 19px,
+            rgba(139, 90, 43, 0.05) 20px,
+            transparent 21px,
+            transparent 39px
+        ),
+        linear-gradient(135deg, #f6ead6 0%, #e8d7bb 100%);
+    
+    border: 1px solid rgba(139, 90, 43, 0.4);
+    border-radius: 2px;
+    
+    /* Sombra sutil */
+    box-shadow: 0 2px 4px rgba(139, 69, 19, 0.2);
+    
+    transition: all 0.2s ease;
 }
 
-/* Estilo especial para o botão de resolver contrato */
-.resolve-contract-link {
-  color: #2d5a2d !important; /* Verde mais forte */
-  font-weight: bold;
-  
-  /* Fundo sutil diferente */
-  background: radial-gradient(ellipse at center, rgba(45, 90, 45, 0.15) 0%, transparent 70%) !important;
-  
-  /* Sombra ligeiramente diferente */
-  text-shadow: 
-    1px 1px 2px rgba(45, 90, 45, 0.8),
-    -0.5px -0.5px 1px rgba(45, 90, 45, 0.5) !important;
+.port-manifest .ancient-button:hover {
+    background: 
+        repeating-linear-gradient(
+            0deg,
+            transparent 0px,
+            transparent 18px,
+            rgba(139, 90, 43, 0.08) 19px,
+            rgba(139, 90, 43, 0.08) 20px,
+            transparent 21px,
+            transparent 39px
+        ),
+        linear-gradient(135deg, #e8d7bb 0%, #dbc5a0 100%);
+    
+    box-shadow: 0 4px 8px rgba(139, 69, 19, 0.3);
+    transform: translateY(-1px);
 }
 
-.resolve-contract-link:hover {
-  color: #1a4a1a !important;
-  background: radial-gradient(ellipse at center, rgba(45, 90, 45, 0.25) 0%, transparent 70%) !important;
-  
-  text-shadow: 
-    1.5px 1.5px 3px rgba(26, 74, 26, 0.9),
-    -0.8px -0.8px 2px rgba(26, 74, 26, 0.6),
-    0 0 5px rgba(26, 74, 26, 0.5) !important;
+.port-manifest .ancient-button:active {
+    transform: translateY(0px);
+    box-shadow: 0 1px 2px rgba(139, 69, 19, 0.3);
 }

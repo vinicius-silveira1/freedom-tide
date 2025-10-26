@@ -1,0 +1,523 @@
+/* 
+ * SISTEMA DE DOCUMENTOS ANTIGOS - FREEDOM TIDE
+ * Efeitos CSS avançados para simular documentos náuticos históricos
+ * Baseado no sucesso da interface de batalha
+ */
+
+/* =====================================================
+   CLASSES BASE - DOCUMENTOS ANTIGOS
+   ===================================================== */
+
+/* Pergaminho básico - para painéis principais */
+.ancient-document {
+  background: 
+    /* Linhas de escrita como papel pautado antigo */
+    repeating-linear-gradient(
+      0deg,
+      transparent 0px,
+      transparent 26px,
+      rgba(139, 90, 43, 0.08) 27px,
+      rgba(139, 90, 43, 0.08) 28px,
+      transparent 29px,
+      transparent 55px
+    ),
+    
+    /* Manchas de tinta e respingos */
+    radial-gradient(ellipse at 15% 20%, rgba(101, 67, 33, 0.12) 0%, transparent 25%),
+    radial-gradient(ellipse at 85% 80%, rgba(139, 69, 19, 0.10) 0%, transparent 30%),
+    radial-gradient(circle at 60% 40%, rgba(160, 82, 45, 0.06) 0%, transparent 20%),
+    
+    /* Textura de fibra de papel */
+    radial-gradient(ellipse at 30% 70%, rgba(139, 90, 43, 0.04) 0%, transparent 40%),
+    radial-gradient(ellipse at 70% 30%, rgba(160, 130, 90, 0.03) 0%, transparent 35%),
+    
+    /* Base envelhecida */
+    linear-gradient(135deg, #f4e8d4 0%, #e6d5b8 100%);
+  
+  /* Bordas menos irregulares para documentos grandes */
+  border: 0;
+  border-radius: 0;
+  
+  clip-path: polygon(
+    1% 2%, 10% 0.5%, 25% 0%, 50% 0%, 75% 0%, 90% 0.5%, 99% 2%, 100% 15%,
+    99.5% 35%, 100% 50%, 99.5% 65%, 100% 85%, 99% 98%, 90% 99.5%, 75% 100%,
+    50% 100%, 25% 100%, 10% 99.5%, 1% 98%, 0% 85%, 0.5% 65%, 0% 50%, 0.5% 35%, 0% 15%
+  );
+  
+  /* Sombras realistas */
+  box-shadow: 
+    inset 0 0 0 2px rgba(139, 69, 19, 0.4),
+    inset 0 0 0 4px rgba(139, 69, 19, 0.15),
+    8px 12px 25px rgba(0, 0, 0, 0.3),
+    15px 20px 40px rgba(139, 69, 19, 0.2);
+  
+  padding: 20px 25px;
+  position: relative;
+}
+
+/* Carta náutica - para mapas e navegação */
+.nautical-chart {
+  background: 
+    /* Rosa dos ventos sutil */
+    radial-gradient(circle at 90% 10%, rgba(25, 25, 112, 0.08) 0%, transparent 30%),
+    
+    /* Linhas de navegação em grade marítima */
+    linear-gradient(45deg, transparent 48%, rgba(25, 25, 112, 0.03) 49%, rgba(25, 25, 112, 0.03) 51%, transparent 52%),
+    linear-gradient(-45deg, transparent 48%, rgba(25, 25, 112, 0.03) 49%, rgba(25, 25, 112, 0.03) 51%, transparent 52%),
+    
+    /* Linhas de latitude/longitude */
+    repeating-linear-gradient(
+      0deg,
+      transparent 0px,
+      transparent 48px,
+      rgba(70, 130, 180, 0.05) 49px,
+      rgba(70, 130, 180, 0.05) 50px,
+      transparent 51px,
+      transparent 99px
+    ),
+    repeating-linear-gradient(
+      90deg,
+      transparent 0px,
+      transparent 48px,
+      rgba(70, 130, 180, 0.05) 49px,
+      rgba(70, 130, 180, 0.05) 50px,
+      transparent 51px,
+      transparent 99px
+    ),
+    
+    /* Manchas de água salgada e respingos */
+    radial-gradient(ellipse at 20% 70%, rgba(65, 105, 225, 0.08) 0%, transparent 25%),
+    radial-gradient(ellipse at 80% 30%, rgba(100, 149, 237, 0.06) 0%, transparent 20%),
+    radial-gradient(circle at 15% 40%, rgba(70, 130, 180, 0.04) 0%, transparent 15%),
+    radial-gradient(circle at 85% 85%, rgba(135, 206, 235, 0.05) 0%, transparent 18%),
+    
+    /* Base náutica com tons oceânicos */
+    radial-gradient(ellipse at center, rgba(135, 206, 235, 0.15) 0%, rgba(70, 130, 180, 0.1) 70%, transparent 100%),
+    linear-gradient(120deg, #e8f4fd 0%, #d4e9f7 100%);
+  
+  clip-path: polygon(
+    3% 5%, 20% 2%, 40% 0%, 60% 2%, 80% 0%, 95% 4%, 98% 20%,
+    100% 40%, 98% 60%, 100% 80%, 96% 95%, 80% 98%, 60% 100%,
+    40% 98%, 20% 100%, 5% 96%, 2% 80%, 0% 60%, 2% 40%, 0% 20%
+  );
+  
+  box-shadow: 
+    inset 0 0 0 2px rgba(70, 130, 180, 0.4),
+    inset 0 0 0 4px rgba(70, 130, 180, 0.15),
+    8px 12px 25px rgba(0, 0, 0, 0.3),
+    15px 20px 40px rgba(70, 130, 180, 0.2);
+  
+  padding: 20px 25px;
+  position: relative;
+}
+
+/* Ordem militar - para ações e comandos */
+.military-order {
+  background: 
+    /* Selo de cera imperial */
+    radial-gradient(circle at 88% 15%, rgba(178, 34, 34, 0.8) 0%, rgba(178, 34, 34, 0.6) 40%, transparent 42%),
+    
+    /* Linhas de regimento militar */
+    repeating-linear-gradient(
+      0deg,
+      transparent 0px,
+      transparent 32px,
+      rgba(25, 25, 112, 0.08) 33px,
+      rgba(25, 25, 112, 0.08) 34px,
+      transparent 35px,
+      transparent 67px
+    ),
+    
+    /* Manchas de tinta oficial */
+    radial-gradient(ellipse at 12% 25%, rgba(25, 25, 112, 0.1) 0%, transparent 20%),
+    radial-gradient(ellipse at 85% 75%, rgba(139, 69, 19, 0.08) 0%, transparent 25%),
+    
+    /* Marca d'água de águia imperial sutil */
+    radial-gradient(ellipse at 50% 50%, rgba(25, 25, 112, 0.03) 0%, transparent 50%),
+    
+    /* Base oficial */
+    linear-gradient(140deg, #f8f2e6 0%, #ede1c9 40%, #f4e8d4 70%, #f0e6d2 100%);
+  
+  clip-path: polygon(
+    2% 3%, 15% 1%, 35% 0%, 55% 2%, 75% 0%, 92% 2%, 98% 12%,
+    100% 35%, 98% 55%, 100% 75%, 97% 92%, 85% 98%, 65% 100%,
+    45% 98%, 25% 100%, 8% 97%, 2% 85%, 0% 65%, 2% 45%, 0% 25%
+  );
+  
+  box-shadow: 
+    inset 0 0 0 3px rgba(139, 69, 19, 0.4),
+    inset 0 0 0 6px rgba(139, 69, 19, 0.15),
+    8px 12px 30px rgba(0, 0, 0, 0.35),
+    15px 20px 50px rgba(139, 69, 19, 0.2);
+  
+  padding: 20px 25px;
+  position: relative;
+}
+
+/* Etiqueta pequena - para stats e informações */
+.small-tag {
+  background: 
+    radial-gradient(ellipse at 25% 75%, rgba(25, 25, 112, 0.04) 0%, transparent 25%),
+    radial-gradient(ellipse at 75% 25%, rgba(139, 69, 19, 0.03) 0%, transparent 20%),
+    linear-gradient(130deg, #f8f2e6 0%, #ede1c9 100%);
+  
+  clip-path: polygon(
+    4% 3%, 20% 1%, 40% 0%, 60% 0%, 80% 1%, 96% 3%, 98% 20%,
+    100% 40%, 98% 60%, 100% 80%, 96% 97%, 80% 99%, 60% 100%,
+    40% 100%, 20% 99%, 4% 97%, 2% 80%, 0% 60%, 2% 40%, 0% 20%
+  );
+  
+  box-shadow: 
+    inset 0 0 0 1px rgba(139, 69, 19, 0.3),
+    inset 0 0 0 2px rgba(139, 69, 19, 0.1),
+    3px 4px 8px rgba(0, 0, 0, 0.2),
+    5px 6px 12px rgba(139, 69, 19, 0.15);
+  
+  padding: 8px 12px;
+  position: relative;
+}
+
+/* =====================================================
+   PSEUDO-ELEMENTOS DECORATIVOS
+   ===================================================== */
+
+/* Selo naval com âncora real */
+.ancient-document.with-seal::before {
+  content: '';
+  position: absolute;
+  top: 12px;
+  right: 20px;
+  width: 24px;
+  height: 24px;
+  background: 
+    url('/assets/icons/decorative/anchor-small.png') center/16px 16px no-repeat,
+    radial-gradient(circle, rgba(178, 34, 34, 0.7) 0%, rgba(178, 34, 34, 0.5) 60%, transparent 80%);
+  border: 2px solid rgba(178, 34, 34, 0.6);
+  border-radius: 50%;
+  transform: rotate(15deg);
+}
+
+/* Rubrica de comandante com mais detalhes */
+.military-order::after {
+  content: '';
+  position: absolute;
+  bottom: 15px;
+  right: 25px;
+  width: 60px;
+  height: 8px;
+  background: 
+    /* Assinatura cursiva simulada */
+    linear-gradient(45deg, transparent 30%, rgba(25, 25, 112, 0.4) 35%, rgba(25, 25, 112, 0.6) 50%, rgba(25, 25, 112, 0.4) 65%, transparent 70%),
+    linear-gradient(135deg, transparent 40%, rgba(25, 25, 112, 0.3) 45%, rgba(25, 25, 112, 0.5) 55%, rgba(25, 25, 112, 0.3) 60%, transparent 65%);
+  transform: rotate(-5deg);
+}
+
+/* Brasão imperial no canto superior esquerdo */
+.military-order::before {
+  content: '';
+  position: absolute;
+  top: 10px;
+  left: 15px;
+  width: 20px;
+  height: 20px;
+  background: 
+    /* Cruz ou emblema imperial */
+    linear-gradient(0deg, transparent 40%, rgba(25, 25, 112, 0.6) 45%, rgba(25, 25, 112, 0.6) 55%, transparent 60%),
+    linear-gradient(90deg, transparent 40%, rgba(25, 25, 112, 0.6) 45%, rgba(25, 25, 112, 0.6) 55%, transparent 60%);
+  transform: rotate(0deg);
+}
+
+/* Rosa dos ventos náutica com imagem real */
+.nautical-chart::before {
+  content: '';
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  width: 32px;
+  height: 32px;
+  background: url('/assets/icons/compass/compass.png') center/contain no-repeat;
+  opacity: 0.3;
+  transform: rotate(0deg);
+  animation: compass-spin 30s linear infinite;
+}
+
+@keyframes compass-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* Rosa dos ventos alternativa para documentos sem imagem */
+.nautical-chart.no-compass::before {
+  content: '✠';
+  background: none;
+  width: auto;
+  height: auto;
+  top: 15px;
+  right: 20px;
+  font-size: 16px;
+  color: rgba(70, 130, 180, 0.6);
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+  transform: rotate(0deg);
+}
+
+/* =====================================================
+   TYPOGRAPHY E TEXTOS
+   ===================================================== */
+
+/* Título principal histórico */
+.ancient-title {
+  font-family: 'Times New Roman', serif;
+  font-size: 2.5rem;
+  font-weight: 900;
+  font-variant: small-caps;
+  color: rgba(25, 25, 112, 0.95);
+  text-transform: uppercase;
+  letter-spacing: 6px;
+  
+  text-shadow: 
+    2px 2px 0px rgba(139, 69, 19, 0.8),
+    4px 4px 8px rgba(0, 0, 0, 0.6),
+    0 0 15px rgba(255, 215, 0, 0.4);
+  
+  margin-bottom: 20px;
+  text-align: center;
+  position: relative;
+}
+
+/* Cabeçalho pixel art */
+.pixel-heading {
+  font-family: var(--font-pixel);
+  font-size: 1.4rem;
+  font-weight: bold;
+  color: #000;
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  margin-bottom: 15px;
+  
+  /* Sem sombra - pixel art limpo */
+  
+  position: relative;
+  padding-bottom: 8px;
+}
+
+.pixel-heading::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60%;
+  height: 2px;
+  background: var(--color-border);
+  box-shadow: 1px 1px 0px rgba(139, 69, 19, 0.8);
+}
+
+/* Texto de corpo pixel */
+.pixel-text {
+  font-family: var(--font-pixel);
+  font-size: 0.85rem;
+  line-height: 1.3;
+  color: #000;
+  font-weight: normal;
+  /* Sem sombra - pixel art limpo */
+}
+
+/* =====================================================
+   CORREÇÕES DE CORES PARA LEGIBILIDADE
+   ===================================================== */
+
+/* Garantir que todos os textos em documentos antigos sejam legíveis */
+.ancient-document h1,
+.ancient-document h2,
+.ancient-document h3,
+.ancient-document p,
+.ancient-document li,
+.ancient-document span,
+.nautical-chart h1,
+.nautical-chart h2,
+.nautical-chart h3,
+.nautical-chart p,
+.nautical-chart li,
+.nautical-chart span,
+.military-order h1,
+.military-order h2,
+.military-order h3,
+.military-order p,
+.military-order li,
+.military-order span {
+  color: #000 !important;
+}
+
+/* =====================================================
+   BOTÕES E INTERAÇÕES
+   ===================================================== */
+
+/* Botão documento histórico */
+.ancient-button {
+  background: 
+    radial-gradient(ellipse at 20% 80%, rgba(25, 25, 112, 0.06) 0%, transparent 25%),
+    radial-gradient(ellipse at 80% 20%, rgba(139, 69, 19, 0.04) 0%, transparent 20%),
+    linear-gradient(125deg, #f8f2e6 0%, #ede1c9 100%);
+  
+  border: 0;
+  border-radius: 0;
+  
+  /* Clip-path mais suave para botões */
+  clip-path: polygon(
+    3% 5%, 15% 2%, 35% 0%, 65% 0%, 85% 2%, 97% 5%, 99% 20%,
+    100% 40%, 99% 60%, 100% 80%, 97% 95%, 85% 98%, 65% 100%,
+    35% 100%, 15% 98%, 3% 95%, 1% 80%, 0% 60%, 1% 40%, 0% 20%
+  );
+  
+  padding: 12px 18px;
+  color: #000;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  
+  font-family: var(--font-pixel);
+  font-size: 0.9rem;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  
+  /* Sem text-shadow nos botões pixel */
+  
+  box-shadow: 
+    inset 0 0 0 1px rgba(139, 69, 19, 0.4),
+    inset 0 0 0 2px rgba(139, 69, 19, 0.15),
+    4px 6px 15px rgba(0, 0, 0, 0.3),
+    8px 10px 25px rgba(139, 69, 19, 0.2);
+  
+  transform: rotate(-0.5deg);
+  position: relative;
+  
+  /* Garantir que o botão não seja cortado */
+  min-height: 40px;
+  display: inline-block;
+}
+
+.ancient-button:hover {
+  background: 
+    radial-gradient(ellipse at 20% 80%, rgba(25, 25, 112, 0.1) 0%, transparent 25%),
+    radial-gradient(ellipse at 80% 20%, rgba(139, 69, 19, 0.08) 0%, transparent 20%),
+    linear-gradient(125deg, #faf4e8 0%, #f0e4cd 100%);
+  
+  transform: rotate(0deg) scale(1.02);
+  
+  box-shadow: 
+    inset 0 0 0 2px rgba(255, 215, 0, 0.4),
+    inset 0 0 0 3px rgba(139, 69, 19, 0.3),
+    6px 8px 20px rgba(0, 0, 0, 0.4),
+    10px 12px 30px rgba(255, 215, 0, 0.2);
+  
+  filter: brightness(1.05);
+}
+
+.ancient-button:active {
+  transform: rotate(0.5deg) scale(0.98);
+  
+  box-shadow: 
+    inset 0 0 0 1px rgba(139, 69, 19, 0.6),
+    inset 0 0 0 2px rgba(139, 69, 19, 0.2),
+    2px 3px 8px rgba(0, 0, 0, 0.4);
+}
+
+/* =====================================================
+   ANIMAÇÕES
+   ===================================================== */
+
+@keyframes documentGlow {
+  0%, 100% { 
+    transform: scale(1) rotate(0deg);
+    filter: brightness(1) contrast(1);
+  }
+  50% { 
+    transform: scale(1.01) rotate(0.1deg);
+    filter: brightness(1.03) contrast(1.05);
+  }
+}
+
+@keyframes ancientFadeIn {
+  0% { 
+    opacity: 0;
+    transform: scale(0.95) rotate(-1deg);
+  }
+  100% { 
+    opacity: 1;
+    transform: scale(1) rotate(0deg);
+  }
+}
+
+/* Aplicar animações */
+.ancient-document {
+  animation: ancientFadeIn 0.6s ease-out;
+}
+
+.ancient-title {
+  animation: documentGlow 4s ease-in-out infinite;
+}
+
+/* =====================================================
+   UTILITÁRIOS DE POSICIONAMENTO
+   ===================================================== */
+
+.bottom-left-panel {
+  position: absolute;
+  bottom: 20px;
+  left: 30px;
+  width: 380px;
+  max-width: 25%;
+}
+
+.bottom-center-panel {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 80%;
+  max-width: 580px;
+}
+
+.bottom-right-panel {
+  position: absolute;
+  bottom: 20px;
+  right: 30px;
+  width: 290px;
+  max-width: 25%;
+}
+
+/* =====================================================
+   RESPONSIVE
+   ===================================================== */
+
+@media (max-width: 768px) {
+  .bottom-left-panel,
+  .bottom-right-panel {
+    width: 45%;
+    bottom: 140px;
+  }
+  
+  .bottom-left-panel {
+    left: 2.5%;
+  }
+  
+  .bottom-right-panel {
+    right: 2.5%;
+  }
+  
+  .bottom-center-panel {
+    width: 90%;
+    left: 5%;
+    transform: none;
+  }
+  
+  .ancient-title {
+    font-size: 2rem;
+    letter-spacing: 4px;
+  }
+  
+  .pixel-heading {
+    font-size: 1rem;
+  }
+}

@@ -22,32 +22,7 @@
   width: 90%;
   max-width: 550px;
   
-  /* Estilo documento capitão/carta de nomeação */
-  background: 
-    /* Manchas de tinta, selo de cera e deterioração */
-    radial-gradient(ellipse at 25% 20%, rgba(120, 60, 40, 0.25) 0%, transparent 35%),
-    radial-gradient(ellipse at 85% 15%, rgba(100, 80, 60, 0.18) 0%, transparent 30%),
-    radial-gradient(circle at 70% 85%, rgba(90, 50, 30, 0.2) 0%, transparent 25%),
-    radial-gradient(circle at 15% 75%, rgba(110, 70, 50, 0.15) 0%, transparent 20%),
-    
-    /* Vincos e dobras da carta oficial */
-    linear-gradient(102deg, transparent 0%, rgba(150, 120, 90, 0.12) 25%, transparent 26%),
-    linear-gradient(78deg, transparent 0%, rgba(140, 110, 80, 0.1) 45%, transparent 46%),
-    linear-gradient(195deg, transparent 0%, rgba(160, 130, 100, 0.08) 65%, transparent 66%),
-    
-    /* Base pergaminho oficial envelhecido */
-    radial-gradient(ellipse at center, #f8f4e6 15%, #f0e6d3 35%, #e8dcc8 65%, #d4c4a8 85%, #c8b896 100%);
-  
-  border: 3px solid #8b7355;
-  border-radius: 12px 18px 15px 20px / 18px 12px 20px 15px;
-  
-  box-shadow: 
-    0 0 40px rgba(0, 0, 0, 0.9),
-    0 0 80px rgba(0, 0, 0, 0.6),
-    inset -4px -4px 8px rgba(100, 70, 50, 0.3),
-    inset 4px 4px 8px rgba(255, 248, 230, 0.7),
-    inset 0 0 0 1px rgba(139, 115, 85, 0.5);
-  
+  /* Customizações específicas para Carta de Nomeação */
   padding: 35px 30px;
   text-align: center;
   
@@ -271,18 +246,7 @@
     inset 1px 1px 3px rgba(255, 255, 255, 0.3);
 }
 
-.flavor-text {
-  margin-top: 20px;
-  padding: 12px 15px;
-  background: rgba(139, 115, 85, 0.08);
-  border-left: 3px solid rgba(139, 115, 85, 0.3);
-  border-radius: 0 6px 6px 0;
-  font-style: italic;
-  color: var(--color-text-darker);
-  font-size: 0.95rem;
-  line-height: 1.4;
-  opacity: 0.9;
-}
+/* Flavor text agora usa .small-tag do sistema de documentos autênticos */
 
 .flavor-text p {
   margin: 5px 0;
@@ -293,14 +257,21 @@
 /* Animações */
 @keyframes gentleSway {
   0%, 100% { transform: rotate(0deg); }
-  25% { transform: rotate(0.5deg); }
+  25% { transform: rotate(0.3deg); }
   50% { transform: rotate(0deg); }
-  75% { transform: rotate(-0.5deg); }
+  75% { transform: rotate(-0.3deg); }
 }
 
 @keyframes float {
-  0%, 100% { transform: rotate(-0.8deg) translateY(0px); }
-  50% { transform: rotate(-0.8deg) translateY(-3px); }
+  0%, 100% { 
+    transform: rotate(-1.2deg) translateY(0px) scale(1); 
+  }
+  33% { 
+    transform: rotate(-1.0deg) translateY(-2px) scale(1.002); 
+  }
+  66% { 
+    transform: rotate(-1.4deg) translateY(-1px) scale(0.998); 
+  }
 }
 
 @keyframes compassSpin {

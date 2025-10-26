@@ -4,11 +4,13 @@ import com.tidebreakerstudios.freedom_tide.dto.RecruitCrewMemberRequest;
 import com.tidebreakerstudios.freedom_tide.model.CrewPersonality;
 import com.tidebreakerstudios.freedom_tide.model.PortType;
 import com.tidebreakerstudios.freedom_tide.model.enums.CrewProfession;
+import com.tidebreakerstudios.freedom_tide.model.enums.IntroChoice;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 
 /**
@@ -214,11 +216,38 @@ public class UniqueCharacterService {
 
     /**
      * Gera múltiplos personagens únicos para uma taverna específica por tipo de porto.
+     * Garantindo variedade de profissões nos tripulantes gerados.
      */
     public List<RecruitCrewMemberRequest> generateTavernCharacters(PortType portType, int count) {
+        return generateTavernCharacters(portType, count, null);
+    }
+    
+    /**
+     * Gera múltiplos personagens únicos para uma taverna considerando a escolha inicial do jogador.
+     * Para o tutorial, ajusta as personalidades baseado na escolha inicial.
+     */
+    public List<RecruitCrewMemberRequest> generateTavernCharacters(PortType portType, int count, com.tidebreakerstudios.freedom_tide.model.enums.IntroChoice introChoice) {
+        return generateTavernCharactersWithSeed(portType, count, introChoice, System.currentTimeMillis());
+    }
+    
+    /**
+     * Versão com seed para gerar tripulantes consistentes que mudam quando a tripulação muda.
+     */
+    public List<RecruitCrewMemberRequest> generateTavernCharactersWithSeed(PortType portType, int count, long seed) {
+        return generateTavernCharactersWithSeed(portType, count, null, seed);
+    }
+    
+    /**
+     * Versão completa com seed e escolha inicial.
+     */
+    public List<RecruitCrewMemberRequest> generateTavernCharactersWithSeed(PortType portType, int count, IntroChoice introChoice, long seed) {
         List<RecruitCrewMemberRequest> characters = new ArrayList<>();
         List<CharacterTemplate> availableTemplates = getTemplatesForPort(portType);
         List<CharacterTemplate> usedTemplates = new ArrayList<>();
+        Random random = new Random(seed); // Usar seed para resultados consistentes
+        
+        // Lista de profissões já geradas para garantir variedade
+        List<CrewProfession> profissionsGenerated = new ArrayList<>();
         
         for (int i = 0; i < count; i++) {
             // Filtrar templates já utilizados
@@ -228,22 +257,79 @@ public class UniqueCharacterService {
             
             CharacterTemplate selectedTemplate;
             if (!unusedTemplates.isEmpty()) {
-                // Escolher template não utilizado
-                selectedTemplate = unusedTemplates.get(
-                    ThreadLocalRandom.current().nextInt(unusedTemplates.size())
-                );
+                // Tentar encontrar um template que gere uma profissão diferente
+                CharacterTemplate preferredTemplate = findTemplateWithNewProfession(unusedTemplates, profissionsGenerated);
+                selectedTemplate = preferredTemplate != null ? preferredTemplate : 
+                    unusedTemplates.get(random.nextInt(unusedTemplates.size()));
             } else {
                 // Se todos já foram usados, escolher aleatório (pode acontecer em portos com poucos personagens)
                 selectedTemplate = availableTemplates.get(
-                    ThreadLocalRandom.current().nextInt(availableTemplates.size())
+                    random.nextInt(availableTemplates.size())
                 );
             }
             
             usedTemplates.add(selectedTemplate);
-            characters.add(createRequestFromTemplate(selectedTemplate));
+            RecruitCrewMemberRequest character = createRequestFromTemplate(selectedTemplate);
+            
+            // Ajustar personalidade baseado na escolha inicial (apenas para tutorial)
+            if (introChoice != null) {
+                adjustPersonalityForIntroChoice(character, introChoice, i);
+            }
+            
+            characters.add(character);
+            
+            // Determinar e registrar a profissão gerada
+            CrewProfession profession = CrewProfession.determineProfession(
+                character.getNavigation(), character.getArtillery(), character.getCombat(),
+                character.getMedicine(), character.getCarpentry(), character.getIntelligence()
+            );
+            profissionsGenerated.add(profession);
         }
         
         return characters;
+    }
+    
+    /**
+     * Ajusta a personalidade do tripulante baseado na escolha inicial do tutorial.
+     * Garante que os tripulantes reflitam a filosofia escolhida pelo jogador.
+     */
+    private void adjustPersonalityForIntroChoice(RecruitCrewMemberRequest character, com.tidebreakerstudios.freedom_tide.model.enums.IntroChoice introChoice, int characterIndex) {
+        switch (introChoice) {
+            case COOPERATE -> {
+                // Escolha cooperativa: mix de HONEST e GREEDY (sistema estabelecido)
+                if (characterIndex == 0) character.setPersonality(CrewPersonality.HONEST);
+                else if (characterIndex == 1) character.setPersonality(CrewPersonality.GREEDY);
+                else character.setPersonality(CrewPersonality.HONEST);
+            }
+            case RESIST -> {
+                // Escolha de resistência: mix de BLOODTHIRSTY e REBEL (confronto direto)
+                if (characterIndex == 0) character.setPersonality(CrewPersonality.BLOODTHIRSTY);
+                else if (characterIndex == 1) character.setPersonality(CrewPersonality.REBEL);
+                else character.setPersonality(CrewPersonality.BLOODTHIRSTY);
+            }
+            case NEUTRAL -> {
+                // Escolha neutra: mix equilibrado de todas as personalidades
+                CrewPersonality[] personalities = {CrewPersonality.HONEST, CrewPersonality.REBEL, CrewPersonality.GREEDY};
+                character.setPersonality(personalities[characterIndex % personalities.length]);
+            }
+        }
+    }
+
+    /**
+     * Tenta encontrar um template que gere uma profissão ainda não representada.
+     */
+    private CharacterTemplate findTemplateWithNewProfession(List<CharacterTemplate> templates, List<CrewProfession> existingProfessions) {
+        for (CharacterTemplate template : templates) {
+            CrewProfession profession = CrewProfession.determineProfession(
+                template.navigation, template.artillery, template.combat,
+                template.medicine, template.carpentry, template.intelligence
+            );
+            
+            if (!existingProfessions.contains(profession)) {
+                return template;
+            }
+        }
+        return null; // Não encontrou nenhum template com profissão nova
     }
 
     // === MÉTODOS PRIVADOS ===

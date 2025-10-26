@@ -645,7 +645,7 @@ public class DataSeeder implements CommandLineRunner {
     private Contract createIntroGuildContract(Port originPort, Port destinationPort) {
         return Contract.builder()
                 .title("Transporte de Especiarias")
-                .description("A Guilda Mercante precisa de um capitão para transportar \"especiarias especiais\" para suas plantações. O produto é utilizado para manter a produtividade dos trabalhadores em níveis ideais. Trabalho estável e bem remunerado.")
+                .description("A Guilda Mercante oferece trabalho regular transportando produtos especiais para suas propriedades agrícolas. Carregamento discreto, destino garantido. Contrato direto, pagamento pontual.")
                 .faction(Faction.GUILD)
                 .status(ContractStatus.AVAILABLE)
                 .originPort(originPort)
@@ -662,8 +662,8 @@ public class DataSeeder implements CommandLineRunner {
     
     private Contract createIntroRevolutionaryContract(Port originPort, Port destinationPort) {
         return Contract.builder()
-                .title("Contrabando Médico")
-                .description("Uma colônia isolada precisa urgentemente de medicamentos que foram declarados contrabando pelo Império. Levar essas provisões salvará vidas, mas desafiará a autoridade imperial. A rede revolucionária compensará bem por sua coragem.")
+                .title("Suprimentos Médicos")
+                .description("Uma comunidade remota necessita de suprimentos médicos essenciais. As rotas comerciais oficiais têm se mostrado... inadequadas. Busca-se capitão discreto para entrega direta. Pagamento generoso para quem valoriza vidas.")
                 .faction(Faction.REVOLUTIONARY)
                 .status(ContractStatus.AVAILABLE)
                 .originPort(originPort)
@@ -680,8 +680,8 @@ public class DataSeeder implements CommandLineRunner {
     
     private Contract createIntroBrotherhoodContract(Port originPort, Port destinationPort) {
         return Contract.builder()
-                .title("Saque ao Esperança Dourada")
-                .description("Um navio mercante desprotegido, o \"Esperança Dourada\", navega com carga valiosa incluindo provisões familiares de colonos. O saque renderá dinheiro rápido, mas custará a paz de espírito. Vida livre, sem patrões.")
+                .title("Interceptação do Esperança Dourada")
+                .description("O mercante \"Esperança Dourada\" carrega carga valiosa por estas águas. Uma oportunidade para quem não se limita às convenções do comércio tradicional. Liberdade total de operação, lucros sem intermediários.")
                 .faction(Faction.BROTHERHOOD)
                 .status(ContractStatus.AVAILABLE)
                 .originPort(originPort)

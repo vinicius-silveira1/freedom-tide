@@ -8,135 +8,62 @@
   padding: 20px;
   background: var(--color-background);
   overflow-y: auto;
+  position: relative;
+}
+
+/* Efeito de névoa marítima de fundo */
+.intro-sequence-container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: 
+    radial-gradient(ellipse at 20% 30%, rgba(70, 130, 180, 0.05) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 70%, rgba(25, 25, 112, 0.03) 0%, transparent 60%);
+  pointer-events: none;
+  z-index: -1;
 }
 
 .intro-document {
-  /* Documento grande e imersivo */
+  /* Documento grande e imersivo - usa classes do sistema de documentos antigos */
   width: 90%;
   max-width: 800px;
   min-height: 600px;
   
-  /* Papel envelhecido e manchado */
-  background: 
-    /* Manchas grandes de tinta e umidade */
-    radial-gradient(ellipse at 15% 20%, rgba(90, 60, 35, 0.3) 0%, transparent 40%),
-    radial-gradient(ellipse at 80% 75%, rgba(110, 70, 45, 0.25) 0%, transparent 45%),
-    radial-gradient(circle at 25% 80%, rgba(85, 55, 30, 0.2) 0%, transparent 30%),
-    
-    /* Pequenos respingos e manchas */
-    radial-gradient(circle at 90% 15%, rgba(100, 65, 40, 0.4) 0%, transparent 8%),
-    radial-gradient(circle at 10% 90%, rgba(95, 60, 35, 0.3) 0%, transparent 12%),
-    radial-gradient(circle at 70% 30%, rgba(80, 50, 25, 0.25) 0%, transparent 15%),
-    
-    /* Base de papel muito envelhecido */
-    #f8f4e6;
+  /* Animação de entrada suave */
+  animation: documentAppear 0.8s ease-out;
   
-  /* Bordas muito irregulares de documento oficial antigo */
-  border: 4px solid;
-  border-color: #8b5a2b #965f2c #7d5228 #a0612d;
-  border-radius: 30px 15px 40px 12px / 25px 35px 10px 30px;
+  /* Transições suaves */
+  transition: all 0.3s ease-in-out;
   
-  /* Sombras dramáticas para documento importante */
-  box-shadow: 
-    /* Sombra principal pesada */
-    8px 10px 25px rgba(61, 35, 15, 0.7),
-    4px 5px 12px rgba(80, 50, 30, 0.5),
-    
-    /* Efeito de papel grosso e oficial */
-    inset -3px -4px 8px rgba(75, 45, 25, 0.2),
-    inset 4px 5px 8px rgba(250, 245, 230, 0.8),
-    inset -2px 6px 5px rgba(75, 45, 25, 0.15),
-    inset 6px -2px 5px rgba(235, 225, 205, 0.6);
-  
-  padding: 40px 35px 30px 40px;
-  position: relative;
+  /* Rotação sutil personalizada para cada documento */
   transform: rotate(-0.3deg);
   
-  /* Efeitos pixelados dramáticos */
-  filter: 
-    contrast(1.3) 
-    saturate(1.2) 
-    brightness(0.92)
-    sepia(0.22);
-  
-  /* Padrão pixelado de documento oficial */
-  background-image: 
-    /* Textura de papel oficial grosso */
-    repeating-radial-gradient(circle at 3px 3px, 
-      rgba(0,0,0,0.04) 0px, 
-      transparent 1px, 
-      rgba(255,255,255,0.02) 2px, 
-      transparent 4px),
-    /* Mantém os gradientes de manchas */
-    radial-gradient(ellipse at 15% 20%, rgba(90, 60, 35, 0.3) 0%, transparent 40%),
-    radial-gradient(ellipse at 80% 75%, rgba(110, 70, 45, 0.25) 0%, transparent 45%),
-    radial-gradient(circle at 25% 80%, rgba(85, 55, 30, 0.2) 0%, transparent 30%),
-    radial-gradient(circle at 90% 15%, rgba(100, 65, 40, 0.4) 0%, transparent 8%),
-    radial-gradient(circle at 10% 90%, rgba(95, 60, 35, 0.3) 0%, transparent 12%),
-    radial-gradient(circle at 70% 30%, rgba(80, 50, 25, 0.25) 0%, transparent 15%);
-  
-  background-size: 6px 6px, auto, auto, auto, auto, auto, auto;
-  
-  /* Garantir renderização pixelada */
-  image-rendering: -moz-crisp-edges;
-  image-rendering: -webkit-crisp-edges;
-  image-rendering: pixelated;
-  image-rendering: crisp-edges;
+  /* Customizações específicas do documento de introdução */
+
 }
 
-/* Pseudo-elementos para vincos de documento oficial importante */
-.intro-document::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  pointer-events: none;
-  
-  /* Vincos de documento muito manuseado */
-  background: 
-    linear-gradient(-20deg, 
-      transparent 0%, 
-      transparent 30%, 
-      rgba(70, 40, 20, 0.2) 31%, 
-      rgba(70, 40, 20, 0.2) 33%, 
-      transparent 34%, 
-      transparent 100%
-    ),
-    linear-gradient(70deg, 
-      transparent 0%, 
-      transparent 75%, 
-      rgba(65, 35, 15, 0.15) 76%, 
-      rgba(65, 35, 15, 0.15) 77%, 
-      transparent 78%, 
-      transparent 100%
-    );
-  
-  border-radius: inherit;
+/* Documento agora usa classes do sistema de documentos autênticos */
+
+/* Personalizações específicas por tipo de documento */
+.intro-document.military-order {
+  /* Documentos da Guilda - mais formais e rígidos */
+  transform: rotate(0deg); /* Sem rotação para documentos oficiais */
+  animation: militaryDocAppear 1.2s ease-out;
 }
 
-.intro-document::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  pointer-events: none;
-  
-  /* Dobra central como documento dobrado para transporte */
-  background: 
-    linear-gradient(90deg, 
-      transparent 0%, 
-      transparent 48%, 
-      rgba(80, 50, 25, 0.18) 49%, 
-      rgba(80, 50, 25, 0.18) 51%, 
-      transparent 52%, 
-      transparent 100%
-    );
-  
-  border-radius: inherit;
+.intro-document.nautical-chart {
+  /* Certificado náutico - com rotação técnica */
+  transform: rotate(0.5deg);
+  animation: nauticalAppear 1.0s ease-out;
+}
+
+.intro-document.ancient-document {
+  /* Documento de taverna - mais casual */
+  transform: rotate(-0.8deg);
+  animation: tavernAppear 0.8s ease-out;
 }
 
 /* Cabeçalho do documento */
@@ -145,6 +72,21 @@
   margin-bottom: 30px;
   padding-bottom: 20px;
   border-bottom: 3px double var(--color-border);
+  position: relative;
+}
+
+/* Selo oficial da Guilda com âncora real */
+.document-header::before {
+  content: '';
+  position: absolute;
+  top: -15px;
+  right: 10px;
+  width: 32px;
+  height: 32px;
+  background: url('/assets/icons/decorative/anchor-small.png') center/contain no-repeat;
+  opacity: 0.4;
+  transform: rotate(15deg);
+  filter: sepia(100%) saturate(150%) hue-rotate(25deg) brightness(0.8);
 }
 
 .document-title {
@@ -163,6 +105,20 @@
   color: #4a3426;
   font-style: italic;
   margin: 0;
+  position: relative;
+}
+
+/* Adicionar contexto histórico visual */
+.document-type::after {
+  content: '';
+  display: block;
+  width: 100px;
+  height: 2px;
+  background: linear-gradient(to right, 
+    transparent, 
+    rgba(139, 90, 65, 0.5), 
+    transparent);
+  margin: 8px auto 0;
 }
 
 /* Conteúdo do documento */
@@ -222,22 +178,37 @@
 .choice-option:nth-child(3) { transform: rotate(0.4deg); }
 
 .choice-option:hover {
-  background: rgba(235, 225, 200, 0.9);
+  background: rgba(235, 225, 200, 0.95);
   border-color: var(--color-accent);
-  transform: scale(1.02) rotate(0deg);
+  transform: scale(1.03) rotate(0deg) translateY(-2px);
   box-shadow: 
-    4px 4px 12px rgba(61, 35, 15, 0.4),
-    inset 1px 1px 3px rgba(255, 250, 240, 0.8);
+    6px 8px 20px rgba(61, 35, 15, 0.5),
+    inset 1px 1px 4px rgba(255, 250, 240, 0.9);
+  transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
 .choice-option.selected {
   background: rgba(220, 200, 170, 1.0);
   border-color: var(--color-accent);
   border-width: 3px;
-  transform: scale(1.05) rotate(0deg);
+  transform: scale(1.06) rotate(0deg) translateY(-4px);
   box-shadow: 
-    6px 6px 15px rgba(61, 35, 15, 0.6),
-    inset 2px 2px 5px rgba(255, 245, 225, 0.9);
+    8px 12px 25px rgba(61, 35, 15, 0.7),
+    inset 2px 2px 6px rgba(255, 245, 225, 0.95);
+  animation: selectedPulse 2s ease-in-out infinite;
+}
+
+@keyframes selectedPulse {
+  0%, 100% {
+    box-shadow: 
+      8px 12px 25px rgba(61, 35, 15, 0.7),
+      inset 2px 2px 6px rgba(255, 245, 225, 0.95);
+  }
+  50% {
+    box-shadow: 
+      10px 15px 30px rgba(61, 35, 15, 0.8),
+      inset 3px 3px 8px rgba(255, 245, 225, 1.0);
+  }
 }
 
 .choice-title {
@@ -266,6 +237,34 @@
   color: var(--color-text-darker);
   margin: 6px 0;
   line-height: 1.5;
+}
+
+/* Destacar informações de progressão */
+.detail-line:contains('PROGRESSÃO'), 
+.detail-line:contains('🎯'), 
+.detail-line:contains('⚔️'), 
+.detail-line:contains('🗺️') {
+  background: rgba(70, 130, 180, 0.1);
+  padding: 4px 8px;
+  border-left: 3px solid rgba(70, 130, 180, 0.5);
+  font-weight: bold;
+  margin: 8px 0;
+}
+
+/* Estilos para ícones de habilidades */
+.detail-line[data-skill="combat"] {
+  border-left-color: rgba(220, 20, 60, 0.7);
+  background: rgba(220, 20, 60, 0.1);
+}
+
+.detail-line[data-skill="trade"] {
+  border-left-color: rgba(255, 215, 0, 0.7);
+  background: rgba(255, 215, 0, 0.1);
+}
+
+.detail-line[data-skill="exploration"] {
+  border-left-color: rgba(34, 139, 34, 0.7);
+  background: rgba(34, 139, 34, 0.1);
 }
 
 .choice-impact {
@@ -301,6 +300,19 @@
   margin-top: 40px;
   padding-top: 20px;
   border-top: 2px dashed var(--color-border);
+  position: relative;
+}
+
+.document-controls::before {
+  content: '⚓ ⚓ ⚓';
+  position: absolute;
+  top: -12px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #f8f4e6;
+  padding: 0 15px;
+  color: rgba(139, 90, 65, 0.5);
+  font-size: 14px;
 }
 
 .next-button, .confirm-button {
@@ -335,6 +347,91 @@
   color: var(--color-text-darker);
   margin: 20px 0;
   font-style: italic;
+}
+
+/* Animações */
+@keyframes documentAppear {
+  0% {
+    opacity: 0;
+    transform: translateY(40px) rotate(-2deg) scale(0.92);
+    filter: blur(2px);
+  }
+  30% {
+    opacity: 0.3;
+    transform: translateY(20px) rotate(-1deg) scale(0.96);
+    filter: blur(1px);
+  }
+  70% {
+    opacity: 0.8;
+    transform: translateY(5px) rotate(-0.5deg) scale(0.99);
+    filter: blur(0.5px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) rotate(-0.3deg) scale(1);
+    filter: blur(0px);
+  }
+}
+
+/* Animações específicas para cada tipo de documento */
+@keyframes militaryDocAppear {
+  0% {
+    opacity: 0;
+    transform: translateY(20px) scale(0.95);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) rotate(0deg) scale(1);
+  }
+}
+
+@keyframes nauticalAppear {
+  0% {
+    opacity: 0;
+    transform: translateY(30px) rotate(2deg) scale(0.94);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) rotate(0.5deg) scale(1);
+  }
+}
+
+@keyframes tavernAppear {
+  0% {
+    opacity: 0;
+    transform: translateY(35px) rotate(-3deg) scale(0.93);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) rotate(-0.8deg) scale(1);
+  }
+}
+
+@keyframes documentFloat {
+  0%, 100% {
+    transform: rotate(-0.3deg) translateY(0px);
+  }
+  33% {
+    transform: rotate(-0.1deg) translateY(-2px);
+  }
+  66% {
+    transform: rotate(-0.5deg) translateY(1px);
+  }
+}
+
+@keyframes anchorSway {
+  0%, 100% { transform: translateX(-50%) rotate(0deg); }
+  25% { transform: translateX(-50%) rotate(-2deg); }
+  75% { transform: translateX(-50%) rotate(2deg); }
+}
+
+/* Aplicar animação de balanço suave aos elementos decorativos */
+.document-header::before {
+  animation: anchorSway 6s ease-in-out infinite;
+}
+
+.document-controls::before {
+  animation: anchorSway 8s ease-in-out infinite reverse;
 }
 
 /* Responsividade */

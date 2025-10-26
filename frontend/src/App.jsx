@@ -18,6 +18,7 @@ import ShipyardView from './components/ShipyardView';
 import MarketView from './components/MarketView';
 import ContractsView from './components/ContractsView';
 import CrewManagementView from './components/CrewManagementView';
+import CaptainProgression from './components/CaptainProgression';
 import TutorialOverlay from './components/TutorialOverlay';
 import audioService from './utils/AudioService';
 import './App.css';
@@ -502,6 +503,10 @@ function App() {
         case 'FLEE':
           endpoint = `/api/games/${game.id}/encounter/flee`;
           break;
+        case 'HEAL':
+          endpoint = `/api/games/${game.id}/encounter/heal`;
+          requestBody = {};
+          break;
         case 'REPAIR':
         case 'DEFENSE':
           // Para ações que não têm endpoint específico, usar attack como fallback
@@ -604,6 +609,9 @@ function App() {
       case 'VIEW_CONTRACTS':
         setCurrentView('CONTRACTS');
         break;
+      case 'VIEW_CAPTAIN_SKILLS':
+        setCurrentView('CAPTAIN_PROGRESSION');
+        break;
       default:
         const postAction = async (endpoint) => {
             try {
@@ -671,6 +679,8 @@ function App() {
         return <ContractsView game={game} onAccept={handleAcceptContract} onBack={() => setCurrentView('DASHBOARD')} />;
       case 'CREW_MANAGEMENT':
         return <CrewManagementView gameId={game.id} onBack={() => setCurrentView('DASHBOARD')} />;
+      case 'CAPTAIN_PROGRESSION':
+        return <CaptainProgression gameId={game.id} onClose={() => setCurrentView('DASHBOARD')} />;
       case 'DASHBOARD':
       default:
         // The Captain's Desk metaphor is only for when in a port.
@@ -776,9 +786,6 @@ function App() {
         return (
           <>
             <CaptainCompass compass={game?.captainCompass} captainName={game?.captainName} />
-            <header className="app-header">
-              <h1>Freedom Tide</h1>
-            </header>
             <main className="main-content">
               {renderMainPanel()}
             </main>

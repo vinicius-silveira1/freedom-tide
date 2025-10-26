@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import './IntroSequence.css';
+import '../styles/ancient-documents.css';
 import audioService from '../utils/AudioService';
 
 const IntroSequence = ({ onComplete }) => {
@@ -10,147 +11,166 @@ const IntroSequence = ({ onComplete }) => {
   const documents = [
     {
       id: 'debt_notice',
-      title: 'NOTIFICAÇÃO DE COBRANÇA',
-      type: 'Guilda Mercante Unida - Departamento de Cobrança',
+      title: 'NOTIFICAÇÃO DE TRANSIÇÃO',
+      type: 'Guilda Mercante de Alvor - Departamento de Recursos Trabalhistas',
       content: {
-        header: 'AVISO FINAL DE COBRANÇA',
+        header: 'PROGRAMA DE TRABALHO-CAPITANIA - ANO 1847',
         body: [
-          'Cidadão,',
+          'Prezado Ex-Trabalhador das Plantações,',
           '',
-          'Suas dívidas trabalhistas acumuladas atingiram o montante de 2.847 moedas de ouro.',
+          'Seus anos de serviço leal nas colônias de Alvor foram reconhecidos.',
+          'No entanto, sua dívida acumulada no sistema trabalhista totalizou 2.847 moedas de ouro.',
           '',
-          'DISCRIMINAÇÃO:',
-          '• Alojamento no complexo trabalhista: 1.200 moedas',
-          '• Alimentação básica (3 anos): 890 moedas',
-          '• Ferramentas de trabalho: 340 moedas', 
-          '• Juros e taxas administrativas: 417 moedas',
+          'ORIGEM DA DÍVIDA:',
+          '• Alojamento compulsório (3 anos): 1.200 moedas',
+          '• Alimentação básica fornecida: 890 moedas',
+          '• Ferramentas de trabalho obrigatórias: 340 moedas', 
+          '• Juros compostos e taxas administrativas: 417 moedas',
           '',
-          'O pagamento integral é EXIGIDO em 72 horas.',
+          'OPORTUNIDADE DE QUITAÇÃO:',
           '',
-          'Caso não seja quitada, você será transferido para os trabalhos forçados nas minas de carvão conforme Artigo 847 do Código Mercantil.',
+          'A Guilda oferece uma alternativa aos trabalhos forçados nas minas:',
+          'Torne-se capitão do navio "O Andarilho" e quite sua dívida através do comércio.',
           '',
-          'A Guilda é generosa, mas não tolera inadimplência.',
+          'Esta é sua única chance de liberdade.',
+          'Escolha sabiamente.',
         ],
-        footer: 'Coletor Jeremiah Brass\nDepartamento de Cobrança'
+        footer: 'Diretor Aldrich Goldmane\n"Eficiência Através da Oportunidade"'
       }
     },
     {
       id: 'opportunity_contract',
-      title: 'CONTRATO DE OPORTUNIDADE',
-      type: 'Guilda Mercante Unida - Departamento de Recursos Humanos',
+      title: 'CONTRATO DE QUITAÇÃO',
+      type: 'Guilda Mercante de Alvor - Departamento de Recuperação de Ativos',
       content: {
-        header: 'PROPOSTA EXCEPCIONAL DE QUITAÇÃO',
+        header: 'TERMOS DE TRANSFERÊNCIA CONTROLADA - ANO 1847',
         body: [
-          'A Guilda, em sua infinita misericórdia, oferece uma oportunidade única:',
+          'Sua transição do trabalho nas plantações para capitão está autorizada.',
           '',
-          'QUITAÇÃO TOTAL de suas dívidas em troca de serviços marítimos.',
+          'ATIVOS SOB SUPERVISÃO:',
+          '• Navio "O Andarilho" (propriedade da Guilda até quitação)',
+          '• Licença temporária de operação (renovável mensalmente)',
+          '• Acesso restrito aos portos aprovados pela Guilda',
+          '• Contratos pré-selecionados conforme disponibilidade',
           '',
-          'CONDIÇÕES:',
-          '• Transferência do navio "O Andarilho" (sem tripulação)',
-          '• Quitação imediata de todas as dívidas',
-          '• Liberdade para operar como capitão independente',
+          'OBRIGAÇÕES MENSAIS PERMANENTES:',
+          '• Taxa de licença: 500 moedas (não negociável)',
+          '• Seguro compulsório: 100 moedas (cobertura mínima)',
+          '• Taxas portuárias: 50 moedas por atracação',
           '',
-          'OBRIGAÇÕES:',
-          '• Taxa de transferência: 8.500 moedas',
-          '• Licença de operação: 500 moedas/mês',
-          '• Seguro obrigatório: 1.200 moedas/ano',
-          '• Taxa de ancoragem em portos: 50 moedas/visita',
+          'CONDIÇÕES DE LIBERDADE:',
+          'Após quitação total da dívida inicial, capitães podem',
+          'solicitar renegociação de termos (sujeito a aprovação).',
           '',
-          'Esta é uma oportunidade que poucos recebem.',
-          'Você tem 1 hora para assinar.',
+          'Lembre-se: A Guilda oferece estabilidade em troca de lealdade.',
           '',
-          '(Cláusula 23: Em caso de inadimplência, o navio e todos os bens do capitão tornam-se propriedade da Guilda)'
+          '(Cláusula 847: Inadimplência resulta em retorno imediato ao trabalho forçado)'
         ],
-        footer: 'Diretor Aldrich Goldmane\n"Sua Liberdade, Nosso Negócio"'
+        footer: 'Diretor Aldrich Goldmane\n"Ordem e Prosperidade"'
       }
     },
     {
       id: 'ship_inventory', 
-      title: 'INVENTÁRIO DO NAVIO',
-      type: 'O Andarilho - Inspeção Técnica',
+      title: 'CERTIFICADO DO NAVIO',
+      type: 'O Andarilho - Relatório de Transferência',
       content: {
-        header: 'RELATÓRIO DE ESTADO - NAVIO MERCANTE',
+        header: 'AVALIAÇÃO TÉCNICA - NAVIO MERCANTE CLASSE B',
         body: [
-          'CASCO: Deteriorado (múltiplas rachaduras, infiltrações)',
-          'VELAS: Remendadas (eficiência reduzida em 40%)',
-          'CORDAME: Desgastado (risco de rompimento)',
-          'ÂNCORA: Enferrujada (funcionamento duvidoso)',
+          'ESTRUTURA GERAL: Funcional (necessita manutenção regular)',
+          'CASCO: Sólido com desgaste normal de uso (85% integridade)',
+          'VELAS: Operacionais (com alguns remendos, mas eficientes)',
+          'CORDAME: Adequado (recomenda-se inspeção mensal)',
+          'ÂNCORA: Funcional (com sinais de uso, mas confiável)',
           '',
-          'SUPRIMENTOS INCLUSOS:',
-          '• Água potável: 3 barris (2 semanas)',
-          '• Provisões: Biscoitos duros e carne seca (10 dias)',
-          '• Pólvora: 2 barris (quantidade mínima)',
-          '• Remédios: Kit básico (sem remédios para escorbuto)',
+          'SUPRIMENTOS DE TRANSFERÊNCIA:',
+          '• Água potável: 5 barris (1 mês de navegação)',
+          '• Provisões básicas: Biscoitos e carne seca (3 semanas)',
+          '• Pólvora: 4 barris (quantidade padrão para mercante)',
+          '• Kit médico: Suprimentos básicos de primeiros socorros',
           '',
           'TRIPULAÇÃO:',
-          '• NENHUMA - O capitão anterior abandonou o navio',
-          '• Contratação necessária no porto de destino',
-          '• Recomenda-se mínimo de 3 tripulantes para navegação',
+          '• Status atual: Aguardando contratação pelo novo capitão',
+          '• Recomendação: Mínimo 3 tripulantes para operação segura',
+          '• Portos disponíveis: Tavernas em todos os portos de Alvor',
           '',
           'OBSERVAÇÕES DO INSPETOR:',
-          '"Este navio mal consegue navegar em águas calmas.',
-          'Sem tripulação experiente, recomendo extrema cautela.',
-          'Dos últimos 12 capitães similares, apenas 3 sobreviveram."',
+          '"Navio mercante padrão em condições adequadas para navegação.',
+          'Perfeito para capitães iniciantes que buscam experiência.',
+          'Com manutenção adequada, pode servir por muitos anos."',
           '',
           '- Inspetor Marcus Seaworth'
         ],
-        footer: 'APROVADO PARA NAVEGAÇÃO\n(Com ressalvas)'
+        footer: 'CERTIFICADO PARA NAVEGAÇÃO\n(Classe B - Mercante Padrão)'
       }
     },
     {
       id: 'first_choice',
-      title: 'SUA PRIMEIRA DECISÃO',
-      type: 'Mesa do Porto - Contratos Disponíveis',
+      title: 'DEFININDO SEU DESTINO',
+      type: 'Taverna do Porto - Alvor, Era da Vela (1847)',
       content: {
-        header: 'TRÊS CAMINHOS SE ABREM DIANTE DE VOCÊ',
+        header: 'QUAL SERÁ SEU PRIMEIRO CONTRATO?',
         body: [
-          'Com um navio questionável e uma dívida impossível,',
-          'você deve escolher seu primeiro contrato.',
+          'Como capitão independente em Alvor,',
+          'você deve escolher sua primeira oportunidade de trabalho.',
+          'Esta decisão moldará sua reputação',
+          'e influenciará suas opções futuras.',
           '',
-          'Cada escolha definirá quem você se tornará:'
+          'Três propostas aguardam sua resposta:'
         ],
         choices: [
           {
             id: 'cooperate',
-            title: 'CONTRATO DA GUILDA',
-            description: 'Transportar "especiarias" para as colônias',
+            title: 'COMÉRCIO ESTABELECIDO',
+            description: 'Transporte de produtos especiais para propriedades agrícolas',
             details: [
-              '• Pagamento: 200 moedas',
-              '• Risco: Baixo',
+              '• Pagamento garantido: 200 moedas',
+              '• Risco: Baixo (sob proteção da Guilda)',
               '• Destino: Plantações de Nova Esperança',
+              '• Desenvolve: Habilidades de Comércio e Navegação',
               '',
-              '"Produto especial para manter a produtividade',
-              'dos trabalhadores em níveis ideais..."'
+              '"Carregamento discreto de produtos especializados',
+              'para operações agrícolas em grande escala."',
+              '',
+              '🎯 PROGRESSÃO: Expertise em rotas comerciais',
+              '⚓ Estabilidade financeira e proteção institucional'
             ],
-            impact: 'Trabalho estável, bem remunerado'
+            impact: 'Integração ao sistema estabelecido - Crescimento previsível'
           },
           {
             id: 'resist', 
-            title: 'SAQUEAR MERCADOR',
-            description: 'Atacar navio mercante desprotegido',
+            title: 'VIDA LIVRE',
+            description: 'Interceptação de navio mercante de luxo',
             details: [
-              '• Pagamento: 800 moedas (estimado)',
-              '• Risco: Alto',
-              '• Alvo: Navio "Esperança Dourada"',
+              '• Recompensa estimada: 800 moedas',
+              '• Risco: Muito Elevado (será perseguido)',
+              '• Alvo: "Esperança Dourada" (carga de alto valor)',
+              '• Desenvolve: Habilidades de Combate e Artilharia',
               '',
-              '"Carregamento inclui provisões familiares',
-              'e pertences pessoais de colonos..."'
+              '"Transporte de bens de luxo e mercadorias raras',
+              'destinados aos setores mais abastados."',
+              '',
+              '⚔️ PROGRESSÃO: Autonomia através da força',
+              '🏴‍☠️ Independência total, mas sem aliados institucionais'
             ],
-            impact: 'Dinheiro rápido, sem patrões'
+            impact: 'Caminho independente - Liberdade com consequências'
           },
           {
             id: 'neutral',
-            title: 'CONTRABANDO MÉDICO', 
-            description: 'Levar medicamentos para colônia isolada',
+            title: 'ROTAS ALTERNATIVAS', 
+            description: 'Transporte de suprimentos médicos por vias não oficiais',
             details: [
-              '• Pagamento: 50 moedas',
-              '• Risco: Muito Alto',
-              '• Destino: Colônia de Porto Livre',
+              '• Recompensa: 50 moedas + rede de contatos',
+              '• Risco: Extremo (operação não autorizada)',
+              '• Destino: Porto Livre (comunidade independente)',
+              '• Desenvolve: Habilidades de Exploração e Sobrevivência',
               '',
-              '"Remédios foram declarados contrabando',
-              'por questões de "regulamentação comercial"..."'
+              '"Suprimentos médicos básicos com distribuição',
+              'através de canais alternativos de comercialização."',
+              '',
+              '🗺️ PROGRESSÃO: Desenvolvimento de redes informais',
+              '🤝 Crescimento através de parcerias comunitárias'
             ],
-            impact: 'Pagamento baixo, mas satisfação pessoal'
+            impact: 'Abordagem colaborativa - Mudança através de comunidade'
           }
         ]
       }
@@ -180,9 +200,24 @@ const IntroSequence = ({ onComplete }) => {
   const currentDoc = documents[currentDocument];
   const isLastDocument = currentDocument === documents.length - 1;
 
+  // Determinar classe do documento baseada no tipo
+  const getDocumentClass = (docId) => {
+    switch (docId) {
+      case 'opportunity_contract':
+        return 'ancient-document'; // Documentos oficiais da Guilda
+      case 'ship_inventory':
+        return 'nautical-chart'; // Certificado técnico náutico
+      case 'debt_notice':
+      case 'first_choice':
+        return 'ancient-document'; // Documento de taverna
+      default:
+        return 'ancient-document';
+    }
+  };
+
   return (
     <div className="intro-sequence-container">
-      <div className="intro-document">
+      <div className={`intro-document ${getDocumentClass(currentDoc.id)}`}>
         {/* Cabeçalho do documento */}
         <div className="document-header">
           <h1 className="document-title">{currentDoc.title}</h1>
@@ -242,7 +277,7 @@ const IntroSequence = ({ onComplete }) => {
         {/* Botões de navegação */}
         <div className="document-controls">
           {!isLastDocument && (
-            <button className="next-button" onClick={handleNext}>
+            <button className="next-button ancient-button" onClick={handleNext}>
               Continuar Lendo
             </button>
           )}
@@ -256,7 +291,7 @@ const IntroSequence = ({ onComplete }) => {
               )}
               
               {selectedChoice && (
-                <button className="confirm-button" onClick={handleConfirm}>
+                <button className="confirm-button ancient-button" onClick={handleConfirm}>
                   Aceitar Destino
                 </button>
               )}

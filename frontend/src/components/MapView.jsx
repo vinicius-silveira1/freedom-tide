@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import './MapView.css';
+import '../styles/ancient-documents.css';
 import audioService from '../utils/AudioService';
 
 function MapView({ gameId, onTravel, onCancel, currentPort }) {
@@ -108,15 +109,15 @@ function MapView({ gameId, onTravel, onCancel, currentPort }) {
   }
 
   return (
-    <div className="status-panel map-view">
+    <div className="status-panel map-view nautical-chart">
       <div className="map-header">
-        {/* Âncoras decorativas */}
-        <div className="anchor-decoration-1"><div className="pixel-anchor"></div></div>
-        <div className="anchor-decoration-2"><div className="pixel-anchor"></div></div>
-        <div className="anchor-decoration-3"><div className="pixel-anchor"></div></div>
-        <div className="anchor-decoration-4"><div className="pixel-anchor"></div></div>
-        <div className="anchor-decoration-5"><div className="pixel-anchor"></div></div>
-        <div className="anchor-decoration-6"><div className="pixel-anchor"></div></div>
+        {/* Âncoras decorativas autênticas */}
+        <div className="anchor-decoration-1"><div className="authentic-anchor"></div></div>
+        <div className="anchor-decoration-2"><div className="authentic-anchor"></div></div>
+        <div className="anchor-decoration-3"><div className="authentic-anchor"></div></div>
+        <div className="anchor-decoration-4"><div className="authentic-anchor"></div></div>
+        <div className="anchor-decoration-5"><div className="authentic-anchor"></div></div>
+        <div className="anchor-decoration-6"><div className="authentic-anchor"></div></div>
         
         <h2>Carta Náutica do Arquipélago de Alvor</h2>
         <p className="map-subtitle">Selecione seu próximo destino, Capitão</p>
@@ -128,9 +129,13 @@ function MapView({ gameId, onTravel, onCancel, currentPort }) {
           <img src="/assets/icons/compass/compass.png" alt="Compass" style={{width: '64px', height: '64px'}} />
         </div>
 
-        {/* Decorações marítimas */}
-        <div className="sea-monster sea-monster-1">🐙</div>
-        <div className="sea-monster sea-monster-2">🐋</div>
+        {/* Decorações marítimas antigas */}
+        <div className="sea-creature sea-creature-1">
+          <div className="ancient-kraken"></div>
+        </div>
+        <div className="sea-creature sea-creature-2">
+          <div className="ancient-leviathan"></div>
+        </div>
         <div className="decorative-ship decorative-ship-1">
           <div className="pixel-ship"></div>
         </div>
@@ -187,7 +192,7 @@ function MapView({ gameId, onTravel, onCancel, currentPort }) {
 
         {/* Informações do porto selecionado/hover */}
         {(selectedDestination || hoveredPort) && (
-          <div className="port-info-panel">
+          <div className="port-info-panel small-tag">
             {(() => {
               const port = selectedDestination || destinations.find(d => d.id === hoveredPort);
               const portInfo = portCoordinates[port?.name];
@@ -213,8 +218,8 @@ function MapView({ gameId, onTravel, onCancel, currentPort }) {
                   
                   {selectedDestination && (
                     <div className="travel-actions">
-                      <button className="confirm-travel-button" onClick={handleConfirmTravel}>
-                        ⚓ Zarpar para {selectedDestination.name}
+                      <button className="confirm-travel-button authentic-anchor" onClick={handleConfirmTravel}>
+                        Zarpar para {selectedDestination.name}
                       </button>
                       <button className="deselect-button" onClick={() => setSelectedDestination(null)}>
                         Cancelar Seleção
@@ -229,8 +234,8 @@ function MapView({ gameId, onTravel, onCancel, currentPort }) {
       </div>
 
       <div className="map-controls">
-        <button onClick={handleCancel} className="cancel-button">
-          📜 Fechar Cartas
+        <button onClick={handleCancel} className="cancel-button authentic-anchor">
+          Fechar Cartas
         </button>
       </div>
     </div>

@@ -33,6 +33,7 @@ public class GameService {
     private final ShipRepository shipRepository;
     private final ShipUpgradeRepository shipUpgradeRepository;
     private final CrewProgressionService crewProgressionService;
+    private final CaptainProgressionService captainProgressionService;
     private final UniqueCharacterService uniqueCharacterService;
     private final GameMapper gameMapper;
     private final ContractService contractService;
@@ -371,6 +372,13 @@ public class GameService {
                 "/api/games/" + gameId + "/port/tavern"
         ));
 
+        actions.add(new PortActionDTO(
+                PortActionType.VIEW_CAPTAIN_SKILLS,
+                "⭐ Progressão do Capitão",
+                "Veja suas habilidades e invista pontos de experiência.",
+                "/api/games/" + gameId + "/captain/progression"
+        ));
+
         // Adicionar ação de resolver contrato se estiver no porto correto
         Contract activeContract = game.getActiveContract();
         if (activeContract != null && activeContract.getDestinationPort().equals(game.getCurrentPort())) {
@@ -444,6 +452,16 @@ public class GameService {
     public Game recruitCrewMember(Long gameId, RecruitCrewMemberRequest request) {
         Game game = findGameById(gameId);
         Ship ship = game.getShip();
+
+        // Verificar se há espaço na tripulação
+        int currentCrewSize = ship.getCrew().size();
+        int maxCapacity = captainProgressionService.getMaxCrewCapacity(game);
+        
+        if (currentCrewSize >= maxCapacity) {
+            throw new IllegalStateException(String.format(
+                "Tripulação lotada! Você já tem %d/%d tripulantes. Evolua a habilidade 'Liderança' do capitão para aumentar a capacidade.",
+                currentCrewSize, maxCapacity));
+        }
 
         // Calcular custos ANTES de criar o tripulante
         int attributeSum = request.getNavigation() + request.getArtillery() + request.getCombat() +
@@ -579,6 +597,10 @@ public class GameService {
         game.setReputation(game.getReputation() + activeContract.getRewardReputation());
         game.setInfamy(game.getInfamy() + activeContract.getRewardInfamy());
         game.setAlliance(game.getAlliance() + activeContract.getRewardAlliance());
+
+        // Conceder XP do capitão por completar contrato
+        List<String> captainXPMessages = crewProgressionService.awardContractXP(game);
+        eventLog.addAll(captainXPMessages);
 
         endTurnCycle(game, eventLog);
 
@@ -814,9 +836,21 @@ public class GameService {
         }
 
         int playerArtillery = ship.getCrew().stream().mapToInt(CrewMember::getArtillery).sum();
-        int playerDamage = playerArtillery + ThreadLocalRandom.current().nextInt(5, 11);
-        encounter.setHull(encounter.getHull() - playerDamage);
-        eventLog.add(String.format("Você ordena o ataque! Seus artilheiros (Habilidade %d) disparam uma salva de canhões, causando %d de dano ao casco inimigo.", playerArtillery, playerDamage));
+        
+        // Aplicar bônus de habilidades do capitão no combate
+        double artilleryMultiplier = captainProgressionService.getArtilleryBonus(game);
+        double combatMultiplier = captainProgressionService.getCombatBonus(game);
+        
+        int baseDamage = playerArtillery + ThreadLocalRandom.current().nextInt(5, 11);
+        int finalDamage = (int) Math.round(baseDamage * artilleryMultiplier * combatMultiplier);
+        
+        encounter.setHull(encounter.getHull() - finalDamage);
+        
+        if (artilleryMultiplier > 1.0 || combatMultiplier > 1.0) {
+            eventLog.add(String.format("Você ordena o ataque! Seus artilheiros (Habilidade %d) disparam uma salva devastadora, causando %d de dano ao casco inimigo! (Bônus do capitão aplicado)", playerArtillery, finalDamage));
+        } else {
+            eventLog.add(String.format("Você ordena o ataque! Seus artilheiros (Habilidade %d) disparam uma salva de canhões, causando %d de dano ao casco inimigo.", playerArtillery, finalDamage));
+        }
 
         if (encounter.getHull() <= 0) {
             eventLog.add(String.format("VITÓRIA! O navio inimigo, %s, está em destroços!", encounter.getType()));
@@ -841,12 +875,24 @@ public class GameService {
             }
             
             // Aplicar bônus de contrato se aplicável
-            int finalGoldReward = applyContractBonus(game, encounter.getType(), goldReward, eventLog);
+            int contractGoldReward = applyContractBonus(game, encounter.getType(), goldReward, eventLog);
+            
+            // Aplicar bônus de liderança do capitão
+            double leadershipBonus = captainProgressionService.getLeadershipBonus(game);
+            int finalGoldReward = (int) Math.round(contractGoldReward * leadershipBonus);
+            
+            if (leadershipBonus > 1.0) {
+                eventLog.add(String.format("Sua liderança inspiradora motiva a tripulação a encontrar mais tesouros! Bônus: +%d de ouro.", finalGoldReward - contractGoldReward));
+            }
+            
             game.setGold(game.getGold() + finalGoldReward);
 
-            // Conceder XP de combate para a tripulação (vitória)
+            // Conceder XP de combate para a tripulação e capitão (vitória)
             List<String> progressMessages = crewProgressionService.awardCombatXP(game, true, false);
             eventLog.addAll(progressMessages);
+            
+            List<String> captainProgressMessages = captainProgressionService.awardCaptainXP(game, 50, "vitória em combate");
+            eventLog.addAll(captainProgressMessages);
 
             Port destination = game.getDestinationPort();
             game.setCurrentPort(destination);
@@ -862,9 +908,12 @@ public class GameService {
             }
 
         } else {
-            // Conceder XP de combate para a tripulação (participação, sem vitória)
+            // Conceder XP de combate para a tripulação e capitão (participação, sem vitória)
             List<String> progressMessages = crewProgressionService.awardCombatXP(game, false, false);
             eventLog.addAll(progressMessages);
+            
+            List<String> captainProgressMessages = captainProgressionService.awardCaptainXP(game, 15, "participação em combate");
+            eventLog.addAll(captainProgressMessages);
             
             int enemyDamage = encounter.getCannons() + ThreadLocalRandom.current().nextInt(1, 7);
             ship.setHullIntegrity(ship.getHullIntegrity() - enemyDamage);
@@ -989,6 +1038,74 @@ public class GameService {
                         .gameOver(true)
                         .build();
             }
+        }
+
+        Game savedGame = gameRepository.save(game);
+        List<PortActionDTO> portActions = getAvailablePortActions(savedGame.getId());
+        List<EncounterActionDTO> encounterActions = getAvailableEncounterActions(savedGame.getId());
+        return GameActionResponseDTO.builder()
+                .gameStatus(gameMapper.toGameStatusResponseDTO(savedGame, portActions, encounterActions))
+                .eventLog(eventLog)
+                .build();
+    }
+
+    @Transactional
+    public GameActionResponseDTO healCrew(Long gameId) {
+        Game game = findGameById(gameId);
+        Ship ship = game.getShip();
+        SeaEncounter encounter = game.getCurrentEncounter();
+        List<String> eventLog = new ArrayList<>();
+
+        if (encounter == null) {
+            throw new IllegalStateException("Não há combate ativo para aplicar cuidados médicos.");
+        }
+
+        // Calcular poder de cura baseado na medicina total da tripulação
+        int totalMedicine = ship.getCrew().stream()
+            .mapToInt(CrewMember::getMedicine)
+            .sum();
+        
+        if (totalMedicine == 0) {
+            eventLog.add("MÉDICOS INSUFICIENTES! Sua tripulação não possui conhecimento médico adequado para tratar ferimentos.");
+            Game savedGame = gameRepository.save(game);
+            return GameActionResponseDTO.builder()
+                    .gameStatus(gameMapper.toGameStatusResponseDTO(savedGame))
+                    .eventLog(eventLog)
+                    .build();
+        }
+
+        // Calcular quantidade de cura baseada na medicina
+        int maxHeal = ship.getMaxHullIntegrity() - ship.getHullIntegrity();
+        int basehealAmount = totalMedicine / 2; // 50% da medicina se converte em cura
+        int healAmount = Math.min(basehealAmount, maxHeal);
+        
+        if (healAmount > 0) {
+            ship.setHullIntegrity(ship.getHullIntegrity() + healAmount);
+            
+            // Determinar qualidade do tratamento para XP
+            boolean significantHealing = healAmount >= 15;
+            
+            if (totalMedicine >= 25) {
+                eventLog.add(String.format("CUIDADOS EXCEPCIONAIS! Seus médicos experientes (Medicina Total: %d) trataram ferimentos críticos da tripulação, restaurando %d pontos de integridade!", totalMedicine, healAmount));
+            } else if (totalMedicine >= 15) {
+                eventLog.add(String.format("Cuidados médicos competentes! Seus curandeiros (Medicina Total: %d) estancaram ferimentos e repararam danos menores, recuperando %d pontos de integridade.", totalMedicine, healAmount));
+            } else {
+                eventLog.add(String.format("Primeiros socorros básicos aplicados. Com medicina limitada (Total: %d), sua tripulação conseguiu recuperar %d pontos de integridade.", totalMedicine, healAmount));
+            }
+            
+            // Conceder XP médico
+            List<String> progressMessages = crewProgressionService.awardMedicalXP(game, significantHealing);
+            eventLog.addAll(progressMessages);
+            
+            // Melhorar moral da tripulação quando recebem cuidados médicos
+            ship.getCrew().forEach(member -> {
+                int moralBoost = Math.min(10, totalMedicine / 3);
+                member.setMoral(Math.min(100, member.getMoral() + moralBoost));
+            });
+            eventLog.add("O moral da tripulação se eleva ao ver os ferimentos sendo tratados com cuidado.");
+            
+        } else {
+            eventLog.add("NAVIO EM PERFEITAS CONDIÇÕES! Não há ferimentos ou danos que requeiram atenção médica no momento.");
         }
 
         Game savedGame = gameRepository.save(game);
@@ -1188,12 +1305,20 @@ public class GameService {
             case SHOT -> pricePerUnit = applyPriceVariation(currentPort.getShotPrice(), random);
         }
 
-        int totalCost = pricePerUnit * request.getQuantity();
-        if (game.getGold() < totalCost) {
-            throw new IllegalStateException(String.format("Ouro insuficiente. Você precisa de %d, mas tem apenas %d.", totalCost, game.getGold()));
+        // Aplicar desconto por habilidades de negociação do capitão
+        double tradingBonus = captainProgressionService.getTradingBonus(game);
+        int finalCost = (int) Math.round(pricePerUnit * request.getQuantity() / tradingBonus);
+        
+        if (game.getGold() < finalCost) {
+            throw new IllegalStateException(String.format("Ouro insuficiente. Você precisa de %d, mas tem apenas %d.", finalCost, game.getGold()));
         }
 
-        game.setGold(game.getGold() - totalCost);
+        game.setGold(game.getGold() - finalCost);
+        
+        if (tradingBonus > 1.0) {
+            int savings = (pricePerUnit * request.getQuantity()) - finalCost;
+            eventLog.add(String.format("Suas habilidades de negociação economizaram %d de ouro na compra!", savings));
+        }
 
         switch (request.getItem()) {
             case FOOD -> ship.setFoodRations(ship.getFoodRations() + request.getQuantity());
@@ -1243,8 +1368,16 @@ public class GameService {
             throw new IllegalStateException(String.format("Recursos insuficientes. Você tentou vender %d de %s, mas tem apenas %d.", request.getQuantity(), request.getItem(), currentQuantity));
         }
 
-        int totalGain = pricePerUnit * request.getQuantity();
-        game.setGold(game.getGold() + totalGain);
+        // Aplicar bônus por habilidades de negociação do capitão
+        double tradingBonus = captainProgressionService.getTradingBonus(game);
+        int finalGain = (int) Math.round(pricePerUnit * request.getQuantity() * tradingBonus);
+        
+        game.setGold(game.getGold() + finalGain);
+        
+        if (tradingBonus > 1.0) {
+            int bonus = finalGain - (pricePerUnit * request.getQuantity());
+            eventLog.add(String.format("Suas habilidades de negociação renderam %d de ouro extra na venda!", bonus));
+        }
 
         switch (request.getItem()) {
             case FOOD -> ship.setFoodRations(ship.getFoodRations() - request.getQuantity());
@@ -1253,7 +1386,7 @@ public class GameService {
             case SHOT -> ship.setShot(ship.getShot() - request.getQuantity());
         }
 
-        eventLog.add(String.format("Você vendeu %d unidades de %s por %d de ouro.", request.getQuantity(), request.getItem(), totalGain));
+        eventLog.add(String.format("Você vendeu %d unidades de %s por %d de ouro.", request.getQuantity(), request.getItem(), finalGain));
 
         Game savedGame = gameRepository.save(game);
         List<PortActionDTO> portActions = getAvailablePortActions(savedGame.getId());
@@ -1265,7 +1398,7 @@ public class GameService {
     }
 
     @Transactional(readOnly = true)
-    public List<TavernRecruitDTO> getTavernRecruits(Long gameId) {
+    public TavernInfoDTO getTavernInfo(Long gameId) {
         Game game = findGameById(gameId);
         Port currentPort = game.getCurrentPort();
         if (currentPort == null) {
@@ -1273,11 +1406,22 @@ public class GameService {
         }
 
         List<TavernRecruitDTO> recruits = new ArrayList<>();
-        int numberOfRecruits = ThreadLocalRandom.current().nextInt(2, 4); // Gera de 2 a 3 recrutas
+        int numberOfRecruits = 3; // Sempre 3 recrutas disponíveis
 
         // Gerar personagens únicos específicos para este tipo de porto
-        List<RecruitCrewMemberRequest> uniqueCharacters = 
-            uniqueCharacterService.generateTavernCharacters(currentPort.getType(), numberOfRecruits);
+        // Usa seed baseado no gameId e número de tripulantes para gerar lista consistente mas renovável
+        int currentCrewSize = game.getShip().getCrew().size();
+        long seed = gameId + currentPort.getId() + (currentCrewSize * 1000L); // Muda quando tripulação muda
+        
+        // Se ainda não completou o tutorial, considera a escolha inicial para personalidades
+        List<RecruitCrewMemberRequest> uniqueCharacters;
+        if (!game.isTutorialCompleted() && game.getIntroChoice() != null) {
+            uniqueCharacters = uniqueCharacterService.generateTavernCharactersWithSeed(
+                currentPort.getType(), numberOfRecruits, game.getIntroChoice(), seed);
+        } else {
+            uniqueCharacters = uniqueCharacterService.generateTavernCharactersWithSeed(
+                currentPort.getType(), numberOfRecruits, seed);
+        }
 
         for (RecruitCrewMemberRequest character : uniqueCharacters) {
             int attributeSum = character.getNavigation() + character.getArtillery() + character.getCombat() +
@@ -1339,7 +1483,26 @@ public class GameService {
             recruits.add(dto);
         }
 
-        return recruits;
+        // Calcular informações da capacidade da tripulação
+        int maxCapacity = captainProgressionService.getMaxCrewCapacity(game);
+        boolean canRecruitMore = currentCrewSize < maxCapacity;
+        
+        String tavernMessage;
+        if (!canRecruitMore) {
+            tavernMessage = String.format("Sua tripulação está lotada (%d/%d). Evolva a habilidade 'Liderança' do capitão para contratar mais tripulantes.", 
+                currentCrewSize, maxCapacity);
+        } else {
+            tavernMessage = String.format("Tripulação atual: %d/%d. Você pode contratar mais %d tripulante(s).", 
+                currentCrewSize, maxCapacity, maxCapacity - currentCrewSize);
+        }
+        
+        return TavernInfoDTO.builder()
+                .currentCrewSize(currentCrewSize)
+                .maxCrewCapacity(maxCapacity)
+                .canRecruitMore(canRecruitMore)
+                .availableRecruits(recruits)
+                .tavernMessage(tavernMessage)
+                .build();
     }
 
     private String generateRandomName() {
@@ -1785,16 +1948,23 @@ public class GameService {
         List<String> costMessages = new ArrayList<>();
         Ship ship = game.getShip();
         
-        // Constantes de custo de viagem
-        final int FOOD_CONSUMPTION = 5;  // 5 de comida por viagem
-        final int RUM_CONSUMPTION = 2;   // 2 de rum por viagem
+        // Aplicar bônus de navegação do capitão
+        double navigationBonus = captainProgressionService.getNavigationBonus(game);
+        
+        // Constantes de custo de viagem (reduzidas por habilidades de navegação)
+        int FOOD_CONSUMPTION = (int) Math.ceil(5 / navigationBonus);  // Navegação reduz consumo
+        int RUM_CONSUMPTION = (int) Math.ceil(2 / navigationBonus);   // Navegação reduz consumo
         final int MIN_HULL_DAMAGE = 3;   // Dano mínimo por viagem
         final int MAX_HULL_DAMAGE = 8;   // Dano máximo por viagem (sem encontros)
         
         // 1. Consumo de suprimentos
         if (ship.getFoodRations() >= FOOD_CONSUMPTION) {
             ship.setFoodRations(ship.getFoodRations() - FOOD_CONSUMPTION);
-            costMessages.add(String.format("⚓ Viagem consome %d unidades de comida.", FOOD_CONSUMPTION));
+            if (navigationBonus > 1.0) {
+                costMessages.add(String.format("⚓ Viagem consome %d unidades de comida. (Navegação eficiente reduz consumo)", FOOD_CONSUMPTION));
+            } else {
+                costMessages.add(String.format("⚓ Viagem consome %d unidades de comida.", FOOD_CONSUMPTION));
+            }
         } else {
             costMessages.add("⚠️ AVISO: Comida insuficiente! A tripulação está passando fome.");
             // Penalidade por falta de comida: reduz moral da tripulação
@@ -1806,7 +1976,11 @@ public class GameService {
         
         if (ship.getRumRations() >= RUM_CONSUMPTION) {
             ship.setRumRations(ship.getRumRations() - RUM_CONSUMPTION);
-            costMessages.add(String.format("🍺 Viagem consome %d unidades de rum.", RUM_CONSUMPTION));
+            if (navigationBonus > 1.0) {
+                costMessages.add(String.format("🍺 Viagem consome %d unidades de rum. (Navegação eficiente reduz consumo)", RUM_CONSUMPTION));
+            } else {
+                costMessages.add(String.format("🍺 Viagem consome %d unidades de rum.", RUM_CONSUMPTION));
+            }
         } else {
             costMessages.add("⚠️ AVISO: Rum insuficiente! A moral da tripulação está baixa.");
             // Penalidade por falta de rum: reduz moral da tripulação

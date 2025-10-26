@@ -1,5 +1,6 @@
 import React from 'react';
 import './LocationStatus.css';
+import '../styles/ancient-documents.css';
 
 function LocationStatus({ port, encounter }) {
   let location = "Em alto mar";
@@ -13,7 +14,7 @@ function LocationStatus({ port, encounter }) {
   // Os detalhes do encontro aparecem no EventLog
 
   return (
-    <div className={`status-panel ${isAtSea ? 'compact-at-sea' : ''}`}>
+    <div className={`nautical-chart location-chart ${isAtSea ? 'compact-at-sea' : ''}`}>
       <h2>Localização Atual</h2>
       <p>{location}</p>
     </div>

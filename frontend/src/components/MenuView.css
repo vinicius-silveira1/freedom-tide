@@ -1,78 +1,273 @@
+/* Menu Principal - Tema Náutico Vintage */
 .menu-view-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  height: 100vh;
-  width: 100vw;
-  position: fixed;
-  top: 0;
-  left: 0;
-  background: linear-gradient(to bottom, var(--color-background), var(--color-panel-bg));
-  color: var(--color-text-light);
-  text-align: center;
   padding: 0;
   margin: 0;
   overflow: hidden;
-  overflow-x: hidden;
-  overflow-y: hidden;
-  box-sizing: border-box;
+  
+  /* Fundo oceânico com gradiente */
+  background: 
+    radial-gradient(ellipse at 30% 20%, rgba(13, 27, 42, 0.9) 0%, transparent 50%),
+    radial-gradient(ellipse at 70% 80%, rgba(72, 63, 53, 0.3) 0%, transparent 50%),
+    linear-gradient(135deg, 
+      var(--color-background) 0%, 
+      #1e3a5f 25%, 
+      #2c5aa0 50%, 
+      #1e3a5f 75%, 
+      var(--color-background) 100%);
+  
+  /* Textura sutil de ondas */
+  background-size: 400px 400px, 300px 300px, 100% 100%;
+  animation: gentle-waves 20s ease-in-out infinite alternate;
 }
 
+@keyframes gentle-waves {
+  0% {
+    background-position: 0% 0%, 100% 100%, 0% 0%;
+  }
+  100% {
+    background-position: 100% 100%, 0% 0%, 0% 0%;
+  }
+}
+
+/* Container principal do título */
 .title-container {
-  background-color: rgba(0, 0, 0, 0.5);
-  padding: 1rem 1.5rem;
-  border-radius: 8px;
-  margin-bottom: 1.5rem;
-  border: 2px solid var(--color-border);
+  position: relative;
+  background: var(--color-panel-bg);
+  border: 6px solid var(--color-border);
+  border-radius: 12px;
+  padding: 40px 50px;
+  margin-bottom: 60px;
+  
+  /* Sombra profunda de pergaminho */
+  box-shadow: 
+    12px 12px 0px 0px var(--color-border),
+    inset 0 0 0 3px rgba(200, 155, 60, 0.3),
+    0 20px 40px rgba(0, 0, 0, 0.4);
+  
+  /* Textura de pergaminho */
+  background-image: 
+    radial-gradient(circle at 25% 75%, rgba(139, 69, 19, 0.08) 0%, transparent 35%),
+    radial-gradient(circle at 75% 25%, rgba(255, 255, 255, 0.12) 0%, transparent 40%);
+  
+  /* Rotação sutil para parecer um pergaminho */
+  transform: rotate(-1deg);
+}
+
+.title-container::before {
+  content: '';
+  position: absolute;
+  top: -8px;
+  left: -8px;
+  right: -8px;
+  bottom: -8px;
+  background: linear-gradient(45deg, 
+    rgba(200, 155, 60, 0.2), 
+    rgba(200, 155, 60, 0.1), 
+    rgba(200, 155, 60, 0.2));
+  border-radius: 16px;
+  z-index: -1;
 }
 
 .game-title {
   font-family: var(--font-pixel);
-  font-size: 4rem;
+  font-size: 6.5rem;
   color: var(--color-accent);
-  text-shadow: 4px 4px 0px var(--color-text-darker);
   margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 4px;
+  
+  /* Efeito pixel simples - sem sombras complexas */
+  text-shadow: 
+    4px 4px 0px var(--color-border),
+    2px 2px 0px rgba(0, 0, 0, 0.5);
+  
+  /* Animação sutil de brilho */
+  animation: title-glow 4s ease-in-out infinite alternate;
+}
+
+@keyframes title-glow {
+  0% {
+    text-shadow: 
+      4px 4px 0px var(--color-border),
+      2px 2px 0px rgba(0, 0, 0, 0.5);
+  }
+  100% {
+    text-shadow: 
+      4px 4px 0px var(--color-border),
+      2px 2px 0px rgba(0, 0, 0, 0.5),
+      0 0 20px var(--color-accent);
+  }
 }
 
 .game-subtitle {
   font-family: var(--font-pixel);
   font-size: 1.8rem;
-  color: var(--color-parchment-light);
-  margin-top: 1rem;
+  color: var(--color-text-darker);
+  margin-top: 15px;
+  font-style: normal;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  
+  /* Sem sombra complexa - apenas pixel simples */
+  text-shadow: 
+    2px 2px 0px rgba(0, 0, 0, 0.3);
 }
 
+/* Container dos botões */
 .menu-options {
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 20px;
+  align-items: center;
 }
 
+/* Estilo dos botões do menu */
 .menu-button {
-  font-size: 2rem;
-  padding: 12px 24px;
-  background-color: var(--color-panel-bg);
+  font-family: var(--font-pixel);
+  font-size: 3rem;
+  font-weight: bold;
+  padding: 20px 50px;
+  width: 400px;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  
+  /* Estilo pixel limpo - usa as classes do ancient-documents */
+  background: var(--color-panel-bg);
   color: var(--color-text-darker);
   border: 4px solid var(--color-border);
-  box-shadow: 6px 6px 0px 0px var(--color-border);
-  transition: all 0.1s ease-in-out;
-  width: 300px;
+  border-radius: 8px;
+  
+  /* Sombra 3D pixel simples */
+  box-shadow: 
+    6px 6px 0px 0px var(--color-border),
+    inset 0 2px 0 rgba(255, 255, 255, 0.2);
+  
+  /* Sem text-shadow complexo */
+  
+  /* Transições suaves */
+  transition: all 0.15s ease-out;
+  cursor: pointer;
+  
+  /* Textura sutil */
+  background-image: 
+    radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
+    radial-gradient(circle at 70% 70%, rgba(139, 69, 19, 0.05) 0%, transparent 50%);
 }
 
 .menu-button:hover:not(:disabled) {
-  transform: translate(3px, 3px);
-  box-shadow: 3px 3px 0px 0px var(--color-border);
+  background: rgba(240, 231, 210, 0.95);
+  transform: translate(2px, 2px);
+  box-shadow: 
+    4px 4px 0px 0px var(--color-border),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.15);
+  
+  color: var(--color-text-darker);
 }
 
 .menu-button:active:not(:disabled) {
-  transform: translate(6px, 6px);
-  box-shadow: 0px 0px 0px 0px var(--color-border);
+  transform: translate(4px, 4px);
+  box-shadow: 
+    2px 2px 0px 0px var(--color-border),
+    inset 0 1px 0 rgba(255, 255, 255, 0.4),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.2);
 }
 
+/* Estilo para botões desabilitados */
 .menu-button.disabled {
-  background-color: var(--color-button-disabled);
+  background: #8a8a8a;
   color: var(--color-text-muted);
   cursor: not-allowed;
-  border-color: var(--color-text-muted);
-  box-shadow: 6px 6px 0px 0px var(--color-shadow);
+  border-color: #666;
+  box-shadow: 
+    6px 6px 0px 0px #666,
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  
+  opacity: 0.6;
+}
+
+.menu-button.disabled:hover {
+  transform: none;
+}
+
+/* Efeitos de entrada */
+.title-container {
+  animation: fade-in-down 1.2s ease-out;
+}
+
+.menu-options {
+  animation: fade-in-up 1.4s ease-out 0.3s both;
+}
+
+@keyframes fade-in-down {
+  0% {
+    opacity: 0;
+    transform: translateY(-50px) rotate(-1deg);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) rotate(-1deg);
+  }
+}
+
+@keyframes fade-in-up {
+  0% {
+    opacity: 0;
+    transform: translateY(50px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+  .title-container {
+    padding: 30px 35px;
+    margin-bottom: 40px;
+  }
+  
+  .game-title {
+    font-size: 4rem;
+  }
+  
+  .game-subtitle {
+    font-size: 1.5rem;
+  }
+  
+  .menu-button {
+    width: 300px;
+    font-size: 1.5rem;
+    padding: 15px 35px;
+  }
+}
+
+@media (max-width: 480px) {
+  .title-container {
+    padding: 25px 30px;
+  }
+  
+  .game-title {
+    font-size: 3rem;
+  }
+  
+  .game-subtitle {
+    font-size: 1.2rem;
+  }
+  
+  .menu-button {
+    width: 280px;
+    font-size: 1.3rem;
+    padding: 12px 30px;
+  }
 }

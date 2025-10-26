@@ -1,5 +1,6 @@
 import React from 'react';
 import './CaptainCompass.css';
+import '../styles/ancient-documents.css';
 
 function CaptainCompass({ compass, captainName }) {
   // Se a bússola não estiver disponível, renderiza um placeholder invisível para manter o espaço
@@ -7,56 +8,30 @@ function CaptainCompass({ compass, captainName }) {
     return <div className="compass-widget" style={{ visibility: 'hidden' }}></div>;
   }
 
-  // Mapeia valores (0-1000) para graus de rotação
-  const reputationDeg = (compass.reputation / 1000) * 100 - 50;
-  const infamyDeg = (compass.infamy / 1000) * 80 + 100;
-  const allianceDeg = 260 - (compass.alliance / 1000) * 80;
+  // Componente simplificado - apenas exibe os valores do capitão
 
   return (
-    <div className="compass-widget">
+    <div className="compass-widget small-tag">
       {captainName && (
         <div className="captain-name-display">
           <span className="captain-title">Capitão</span>
           <span className="captain-name">{captainName}</span>
         </div>
       )}
-      <div className="compass-container">
-        <img src="/assets/icons/compass/compass.png" alt="Compass" className="compass-bg-icon" />
-        <div className="compass-rose">
-          <div className="compass-center-dial"></div>
-        </div>
-
-        {/* Agulhas com valores de título para acessibilidade */}
-        <div
-          className="compass-needle reputation"
-          style={{ transform: `rotate(${reputationDeg}deg)` }}
-          title={`Reputação: ${compass.reputation}`}
-        ></div>
-        <div
-          className="compass-needle infamy"
-          style={{ transform: `rotate(${infamyDeg}deg)` }}
-          title={`Infâmia: ${compass.infamy}`}
-        ></div>
-        <div
-          className="compass-needle alliance"
-          style={{ transform: `rotate(${allianceDeg}deg)` }}
-          title={`Aliança: ${compass.alliance}`}
-        ></div>
-      </div>
       
-      {/* Leituras numéricas para clareza */}
-      <div className="compass-readouts">
-        <div className="readout reputation">
-          <span className="readout-label">Reputação</span>
-          <span className="readout-value">{compass.reputation}</span>
+      {/* Status do capitão simplificado */}
+      <div className="captain-status">
+        <div className="status-item reputation">
+          <span className="status-label">Reputação</span>
+          <span className="status-value">{compass.reputation}</span>
         </div>
-        <div className="readout infamy">
-          <span className="readout-label">Infâmia</span>
-          <span className="readout-value">{compass.infamy}</span>
+        <div className="status-item infamy">
+          <span className="status-label">Infâmia</span>
+          <span className="status-value">{compass.infamy}</span>
         </div>
-        <div className="readout alliance">
-          <span className="readout-label">Aliança</span>
-          <span className="readout-value">{compass.alliance}</span>
+        <div className="status-item alliance">
+          <span className="status-label">Aliança</span>
+          <span className="status-value">{compass.alliance}</span>
         </div>
       </div>
     </div>

@@ -117,4 +117,60 @@ public class Game {
 
     @Column(name = "game_over_reason")
     private String gameOverReason;
+    
+    // Captain Progression fields
+    @Column(name = "captain_level")
+    @Builder.Default
+    private Integer captainLevel = 1;
+    
+    @Column(name = "captain_xp")
+    @Builder.Default
+    private Integer captainXP = 0;
+    
+    @Column(name = "captain_skill_points")
+    @Builder.Default
+    private Integer captainSkillPoints = 0;
+    
+    // Captain Skills - Combat Tree
+    @Column(name = "skill_combat_prowess")
+    @Builder.Default
+    private Integer skillCombatProwess = 0; // +damage in battle
+    
+    @Column(name = "skill_naval_tactics")
+    @Builder.Default
+    private Integer skillNavalTactics = 0; // +critical chance
+    
+    @Column(name = "skill_crew_inspiration")
+    @Builder.Default
+    private Integer skillCrewInspiration = 0; // +crew XP gain
+    
+    @Column(name = "skill_leadership")
+    @Builder.Default
+    private Integer skillLeadership = 0; // +crew capacity
+    
+    // Captain Skills - Trade Tree
+    @Column(name = "skill_merchant_eye")
+    @Builder.Default
+    private Integer skillMerchantEye = 0; // +trade profit
+    
+    @Column(name = "skill_negotiation")
+    @Builder.Default
+    private Integer skillNegotiation = 0; // better prices
+    
+    @Column(name = "skill_economic_mind")
+    @Builder.Default
+    private Integer skillEconomicMind = 0; // +contract rewards
+    
+    // Captain Skills - Exploration Tree
+    @Column(name = "skill_sea_knowledge")
+    @Builder.Default
+    private Integer skillSeaKnowledge = 0; // better encounters
+    
+    @Column(name = "skill_weather_reading")
+    @Builder.Default
+    private Integer skillWeatherReading = 0; // storm avoidance
+    
+    @Column(name = "skill_navigation_master")
+    @Builder.Default
+    private Integer skillNavigationMaster = 0; // faster travel
 }

@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import './ContractsView.css';
+import '../styles/ancient-documents.css';
 
 function ContractsView({ game, onAccept, onBack }) {
   // O contrato ativo agora é derivado diretamente da prop do jogo
@@ -41,39 +42,40 @@ function ContractsView({ game, onAccept, onBack }) {
   }
 
   return (
-    <div className="contracts-view status-panel">
-      <h2>Quadro de Contratos</h2>
+    <div className="contracts-view ancient-document">
+      <h2 className="pixel-heading">Quadro de Contratos</h2>
 
       {activeContract && (
-        <div className="active-contract-section">
-          <h3>Contrato Ativo</h3>
-          <div className="contract-card active">
-            <h4>{activeContract.title}</h4>
-            <p>{activeContract.description}</p>
+        <div className="active-contract-section military-order">
+          <h3 className="pixel-heading">Contrato Ativo</h3>
+          <div className="contract-card small-tag">
+            <h4 className="pixel-text">{activeContract.title}</h4>
+            <p className="pixel-text">{activeContract.description}</p>
             <div className="contract-rewards">
-              <span>Ouro: {activeContract.rewardGold}</span>
-              <span>Reputação: {activeContract.rewardReputation}</span>
-              <span>Infâmia: {activeContract.rewardInfamy}</span>
-              <span>Aliança: {activeContract.rewardAlliance}</span>
+              <span className="pixel-text">Ouro: {activeContract.rewardGold}</span>
+              <span className="pixel-text">Reputação: {activeContract.rewardReputation}</span>
+              <span className="pixel-text">Infâmia: {activeContract.rewardInfamy}</span>
+              <span className="pixel-text">Aliança: {activeContract.rewardAlliance}</span>
             </div>
           </div>
         </div>
       )}
 
       <div className="available-contracts-section">
-        <h3>Contratos Disponíveis</h3>
+        <h3 className="pixel-heading">Contratos Disponíveis</h3>
         {contracts && contracts.length > 0 ? (
           contracts.map(contract => (
-            <div key={contract.id} className="contract-card">
-              <h4>{contract.title}</h4>
-              <p>{contract.description}</p>
+            <div key={contract.id} className="contract-card ancient-document">
+              <h4 className="pixel-text">{contract.title}</h4>
+              <p className="pixel-text">{contract.description}</p>
               <div className="contract-rewards">
-                <span>Ouro: {contract.rewardGold}</span>
-                <span>Reputação: {contract.rewardReputation}</span>
-                <span>Infâmia: {contract.rewardInfamy}</span>
-                <span>Aliança: {contract.rewardAlliance}</span>
+                <span className="pixel-text">Ouro: {contract.rewardGold}</span>
+                <span className="pixel-text">Reputação: {contract.rewardReputation}</span>
+                <span className="pixel-text">Infâmia: {contract.rewardInfamy}</span>
+                <span className="pixel-text">Aliança: {contract.rewardAlliance}</span>
               </div>
               <button 
+                className="ancient-button"
                 onClick={() => onAccept(contract.id)}
                 disabled={!!activeContract}
               >
@@ -82,11 +84,11 @@ function ContractsView({ game, onAccept, onBack }) {
             </div>
           ))
         ) : (
-          <p>Nenhum contrato disponível no momento.</p>
+          <p className="pixel-text">Nenhum contrato disponível no momento.</p>
         )}
       </div>
 
-      <button onClick={onBack} className="back-button">Voltar ao Porto</button>
+      <button onClick={onBack} className="back-button ancient-button">Voltar ao Porto</button>
     </div>
   );
 }

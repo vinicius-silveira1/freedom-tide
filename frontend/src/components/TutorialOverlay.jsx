@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import './TutorialOverlay.css';
+import '../styles/ancient-documents.css';
 
 function TutorialOverlay({ gameId, onTutorialAction, refreshTrigger, gameState }) {
   const [tutorialState, setTutorialState] = useState(null);
@@ -78,7 +79,7 @@ function TutorialOverlay({ gameId, onTutorialAction, refreshTrigger, gameState }
   // Mostrar tela de conclusão se o tutorial foi completado
   if (isCompleting) {
     return (
-      <div className="tutorial-overlay tutorial-completion">
+      <div className="tutorial-overlay tutorial-completion military-order">
         <div className="tutorial-content">
           <div className="tutorial-header">
             <div className="tutorial-title">
@@ -105,7 +106,7 @@ function TutorialOverlay({ gameId, onTutorialAction, refreshTrigger, gameState }
             <div className="tutorial-completion-actions">
               <button 
                 onClick={handleCloseTutorialCompletion}
-                className="tutorial-button tutorial-close-button"
+                className="ancient-button"
               >
                 Continuar Jornada ⚓
               </button>
@@ -123,11 +124,11 @@ function TutorialOverlay({ gameId, onTutorialAction, refreshTrigger, gameState }
 
   if (error) {
     return (
-      <div className="tutorial-overlay tutorial-error">
+      <div className="tutorial-overlay tutorial-error ancient-document">
         <div className="tutorial-content">
           <h3>Erro no Tutorial</h3>
           <p>{error}</p>
-          <button onClick={fetchTutorialState} className="tutorial-button">
+          <button onClick={fetchTutorialState} className="ancient-button">
             Tentar Novamente
           </button>
         </div>
@@ -162,18 +163,19 @@ function TutorialOverlay({ gameId, onTutorialAction, refreshTrigger, gameState }
   };
 
   return (
-    <div className={`tutorial-overlay ${isMinimized ? 'minimized' : ''}`}>
+    <div className={`tutorial-overlay ancient-document ${isMinimized ? 'minimized' : ''}`}>
       <div className="tutorial-content">
         {/* Header com controles */}
         <div className="tutorial-header">
           <div className="tutorial-title">
-            <span className="tutorial-icon">{getPhaseIcon(tutorialState.currentPhase)}</span>
+            <div className="tutorial-decoration ancient-scroll"></div>
             <span>{tutorialState.title}</span>
+            <div className="tutorial-decoration ancient-quill"></div>
           </div>
           <div className="tutorial-controls">
             <button 
               onClick={() => setIsMinimized(!isMinimized)} 
-              className="tutorial-minimize"
+              className="tutorial-minimize ancient-button"
               title={isMinimized ? "Expandir tutorial" : "Minimizar tutorial"}
             >
               {isMinimized ? '▲' : '▼'}
@@ -198,7 +200,7 @@ function TutorialOverlay({ gameId, onTutorialAction, refreshTrigger, gameState }
 
             {/* Objetivos */}
             {tutorialState.objectives && tutorialState.objectives.length > 0 && (
-              <div className="tutorial-objectives">
+              <div className="tutorial-objectives small-tag">
                 <h4>🎯 Objetivos:</h4>
                 <ul>
                   {tutorialState.objectives.map((objective, index) => (
@@ -210,7 +212,7 @@ function TutorialOverlay({ gameId, onTutorialAction, refreshTrigger, gameState }
 
             {/* Checklist de progresso */}
             {tutorialState.checklist && (
-              <div className="tutorial-checklist">
+              <div className="tutorial-checklist small-tag">
                 <h4>📋 Progresso Geral:</h4>
                 <div className="checklist-items">
                   <div className={`checklist-item ${tutorialState.checklist.crewHired ? 'completed' : ''}`}>
@@ -231,7 +233,7 @@ function TutorialOverlay({ gameId, onTutorialAction, refreshTrigger, gameState }
 
             {/* Dicas contextuais */}
             {tutorialState.hints && tutorialState.hints.length > 0 && (
-              <div className="tutorial-hints">
+              <div className="tutorial-hints small-tag">
                 <h4>💡 Dicas Importantes:</h4>
                 <ul>
                   {tutorialState.hints.map((hint, index) => (
@@ -249,7 +251,7 @@ function TutorialOverlay({ gameId, onTutorialAction, refreshTrigger, gameState }
                     <button
                       key={index}
                       onClick={() => handleTutorialAction(action)}
-                      className="tutorial-action-button"
+                      className="ancient-button"
                     >
                       {action === 'CONTINUE' && '✅ Entendi, Continuar'}
                       {action === 'GRADUATE' && '🎓 Formatura Completa!'}
